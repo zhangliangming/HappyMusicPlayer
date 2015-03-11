@@ -38,7 +38,7 @@ public class Constants {
 	 * 背景颜色面板索引
 	 */
 	public static String DEF_COLOR_INDEX_KEY = "COLOR_INDEX_KEY";
-	public static int DEF_COLOR_INDEX = 2;
+	public static int DEF_COLOR_INDEX = 5;
 	/**
 	 * 文本被点击后的颜色
 	 */
