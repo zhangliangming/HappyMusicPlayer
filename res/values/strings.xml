@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">开心听</string>
+    <string name="exit_tip">再按一次退出程序</string>
+    <!-- 主页面 -->
+    <string name="tab_my">我的</string>
+    <string name="tab_find">发现</string>
+    <string name="tab_download">下载</string>
+    <string name="tab_search">搜索</string>
+
+</resources>
