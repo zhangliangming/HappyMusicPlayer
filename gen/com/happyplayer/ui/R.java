@@ -57,17 +57,20 @@ public final class R {
         public static final int title_icon=0x7f02001e;
     }
     public static final class id {
-        public static final int itempic=0x7f07000d;
+        public static final int archive=0x7f07000a;
+        public static final int bottom_wrapper=0x7f070009;
+        public static final int delete=0x7f07000b;
+        public static final int itempic=0x7f070010;
         public static final int line=0x7f070002;
-        public static final int local=0x7f070009;
-        public static final int navPlayImageButton=0x7f07000c;
-        public static final int num=0x7f07000b;
+        public static final int local=0x7f07000c;
+        public static final int navPlayImageButton=0x7f07000f;
+        public static final int num=0x7f07000e;
         public static final int player_bar_bg=0x7f070008;
         public static final int tab=0x7f070003;
         public static final int tab_find=0x7f070005;
         public static final int tab_my=0x7f070004;
         public static final int tab_search=0x7f070006;
-        public static final int title=0x7f07000a;
+        public static final int title=0x7f07000d;
         public static final int titleRelativeLayout=0x7f070000;
         public static final int title_icon=0x7f070001;
         public static final int viewpager=0x7f070007;
