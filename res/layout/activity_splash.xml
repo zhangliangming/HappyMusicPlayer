@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -6,8 +6,21 @@
     tools:context=".SplashActivity" >
 
     <ImageView
+        android:id="@+id/splash"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="@drawable/splash" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/kg_round_copy_bg"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="0"
+        android:textColor="#000000" />
+
+</RelativeLayout>
