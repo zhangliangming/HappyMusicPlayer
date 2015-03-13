@@ -12,12 +12,15 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.happyplayer.common.Constants;
+import com.happyplayer.swipelibrary.SwipeLayout;
 import com.happyplayer.util.ActivityManager;
 
 public class MainActivity extends FragmentActivity {
@@ -36,8 +39,13 @@ public class MainActivity extends FragmentActivity {
 	private View mainView;
 
 	private int TAB_INDEX = 0;
-	
+
 	private long mExitTime;
+
+	private SwipeLayout playerBarSwipeLayout;
+	
+	private ImageView flagImageView;
+	private TextView timeTextView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,16 +69,62 @@ public class MainActivity extends FragmentActivity {
 		tabButton[0] = (RadioButton) findViewById(R.id.tab_my);
 		tabButton[1] = (RadioButton) findViewById(R.id.tab_find);
 		tabButton[2] = (RadioButton) findViewById(R.id.tab_search);
-		
+
 		group = (RadioGroup) findViewById(R.id.tab);
 		group.setOnCheckedChangeListener(new TabOnCheckedChangeListener());
 
 		viewPager.setAdapter(new TabFragmentPagerAdapter(
 				getSupportFragmentManager()));
 		viewPager.setCurrentItem(0);
-		viewPager.setOnPageChangeListener(new TabOnPageChangeListener());
 		
+		// 设置viewpager的缓存页面
+		viewPager.setOffscreenPageLimit(fragmentList.size());
+		viewPager.setOnPageChangeListener(new TabOnPageChangeListener());
+
 		viewPager.setBackgroundResource(R.drawable.splash);
+
+		playerBarSwipeLayout = (SwipeLayout) findViewById(R.id.player_bar_bg);
+		//playerBarSwipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
+		playerBarSwipeLayout.setDragEdge(SwipeLayout.DragEdge.Left);
+		
+		//
+		flagImageView = (ImageView) findViewById(R.id.flag);
+		timeTextView = (TextView) findViewById(R.id.time);
+		timeTextView.setVisibility(View.INVISIBLE);
+
+		// playerBarSwipeLayout.addRevealListener(R.id.delete,
+		// new SwipeLayout.OnRevealListener() {
+		// @Override
+		// public void onReveal(View child, SwipeLayout.DragEdge edge,
+		// float fraction, int distance) {
+		//
+		// }
+		// });
+
+		playerBarSwipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
+			@Override
+			public void onClose(SwipeLayout layout) {
+				flagImageView.setBackgroundResource(R.drawable.kg_ic_playing_bar_drag_closed);
+				timeTextView.setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void onUpdate(SwipeLayout layout, int leftOffset,
+					int topOffset) {
+
+			}
+
+			@Override
+			public void onOpen(SwipeLayout layout) {
+				flagImageView.setBackgroundResource(R.drawable.kg_ic_playing_bar_drag_opened);
+				timeTextView.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+
+			}
+		});
 	}
 
 	/**
@@ -152,7 +206,7 @@ public class MainActivity extends FragmentActivity {
 			}
 		}
 	}
-	
+
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
 			if ((System.currentTimeMillis() - mExitTime) > 2000) {

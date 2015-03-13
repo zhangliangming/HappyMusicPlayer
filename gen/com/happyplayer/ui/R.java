@@ -17,6 +17,7 @@ public final class R {
     
          */
         public static final int activity_horizontal_margin=0x7f040005;
+        public static final int activity_vertical_margin=0x7f040006;
         public static final int bottom_player_height=0x7f040002;
         public static final int bottom_tab_padding_left=0x7f040004;
         public static final int main_tab_button_textsize=0x7f040003;
@@ -33,47 +34,53 @@ public final class R {
         public static final int btn_mylove=0x7f020006;
         public static final int btn_scanlocal=0x7f020007;
         public static final int btn_setting=0x7f020008;
-        public static final int fx_main_btn_forward_normal=0x7f020009;
-        public static final int fx_main_btn_forward_pressed=0x7f02000a;
-        public static final int ic_launcher=0x7f02000b;
-        public static final int ic_system_menu_more_default=0x7f02000c;
-        public static final int ic_system_menu_more_pressed=0x7f02000d;
-        public static final int kg_btn_navigation_localmusic_play_default=0x7f02000e;
-        public static final int kg_btn_navigation_localmusic_play_pressed=0x7f02000f;
-        public static final int main_tab_find=0x7f020010;
-        public static final int main_tab_my=0x7f020011;
-        public static final int main_tab_search=0x7f020012;
-        public static final int scan_to_be_started_icon_def_1=0x7f020013;
-        public static final int scan_to_be_started_icon_deff=0x7f020014;
-        public static final int splash=0x7f020015;
-        public static final int tab_discovery=0x7f020016;
-        public static final int tab_discovery_s=0x7f020017;
-        public static final int tab_download=0x7f020018;
-        public static final int tab_download_s=0x7f020019;
-        public static final int tab_personal=0x7f02001a;
-        public static final int tab_personal_s=0x7f02001b;
-        public static final int tab_search=0x7f02001c;
-        public static final int tab_search_s=0x7f02001d;
-        public static final int title_icon=0x7f02001e;
+        public static final int fx_information_bg=0x7f020009;
+        public static final int fx_main_btn_forward_normal=0x7f02000a;
+        public static final int fx_main_btn_forward_pressed=0x7f02000b;
+        public static final int ic_launcher=0x7f02000c;
+        public static final int ic_system_menu_more_default=0x7f02000d;
+        public static final int ic_system_menu_more_pressed=0x7f02000e;
+        public static final int kg_btn_navigation_localmusic_play_default=0x7f02000f;
+        public static final int kg_btn_navigation_localmusic_play_pressed=0x7f020010;
+        public static final int kg_ic_playing_bar_drag_closed=0x7f020011;
+        public static final int kg_ic_playing_bar_drag_opened=0x7f020012;
+        public static final int main_tab_find=0x7f020013;
+        public static final int main_tab_my=0x7f020014;
+        public static final int main_tab_search=0x7f020015;
+        public static final int playing_bar_default_avatar=0x7f020016;
+        public static final int scan_to_be_started_icon_def_1=0x7f020017;
+        public static final int scan_to_be_started_icon_deff=0x7f020018;
+        public static final int splash=0x7f020019;
+        public static final int tab_discovery=0x7f02001a;
+        public static final int tab_discovery_s=0x7f02001b;
+        public static final int tab_download=0x7f02001c;
+        public static final int tab_download_s=0x7f02001d;
+        public static final int tab_personal=0x7f02001e;
+        public static final int tab_personal_s=0x7f02001f;
+        public static final int tab_search=0x7f020020;
+        public static final int tab_search_s=0x7f020021;
+        public static final int title_icon=0x7f020022;
     }
     public static final class id {
-        public static final int archive=0x7f07000a;
-        public static final int bottom_wrapper=0x7f070009;
-        public static final int delete=0x7f07000b;
-        public static final int itempic=0x7f070010;
-        public static final int line=0x7f070002;
-        public static final int local=0x7f07000c;
-        public static final int navPlayImageButton=0x7f07000f;
-        public static final int num=0x7f07000e;
-        public static final int player_bar_bg=0x7f070008;
-        public static final int tab=0x7f070003;
-        public static final int tab_find=0x7f070005;
-        public static final int tab_my=0x7f070004;
-        public static final int tab_search=0x7f070006;
-        public static final int title=0x7f07000d;
-        public static final int titleRelativeLayout=0x7f070000;
-        public static final int title_icon=0x7f070001;
-        public static final int viewpager=0x7f070007;
+        public static final int action_settings=0x7f080012;
+        public static final int bottom_wrapper=0x7f080009;
+        public static final int flag=0x7f08000a;
+        public static final int itempic=0x7f080011;
+        public static final int line=0x7f080002;
+        public static final int local=0x7f08000d;
+        public static final int navPlayImageButton=0x7f080010;
+        public static final int num=0x7f08000f;
+        public static final int player_bar_bg=0x7f080008;
+        public static final int singer_pic=0x7f08000b;
+        public static final int tab=0x7f080003;
+        public static final int tab_find=0x7f080005;
+        public static final int tab_my=0x7f080004;
+        public static final int tab_search=0x7f080006;
+        public static final int time=0x7f08000c;
+        public static final int title=0x7f08000e;
+        public static final int titleRelativeLayout=0x7f080000;
+        public static final int title_icon=0x7f080001;
+        public static final int viewpager=0x7f080007;
     }
     public static final class layout {
         public static final int activity_guide=0x7f030000;
@@ -83,15 +90,25 @@ public final class R {
         public static final int fragment_my=0x7f030004;
         public static final int fragment_search=0x7f030005;
     }
+    public static final class menu {
+        public static final int find=0x7f070000;
+        public static final int my=0x7f070001;
+        public static final int search=0x7f070002;
+    }
     public static final class string {
+        public static final int action_settings=0x7f050007;
         public static final int app_name=0x7f050000;
         public static final int exit_tip=0x7f050001;
+        public static final int hello_world=0x7f050008;
         public static final int tab_download=0x7f050004;
         public static final int tab_find=0x7f050003;
         /**  主页面 
          */
         public static final int tab_my=0x7f050002;
         public static final int tab_search=0x7f050005;
+        public static final int title_activity_find=0x7f050009;
+        public static final int title_activity_my=0x7f050006;
+        public static final int title_activity_search=0x7f05000a;
     }
     public static final class style {
         /** 
