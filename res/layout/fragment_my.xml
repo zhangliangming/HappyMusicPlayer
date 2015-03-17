@@ -58,6 +58,7 @@
         </com.happyplayer.widget.ListViewRelativeLayout>
 
         <com.happyplayer.widget.ListViewRelativeLayout
+            android:id="@+id/scanmusic"
             android:layout_width="fill_parent"
             android:layout_height="75dp"
             android:layout_marginLeft="20dp"
@@ -92,6 +93,7 @@
         </com.happyplayer.widget.ListViewRelativeLayout>
 
         <com.happyplayer.widget.ListViewRelativeLayout
+            android:id="@+id/mylove"
             android:layout_width="fill_parent"
             android:layout_height="75dp"
             android:layout_marginLeft="20dp"
@@ -126,6 +128,7 @@
         </com.happyplayer.widget.ListViewRelativeLayout>
 
         <com.happyplayer.widget.ListViewRelativeLayout
+            android:id="@+id/mydownload"
             android:layout_width="fill_parent"
             android:layout_height="75dp"
             android:layout_marginLeft="20dp"
@@ -160,6 +163,7 @@
         </com.happyplayer.widget.ListViewRelativeLayout>
 
         <com.happyplayer.widget.ListViewRelativeLayout
+            android:id="@+id/setting"
             android:layout_width="fill_parent"
             android:layout_height="75dp"
             android:layout_marginLeft="20dp"

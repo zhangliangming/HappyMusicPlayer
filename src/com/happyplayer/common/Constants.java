@@ -20,6 +20,12 @@ public class Constants {
 	public static boolean THE_FIRST = true;
 
 	/**
+	 * 判断底部播放器的歌词是否显示
+	 */
+	public static String BAR_LRC_IS_OPEN_KEY = "BAR_LRC_IS_OPEN_KEY";
+	public static boolean BAR_LRC_IS_OPEN = false;
+
+	/**
 	 * 背景颜色
 	 */
 	public static int BLACK_GROUND[] = { Color.rgb(26, 89, 154),
@@ -38,7 +44,7 @@ public class Constants {
 	 * 背景颜色面板索引
 	 */
 	public static String DEF_COLOR_INDEX_KEY = "COLOR_INDEX_KEY";
-	public static int DEF_COLOR_INDEX = 0;
+	public static int DEF_COLOR_INDEX = 5;
 	/**
 	 * 文本被点击后的颜色
 	 */
@@ -46,5 +52,5 @@ public class Constants {
 	/**
 	 * 文本默认颜色
 	 */
-	public static int TEXT_COLOR = Color.rgb(187, 206, 225);
+	public static int TEXT_COLOR = Color.rgb(185, 185, 185);
 }

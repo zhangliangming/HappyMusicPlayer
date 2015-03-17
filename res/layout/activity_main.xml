@@ -68,61 +68,14 @@
         android:overScrollMode="never" >
     </android.support.v4.view.ViewPager>
 
-    <com.happyplayer.swipelibrary.SwipeLayout
+    <com.happyplayer.slidingmenu.SlidingMenu
+        xmlns:sliding="http://schemas.android.com/apk/res-auto"
         android:id="@+id/player_bar_bg"
         android:layout_width="fill_parent"
         android:layout_height="@dimen/bottom_player_height"
         android:layout_alignParentBottom="true"
         android:background="#969696"
         android:clickable="true" >
-
-        <LinearLayout
-            android:id="@+id/bottom_wrapper"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_marginRight="80dp"
-            android:background="#eaebea"
-            android:orientation="vertical" >
-        </LinearLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#ffffff" >
-
-            <ImageView
-                android:id="@+id/flag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="2dp"
-                android:background="@drawable/kg_ic_playing_bar_drag_closed" />
-
-            <ImageView
-                android:id="@+id/singer_pic"
-                android:layout_width="55dp"
-                android:layout_height="@dimen/bottom_player_height"
-                android:layout_centerVertical="true"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="2dp"
-                android:layout_marginTop="5dp"
-                android:layout_toRightOf="@+id/flag"
-                android:background="@drawable/playing_bar_default_avatar" />
-
-            <TextView
-                android:id="@+id/time"
-                android:gravity="bottom|center_horizontal"
-                android:layout_width="55dp"
-                android:layout_height="@dimen/bottom_player_height"
-                android:layout_centerVertical="true"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="2dp"
-                android:layout_marginTop="5dp"
-                android:layout_toRightOf="@+id/flag"
-                android:background="@drawable/fx_information_bg"
-                android:text="-00:00"
-                android:textColor="#ffffff" />
-        </RelativeLayout>
-    </com.happyplayer.swipelibrary.SwipeLayout>
+    </com.happyplayer.slidingmenu.SlidingMenu>
 
 </RelativeLayout>

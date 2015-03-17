@@ -2,7 +2,6 @@ package com.happyplayer.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 import com.happyplayer.common.Constants;
 import com.happyplayer.util.ActivityManager;
+import com.happyplayer.util.DataUtil;
 
 public class SplashActivity extends Activity {
 	/**
@@ -86,42 +86,33 @@ public class SplashActivity extends Activity {
 
 		@Override
 		public void run() {
-			int time = 0;
-			Message msg = null;
-			while (time <= SPLASH_DELAY_MILLIS) {
-				try {
-					Thread.sleep(1000);
-					msg = new Message();
-					msg.what = UPDATE;
-					msg.obj = time;
-					handler.sendMessage(msg);
-					msg = null;
-					time = time + 1000;
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			
+			DataUtil.init(SplashActivity.this);
 
-			/***
-			 * // 1.进入页面后，判断用户是不是第一次使用该应用，如果是则跳转到应用的导航页面 //
-			 */
-			SharedPreferences preferences = getSharedPreferences(
-					Constants.SHARE_PREFERENCE_NAME, 0);
 			// 获取是否是第一次使用的参数
-			boolean isTheFirst = preferences.getBoolean(
-					Constants.THE_FIRST_KEY, Constants.THE_FIRST);
+			boolean isTheFirst = Constants.THE_FIRST;
+
 			if (!isTheFirst) {
-				handler.sendEmptyMessage(GO_GUIDE);
-				// handler.sendEmptyMessageDelayed(GO_GUIDE,
-				// SPLASH_DELAY_MILLIS);
+				handler.sendEmptyMessageDelayed(GO_GUIDE, 1000);
 			} else {
+				int time = 0;
+				Message msg = null;
+				while (time <= SPLASH_DELAY_MILLIS) {
+					try {
+						Thread.sleep(1000);
+						msg = new Message();
+						msg.what = UPDATE;
+						msg.obj = time;
+						handler.sendMessage(msg);
+						msg = null;
+						time = time + 1000;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 				handler.sendEmptyMessage(GO_HOME);
-				// handler.sendEmptyMessageDelayed(GO_HOME,
-				// SPLASH_DELAY_MILLIS);
 			}
-
 		}
-
 	}
 
 	/**

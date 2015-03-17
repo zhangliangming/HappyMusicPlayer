@@ -38,6 +38,15 @@
         </activity>
         <activity android:name="com.happyplayer.ui.GuideActivity" >
         </activity>
+        <activity
+            android:name="com.happyplayer.ui.SettingActivity">
+        </activity>
+        <activity android:name="com.happyplayer.ui.LocalMusicActivity"></activity>
+        <activity android:name="com.happyplayer.ui.MyDownloadActivity"></activity>
+        <activity android:name="com.happyplayer.ui.MyLoveActivity"></activity>
+        <activity android:name="com.happyplayer.ui.ScanMusicActivity"></activity>
+        <activity android:name="com.happyplayer.ui.LrcViewActivity"></activity>
+        <activity android:name="com.happyplayer.ui.SkinPicActivity"></activity>
     </application>
 
 </manifest>
