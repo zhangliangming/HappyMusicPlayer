@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    tools:context=".SettingsActivity" >
+
+    <com.happyplayer.widget.TitleRelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/title_height" >
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/ic_common_title_bar_back"
+            android:onClick="back"
+            android:src="@drawable/buttombg" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="设置"
+            android:textColor="#ffffff"
+            android:textSize="18dp" />
+    </com.happyplayer.widget.TitleRelativeLayout>
+
+    <com.happyplayer.widget.ListItemSingleRelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="75dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="12dp"
+        android:clickable="true"
+        android:onClick="showdesLrc" >
+
+        <ImageView
+            android:id="@+id/itempic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/setting_lrc" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/itempic"
+            android:text="桌面歌词"
+            android:textColor="#000000"
+            android:textSize="18dp" />
+
+        <CheckBox
+            android:id="@+id/showcheckbox"
+            style="@style/CustomCheckboxTheme"
+            android:layout_width="60dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp" />
+    </com.happyplayer.widget.ListItemSingleRelativeLayout>
+    
+    <com.happyplayer.widget.ListItemSingleRelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="75dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:clickable="true"
+        android:onClick="goSettingSkinDialog" >
+
+        <ImageView
+            android:id="@+id/itempic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/setting_skin" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/itempic"
+            android:text="系统皮肤"
+            android:textColor="#000000"
+            android:textSize="18dp" />
+
+         <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/btn_forward" />
+    </com.happyplayer.widget.ListItemSingleRelativeLayout>
+
+</LinearLayout>

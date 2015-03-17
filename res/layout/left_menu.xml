@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/bottom_wrapper"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#eaebea"
+        android:clickable="true"
+        android:onClick="openLrcDialog"
+        android:orientation="vertical" >
+
+        <com.happyplayer.widget.KscTwoLineLyricsView
+            android:id="@+id/kscTwoLineLyricsView "
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </LinearLayout>
+
+</LinearLayout>
