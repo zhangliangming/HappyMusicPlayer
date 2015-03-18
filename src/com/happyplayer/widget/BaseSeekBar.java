@@ -1,6 +1,11 @@
 package com.happyplayer.widget;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import com.happyplayer.common.Constants;
+import com.happyplayer.model.SkinMessage;
+import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.ui.R;
 
 import android.content.Context;
@@ -24,7 +29,7 @@ import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class BaseSeekBar extends SeekBar {
+public class BaseSeekBar extends SeekBar implements Observer {
 	/**
 	 * 弹出提示信息窗口
 	 */
@@ -112,13 +117,19 @@ public class BaseSeekBar extends SeekBar {
 	private void init(Context context) {
 		this.context = context;
 
-		Paint paint = new Paint();
 		baseBitmap = BitmapFactory.decodeResource(context.getResources(),
 				R.drawable.progress_dot_default);
+
 		bmp = Bitmap.createBitmap(baseBitmap.getWidth(),
 				baseBitmap.getHeight(), baseBitmap.getConfig());
-		pCanvas = new Canvas(bmp);
+		initbm();
+		
+		ObserverManage.getObserver().addObserver(this);
+	}
 
+	private void initbm() {
+		Paint paint = new Paint();
+		pCanvas = new Canvas(bmp);
 		int color = Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX];
 		float progressR = Color.red(color) / 255f;
 		float progressG = Color.green(color) / 255f;
@@ -192,6 +203,17 @@ public class BaseSeekBar extends SeekBar {
 	public void popupWindowDismiss() {
 		if (mPopupWindow != null && mPopupWindow.isShowing()) {
 			mPopupWindow.dismiss();
+		}
+	}
+
+	@Override
+	public void update(Observable arg0, Object data) {
+		if (data instanceof SkinMessage) {
+			SkinMessage msg = (SkinMessage) data;
+			if (msg.type == SkinMessage.COLOR) {
+				initbm();
+				invalidate();
+			}
 		}
 	}
 }

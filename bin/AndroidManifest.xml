@@ -47,6 +47,7 @@
         <activity android:name="com.happyplayer.ui.ScanMusicActivity"></activity>
         <activity android:name="com.happyplayer.ui.LrcViewActivity"></activity>
         <activity android:name="com.happyplayer.ui.SkinPicActivity"></activity>
+        <activity android:name="com.happyplayer.ui.SkinColorActivity"></activity>
     </application>
 
 </manifest>

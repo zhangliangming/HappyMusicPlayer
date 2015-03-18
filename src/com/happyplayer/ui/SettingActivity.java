@@ -1,5 +1,7 @@
 package com.happyplayer.ui;
 
+import com.happyplayer.util.ActivityManager;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ public class SettingActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_setting);
+		ActivityManager.getInstance().addActivity(this);
 	}
 
 	public void back(View v) {
@@ -23,6 +26,7 @@ public class SettingActivity extends Activity {
 	public void goSettingSkinDialog(View v) {
 		Intent intent = new Intent(this, SkinPicActivity.class);
 		startActivity(intent);
+		finish();
 	}
 
 }

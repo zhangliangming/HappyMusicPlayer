@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.happyplayer.common.Constants;
+import com.happyplayer.model.SkinMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.ui.R;
 
@@ -144,5 +145,13 @@ public class NavPlayImageButton extends ImageButton implements Observer {
 
 	@Override
 	public void update(Observable arg0, Object data) {
+		if (data instanceof SkinMessage) {
+			SkinMessage msg = (SkinMessage) data;
+			if (msg.type == SkinMessage.COLOR) {
+				isLoadImage = false;
+				bitmaps = new HashMap<String, Bitmap>();
+				invalidate();
+			}
+		}
 	}
 }

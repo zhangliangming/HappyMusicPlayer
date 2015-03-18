@@ -1,5 +1,8 @@
 package com.happyplayer.widget;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,9 +22,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.happyplayer.common.Constants;
+import com.happyplayer.model.SkinMessage;
+import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.ui.R;
 
-public class HBaseSeekBar extends SeekBar {
+public class HBaseSeekBar extends SeekBar implements Observer {
 	/**
 	 * 弹出提示信息窗口
 	 */
@@ -104,9 +109,11 @@ public class HBaseSeekBar extends SeekBar {
 	 */
 	private void init(Context context) {
 		this.context = context;
-		
+
 		bmp = BitmapFactory.decodeResource(context.getResources(),
 				R.drawable.progress_dot_default);
+
+		ObserverManage.getObserver().addObserver(this);
 	}
 
 	/**
@@ -164,6 +171,16 @@ public class HBaseSeekBar extends SeekBar {
 	public void popupWindowDismiss() {
 		if (mPopupWindow != null && mPopupWindow.isShowing()) {
 			mPopupWindow.dismiss();
+		}
+	}
+
+	@Override
+	public void update(Observable arg0, Object data) {
+		if (data instanceof SkinMessage) {
+			SkinMessage msg = (SkinMessage) data;
+			if (msg.type == SkinMessage.COLOR) {
+				invalidate();
+			}
 		}
 	}
 }

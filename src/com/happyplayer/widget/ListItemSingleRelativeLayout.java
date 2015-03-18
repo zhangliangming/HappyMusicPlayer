@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.happyplayer.common.Constants;
+import com.happyplayer.model.SkinMessage;
 import com.happyplayer.observable.ObserverManage;
 
 public class ListItemSingleRelativeLayout extends RelativeLayout implements
@@ -109,5 +110,11 @@ public class ListItemSingleRelativeLayout extends RelativeLayout implements
 
 	@Override
 	public void update(Observable arg0, Object data) {
+		if (data instanceof SkinMessage) {
+			SkinMessage msg = (SkinMessage) data;
+			if (msg.type == SkinMessage.COLOR) {
+				setBackgroundColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
+			}
+		}
 	}
 }

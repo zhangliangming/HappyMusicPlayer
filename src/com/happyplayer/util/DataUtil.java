@@ -35,6 +35,9 @@ public class DataUtil {
 		// 获取底部歌词是否显示
 		Constants.BAR_LRC_IS_OPEN = preferences.getBoolean(
 				Constants.BAR_LRC_IS_OPEN_KEY, Constants.BAR_LRC_IS_OPEN);
+		// 获取主题颜色
+		Constants.DEF_COLOR_INDEX = preferences.getInt(
+				Constants.DEF_COLOR_INDEX_KEY, Constants.DEF_COLOR_INDEX);
 	}
 
 	/**

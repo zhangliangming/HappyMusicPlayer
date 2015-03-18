@@ -90,7 +90,7 @@ public class MainActivity extends FragmentActivity {
 		mMenu = (SlidingMenu) findViewById(R.id.player_bar_bg);
 		mMenu.setMode(SlidingMenu.LEFT);
 		mMenu.setFadeEnabled(false);
-		mMenu.setBehindScrollScale(1.0f);
+		mMenu.setBehindScrollScale(0.8f);
 		mMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		mMenu.setTouchModeAbove(SlidingMenu.SLIDING_CONTENT);
 

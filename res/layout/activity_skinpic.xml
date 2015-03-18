@@ -26,6 +26,26 @@
             android:text="设置底图"
             android:textColor="#ffffff"
             android:textSize="18dp" />
+
+        <ImageButton
+            android:id="@+id/delete_skin"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/color"
+            android:background="@drawable/bar_buttombg"
+            android:onClick="deleteSkin"
+            android:src="@drawable/kg_skin_delete"/>
+
+        <ImageButton
+            android:id="@+id/color"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bar_buttombg"
+            android:onClick="goColorDialog"
+            android:src="@drawable/kg_skin_change_color" />
     </com.happyplayer.widget.TitleRelativeLayout>
 
 </LinearLayout>

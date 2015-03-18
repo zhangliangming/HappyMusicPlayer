@@ -1,6 +1,11 @@
 package com.happyplayer.widget;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import com.happyplayer.common.Constants;
+import com.happyplayer.model.SkinMessage;
+import com.happyplayer.observable.ObserverManage;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -10,7 +15,7 @@ import android.graphics.Paint.FontMetrics;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class KscTwoLineLyricsView extends View {
+public class KscTwoLineLyricsView extends View implements Observer {
 	/**
 	 * 是否有歌词
 	 */
@@ -54,27 +59,29 @@ public class KscTwoLineLyricsView extends View {
 		paint.setTextSize(SIZEWORD);
 
 		paintHL = new Paint();
-		paintHL.setColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
 		paintHL.setDither(true);
 		paintHL.setAntiAlias(true);
 		paintHL.setTextSize(SIZEWORD);
+
+		ObserverManage.getObserver().addObserver(this);
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
-
+		paintHL.setColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
 		if (!blLrc) {
 			String tip = "乐乐音乐，传播好的音乐";
 			float tipTextWidth = paint.measureText(tip);
 			FontMetrics fm = paintHL.getFontMetrics();
 			int height = (int) Math.ceil(fm.descent - fm.top) + 2;
-			
+
 			canvas.drawText(tip, (getWidth() - tipTextWidth) / 2,
 					(getHeight() + height) / 2, paint);
 
 			canvas.clipRect((getWidth() - tipTextWidth) / 2,
-					(getHeight() + height) / 2 + height, (getWidth() - tipTextWidth) / 2
-							+ tipTextWidth / 2 + 5,  height);
+					(getHeight() + height) / 2 + height,
+					(getWidth() - tipTextWidth) / 2 + tipTextWidth / 2 + 5,
+					height);
 
 			canvas.drawText(tip, (getWidth() - tipTextWidth) / 2,
 					(getHeight() + height) / 2, paintHL);
@@ -82,5 +89,15 @@ public class KscTwoLineLyricsView extends View {
 
 		}
 		super.draw(canvas);
+	}
+
+	@Override
+	public void update(Observable arg0, Object data) {
+		if (data instanceof SkinMessage) {
+			SkinMessage msg = (SkinMessage) data;
+			if (msg.type == SkinMessage.COLOR) {
+				invalidate();
+			}
+		}
 	}
 }

@@ -4,6 +4,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import com.happyplayer.common.Constants;
+import com.happyplayer.model.SkinMessage;
 import com.happyplayer.observable.ObserverManage;
 
 import android.content.Context;
@@ -39,6 +40,11 @@ public class TitleRelativeLayout extends RelativeLayout implements Observer {
 
 	@Override
 	public void update(Observable arg0, Object data) {
-
+		if (data instanceof SkinMessage) {
+			SkinMessage msg = (SkinMessage) data;
+			if (msg.type == SkinMessage.COLOR) {
+				setBackgroundColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
+			}
+		}
 	}
 }
