@@ -28,4 +28,183 @@
             android:textSize="18dp" />
     </com.happyplayer.widget.TitleRelativeLayout>
 
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@+id/bottom" >
+
+            <RelativeLayout
+                android:id="@+id/init"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" >
+
+                <ImageView
+                    android:id="@+id/scan_init_pic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/scan_to_be_started_icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/scan_init_pic"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginTop="10dp"
+                    android:text="一键扫描手机内的歌曲文件"
+                    android:textColor="#969696"
+                    android:textSize="18dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/scaning"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:visibility="invisible" >
+
+                <ImageView
+                    android:id="@+id/scaning_pic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:background="@anim/scanloading" />
+
+                <TextView
+                    android:id="@+id/scanPath"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/scaning_pic"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="10dp"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:text=""
+                    android:textColor="#969696"
+                    android:textSize="18dp" />
+
+                <TextView
+                    android:id="@+id/scanResult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/scanPath"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:text="0首歌曲已添加到本地音乐"
+                    android:textColor="#000000"
+                    android:textSize="18dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/finish"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:visibility="invisible" >
+
+                <ImageView
+                    android:id="@+id/finish_pic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/scan_phone_icon1" />
+
+                <ImageView
+                    android:id="@+id/finish_cent_pic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/finish_pic"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="28dp"
+                    android:background="@drawable/scan_phone_icon_center_green" />
+
+                <TextView
+                    android:id="@+id/finishResult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/finish_pic"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:text="0首歌曲已添加到本地音乐"
+                    android:textColor="#000000"
+                    android:textSize="18dp" />
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/bottom"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/menu_bottom_player_height_bottom"
+            android:layout_alignParentBottom="true" >
+
+            <com.happyplayer.widget.TitleRelativeLayout
+                android:id="@+id/initButton"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:clickable="true" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:text="全部扫描"
+                    android:textColor="#ffffff"
+                    android:textSize="18dp" />
+            </com.happyplayer.widget.TitleRelativeLayout>
+
+            <com.happyplayer.widget.TitleRelativeLayout
+                android:id="@+id/cancelButton"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:visibility="invisible" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:text="取消"
+                    android:textColor="#ffffff"
+                    android:textSize="18dp" />
+            </com.happyplayer.widget.TitleRelativeLayout>
+
+            <com.happyplayer.widget.TitleRelativeLayout
+                android:id="@+id/finishButton"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:visibility="invisible" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:text="完成"
+                    android:textColor="#ffffff"
+                    android:textSize="18dp" />
+            </com.happyplayer.widget.TitleRelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+
 </LinearLayout>

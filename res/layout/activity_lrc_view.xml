@@ -11,7 +11,7 @@
         android:id="@+id/parent"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@drawable/splash" >
+        android:background="@drawable/skin_def" >
 
         <RelativeLayout
             android:id="@+id/header"

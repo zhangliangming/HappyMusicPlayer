@@ -50,6 +50,8 @@ public class SkinColorActivity extends Activity {
 	}
 
 	private void init() {
+		colorPanelIndex = Constants.DEF_COLOR_INDEX;
+		
 		linearLayoutBG = (LinearLayout) findViewById(R.id.skin_previewbg);
 		linearLayoutBG
 				.setBackgroundColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);

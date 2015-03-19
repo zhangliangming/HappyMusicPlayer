@@ -1,6 +1,9 @@
 package com.happyplayer.common;
 
+import java.io.File;
+
 import android.graphics.Color;
+import android.os.Environment;
 
 /**
  * 记录一些基本的信息 如：第一次使用、颜色、是否开启桌面歌词等等。
@@ -9,6 +12,43 @@ import android.graphics.Color;
  * 
  */
 public class Constants {
+	/***
+	 * ------------------------------------应用基本配置-----------------------------
+	 **/
+	/**
+	 * 数据库名
+	 */
+	public static final String DB_NAME = "happy_player.db";
+
+	/**
+	 * 临时目录
+	 */
+	public final static String PATH_TEMP = Environment
+			.getExternalStorageDirectory() + File.separator + "haplayer";
+
+	/**
+	 * 歌曲目录
+	 */
+	public final static String PATH_MP3 = PATH_TEMP + File.separator + "mp3";
+
+	/**
+	 * 歌词目录
+	 */
+	public final static String PATH_KSC = PATH_TEMP + File.separator + "ksc";
+	/**
+	 * 歌手写真目录
+	 */
+	public final static String PATH_ARTIST = PATH_TEMP + File.separator
+			+ "artist";
+	/**
+	 * 专辑图
+	 */
+	public final static String PATH_ALBUM = PATH_TEMP + File.separator
+			+ "album";
+
+	/***
+	 * ------------------------------------应用配置-----------------------------
+	 **/
 	/**
 	 * 配置文件的名称
 	 */
@@ -26,7 +66,7 @@ public class Constants {
 	public static boolean BAR_LRC_IS_OPEN = false;
 
 	/**
-	 * 背景颜色
+	 * 主题颜色
 	 */
 	public static int BLACK_GROUND[] = { Color.rgb(26, 89, 154),
 			Color.rgb(234, 84, 84), Color.rgb(240, 90, 154),
@@ -40,16 +80,16 @@ public class Constants {
 			Color.rgb(191, 199, 112), Color.rgb(120, 213, 214),
 			Color.rgb(52, 145, 120) };
 	/**
-	 * 背景颜色面板索引
+	 * 主题颜色面板索引
 	 */
 	public static String DEF_COLOR_INDEX_KEY = "COLOR_INDEX_KEY";
 	public static int DEF_COLOR_INDEX = 0;
 	/**
-	 * 文本被点击后的颜色
+	 * 主页面标题文本被点击后的颜色
 	 */
 	public static int TEXT_COLOR_PRESSED = Color.rgb(255, 255, 255);
 	/**
-	 * 文本默认颜色
+	 * 主页面标题文本默认颜色
 	 */
-	public static int TEXT_COLOR = Color.rgb(185, 185, 185);
+	public static int TEXT_COLOR = Color.rgb(0, 0, 0);
 }

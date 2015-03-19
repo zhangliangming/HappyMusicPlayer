@@ -85,7 +85,7 @@ public class MainActivity extends FragmentActivity {
 		viewPager.setOffscreenPageLimit(fragmentList.size());
 		viewPager.setOnPageChangeListener(new TabOnPageChangeListener());
 
-		viewPager.setBackgroundResource(R.drawable.splash);
+		viewPager.setBackgroundResource(R.drawable.skin_def);
 
 		mMenu = (SlidingMenu) findViewById(R.id.player_bar_bg);
 		mMenu.setMode(SlidingMenu.LEFT);
