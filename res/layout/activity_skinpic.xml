@@ -35,7 +35,7 @@
             android:layout_toLeftOf="@+id/color"
             android:background="@drawable/bar_buttombg"
             android:onClick="deleteSkin"
-            android:src="@drawable/kg_skin_delete"/>
+            android:src="@drawable/kg_skin_delete" />
 
         <ImageButton
             android:id="@+id/color"
@@ -47,5 +47,32 @@
             android:onClick="goColorDialog"
             android:src="@drawable/kg_skin_change_color" />
     </com.happyplayer.widget.TitleRelativeLayout>
+
+    <com.happyplayer.widget.LoadRelativeLayout
+        android:id="@+id/loadRelativeLayout "
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <GridView
+                android:id="@+id/grid"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:cacheColorHint="#00000000"
+                android:horizontalSpacing="5dp"
+                android:listSelector="#00000000"
+                android:numColumns="3"
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                android:verticalSpacing="5dp" />
+        </RelativeLayout>
+    </com.happyplayer.widget.LoadRelativeLayout>
 
 </LinearLayout>

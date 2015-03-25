@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -86,7 +87,7 @@ public class SplashActivity extends Activity {
 
 		@Override
 		public void run() {
-			
+
 			DataUtil.init(SplashActivity.this);
 
 			// 获取是否是第一次使用的参数
@@ -132,5 +133,13 @@ public class SplashActivity extends Activity {
 		Intent intent = new Intent(this, GuideActivity.class);
 		startActivity(intent);
 		finish();
+	}
+
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0)
+				|| keyCode == KeyEvent.KEYCODE_HOME) {
+			ActivityManager.getInstance().exit();
+		}
+		return false;
 	}
 }

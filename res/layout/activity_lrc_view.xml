@@ -49,7 +49,7 @@
                 android:textColor="#ffffff"
                 android:textSize="15dp" />
 
-            <ImageButton
+          <!--   <ImageButton
                 android:id="@+id/down"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
@@ -70,7 +70,7 @@
                 android:background="@drawable/bar_buttombg"
                 android:button="@null"
                 android:drawableRight="@drawable/like_bar_buttombg"
-                android:onClick="like" />
+                android:onClick="like" /> -->
         </RelativeLayout>
 
         <RelativeLayout

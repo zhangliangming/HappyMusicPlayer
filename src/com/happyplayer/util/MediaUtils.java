@@ -1,11 +1,19 @@
 package com.happyplayer.util;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.id3.ID3v23Frame;
+import org.jaudiotagger.tag.id3.ID3v23Tag;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -53,6 +61,63 @@ public class MediaUtils {
 	}
 
 	/**
+	 * 通过文件获取mp3的相关数据信息
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+
+	public static Mp3Info getMp3InfoByFile(String filePath) {
+		File sourceFile = new File(filePath);
+		if (!sourceFile.exists())
+			return null;
+		Mp3Info mp3Info = null;
+		try {
+			AudioFileIO.logger.setLevel(Level.SEVERE);
+			ID3v23Frame.logger.setLevel(Level.SEVERE);
+			ID3v23Tag.logger.setLevel(Level.SEVERE);
+			MP3File mp3file = new MP3File(sourceFile);
+			if (mp3file.getAudioHeader() == null)
+				return null;
+			mp3Info = new Mp3Info();
+			// 歌曲时长
+			long duration = 0;
+			// 文件名
+			String displayName = sourceFile.getName();
+			if (displayName.contains(".mp3")) {
+				String[] displayNameArr = displayName.split(".mp3");
+				displayName = displayNameArr[0].trim();
+			}
+			String artist = "";
+			String title = "";
+			String album = "";
+			if (displayName.contains("-")) {
+				String[] titleArr = displayName.split("-");
+				artist = titleArr[0].trim();
+				title = titleArr[1].trim();
+			} else {
+				title = displayName;
+			}
+			mp3Info.setId(0);
+			mp3Info.setTitle(title);
+			mp3Info.setArtist(artist);
+			mp3Info.setDuration(duration);
+			mp3Info.setDisplayName(displayName);
+			mp3Info.setSize(sourceFile.length());
+			mp3Info.setPath(filePath);
+			mp3Info.setAlbumId(0);
+			mp3Info.setAlbum(album);
+			
+			mp3file = null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+		return mp3Info;
+
+	}
+
+	/**
 	 * 通过游标获取Mp3Info
 	 */
 	public static Mp3Info getMp3InfoByCursor(Cursor cursor) {
@@ -76,6 +141,12 @@ public class MediaUtils {
 		}
 		String displayName = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+
+		if (displayName.contains(".mp3")) {
+			String[] displayNameArr = displayName.split(".mp3");
+			displayName = displayNameArr[0].trim();
+		}
+
 		long duration = cursor.getLong(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DURATION));
 		long size = cursor.getLong(cursor
@@ -126,6 +197,27 @@ public class MediaUtils {
 			sec = "0000" + (time % (1000 * 60)) + "";
 		}
 		return min + ":" + sec.trim().substring(0, 2);
+	}
+
+	/**
+	 * 计算文件的大小，返回相关的m字符串
+	 * 
+	 * @param fileS
+	 * @return
+	 */
+	public static String getFileSize(long fileS) {// 转换文件大小
+		DecimalFormat df = new DecimalFormat("#.00");
+		String fileSizeString = "";
+		if (fileS < 1024) {
+			fileSizeString = df.format((double) fileS) + "B";
+		} else if (fileS < 1048576) {
+			fileSizeString = df.format((double) fileS / 1024) + "K";
+		} else if (fileS < 1073741824) {
+			fileSizeString = df.format((double) fileS / 1048576) + "M";
+		} else {
+			fileSizeString = df.format((double) fileS / 1073741824) + "G";
+		}
+		return fileSizeString;
 	}
 
 	/**

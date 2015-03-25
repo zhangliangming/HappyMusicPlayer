@@ -9,5 +9,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="menu_bottom_player_height_bottom">80dp</dimen>
- <dimen name="slidingmenu_offset">80dp</dimen>
+    <dimen name="slidingmenu_offset">80dp</dimen>
+    <dimen name="bladeview_fontsize">12sp</dimen>
+    <dimen name="bladeview_popup_fontsize">20sp</dimen>
+    <dimen name="bladeview_popup_height">80dp</dimen>
+
 </resources>

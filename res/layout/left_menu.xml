@@ -4,6 +4,12 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
+    <View
+        android:id="@+id/line"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/fx_information_bg" />
+
     <LinearLayout
         android:id="@+id/bottom_wrapper"
         android:layout_width="fill_parent"

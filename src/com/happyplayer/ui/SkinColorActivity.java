@@ -100,7 +100,7 @@ public class SkinColorActivity extends Activity {
 
 	private void back() {
 		finish();
-		overridePendingTransition(R.anim.anim_out, R.anim.anim_in);
+		overridePendingTransition(R.anim.anim_in, R.anim.anim_out);
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {

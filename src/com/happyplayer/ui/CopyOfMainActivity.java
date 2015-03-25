@@ -62,7 +62,7 @@ public class CopyOfMainActivity extends FragmentActivity {
 	private void init() {
 		viewPager = (ViewPager) findViewById(R.id.viewpager);
 		fragmentList = new ArrayList<Fragment>();
-		fragmentList.add(new MyFragment());
+		fragmentList.add(new MyFragment(null));
 		fragmentList.add(new FindFragment());
 		fragmentList.add(new SearchFragment());
 

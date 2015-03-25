@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="150dp"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    tools:context=".GridViewAdapter" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="180dp" >
+
+        <ImageView
+            android:id="@+id/color_pic"
+            android:layout_width="fill_parent"
+            android:layout_height="180dp"
+            android:layout_centerInParent="true" />
+
+        <ImageView
+            android:id="@+id/secect_stats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/skin_selected_bg_tip" />
+    </RelativeLayout>
+
+</RelativeLayout>

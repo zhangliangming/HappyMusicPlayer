@@ -60,13 +60,13 @@ public class ListViewRelativeLayout extends RelativeLayout implements Observer {
 		invalidateChild(isTouch);
 		if (isTouch) {
 			paint.setColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
-			paint.setAlpha(230);
+			paint.setAlpha(150);
 			Rect r = new Rect(0, 0, getWidth(), getHeight());
 			canvas.drawRect(r, paint);
-			paint.setColor(Color.argb(230, 255, 255, 255));
+			paint.setColor(Color.argb(150, 255, 255, 255));
 			canvas.drawLine(0, 0, getWidth(), 1, paint);
 		} else {
-			paint.setColor(Color.argb(230, 255, 255, 255));
+			paint.setColor(Color.argb(150, 255, 255, 255));
 			Rect r = new Rect(0, 0, getWidth(), getHeight());
 			canvas.drawRect(r, paint);
 			paint.setColor(Color.rgb(210, 210, 210));
@@ -114,7 +114,7 @@ public class ListViewRelativeLayout extends RelativeLayout implements Observer {
 		if (data instanceof SkinMessage) {
 			SkinMessage msg = (SkinMessage) data;
 			if (msg.type == SkinMessage.COLOR) {
-				setBackgroundColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
+				invalidate();
 			}
 		}
 	}

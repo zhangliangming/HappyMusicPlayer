@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#FFFFFF"
+    tools:context=".MainFragment" >
+
+    <com.happyplayer.widget.TitleRelativeLayout
+        android:id="@+id/titleRelativeLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/title_height" >
+
+        <ImageView
+            android:id="@+id/title_icon"
+            android:layout_width="@dimen/title_icon_image"
+            android:layout_height="@dimen/title_icon_image"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/title_icon" />
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="1dp"
+            android:layout_height="fill_parent"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/title_icon"
+            android:background="#FFFFFF" />
+
+        <RadioGroup
+            android:id="@+id/tab"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@+id/line"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/tab_my"
+                style="@style/main_tab_button"
+                android:checked="true"
+                android:drawableTop="@drawable/main_tab_my"
+                android:text="@string/tab_my" />
+
+            <RadioButton
+                android:id="@+id/tab_find"
+                style="@style/main_tab_button"
+                android:drawableTop="@drawable/main_tab_find"
+                android:text="@string/tab_find" />
+
+            <RadioButton
+                android:id="@+id/tab_search"
+                style="@style/main_tab_button"
+                android:drawableTop="@drawable/main_tab_search"
+                android:text="@string/tab_search" />
+        </RadioGroup>
+    </com.happyplayer.widget.TitleRelativeLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/titleRelativeLayout"
+        android:overScrollMode="never" >
+    </android.support.v4.view.ViewPager>
+
+</RelativeLayout>

@@ -1,5 +1,7 @@
 package com.happyplayer.util;
 
+import java.io.File;
+
 import com.happyplayer.common.Constants;
 
 import android.content.Context;
@@ -19,6 +21,24 @@ public class DataUtil {
 	 * @param context
 	 */
 	public static void init(Context context) {
+		//
+		// 创建相关的文件夹
+		File file = new File(Constants.PATH_MP3);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(Constants.PATH_KSC);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(Constants.PATH_ARTIST);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(Constants.PATH_ALBUM);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
 
 		/***
 		 * // 1.进入页面后，判断用户是不是第一次使用该应用，如果是则跳转到应用的导航页面 //
@@ -38,6 +58,14 @@ public class DataUtil {
 		// 获取主题颜色
 		Constants.DEF_COLOR_INDEX = preferences.getInt(
 				Constants.DEF_COLOR_INDEX_KEY, Constants.DEF_COLOR_INDEX);
+		// 皮肤图片
+		Constants.DEF_PIC_INDEX = preferences.getInt(
+				Constants.DEF_PIC_INDEX_KEY, Constants.DEF_PIC_INDEX);
+
+		// 记录上一次的播放歌曲sid
+		Constants.PLAY_SID = preferences.getString(Constants.PLAY_SID_KEY,
+				Constants.PLAY_SID);
+
 	}
 
 	/**

@@ -1,9 +1,11 @@
 package com.happyplayer.ui;
 
+import java.io.File;
+
 import android.app.Activity;
-import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
@@ -14,7 +16,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.happyplayer.async.AsyncTaskHandler;
+import com.happyplayer.db.SongDB;
 import com.happyplayer.model.Mp3Info;
+import com.happyplayer.model.SongInfo;
+import com.happyplayer.model.SongMessage;
+import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.util.ActivityManager;
 import com.happyplayer.util.AniUtil;
 import com.happyplayer.util.MediaUtils;
@@ -73,6 +79,10 @@ public class ScanMusicActivity extends Activity {
 	 * 完成按钮
 	 */
 	private RelativeLayout finishButton;
+	/**
+	 * 歌曲总数
+	 */
+	private int size = 0;
 
 	private Handler handler = new Handler() {
 
@@ -80,6 +90,15 @@ public class ScanMusicActivity extends Activity {
 		public void handleMessage(Message msg) {
 			// 完成
 			if (msg.what == -1) {
+				isScan = false;
+				if (size != 0) {
+					SongMessage songMessage = new SongMessage();
+					songMessage.setNum(size);
+					songMessage.setType(SongMessage.SCAN_NUM);
+
+					ObserverManage.getObserver().setMessage(songMessage);
+				}
+
 				initRelativeLayout.setVisibility(View.INVISIBLE);
 				initButton.setVisibility(View.INVISIBLE);
 
@@ -89,16 +108,14 @@ public class ScanMusicActivity extends Activity {
 				finishRelativeLayout.setVisibility(View.VISIBLE);
 				finishButton.setVisibility(View.VISIBLE);
 
-				finishResultTextView.setText(scanResultTextView.getText()
-						.toString());
+				finishResultTextView.setText(size + "首歌曲已添加到本地音乐");
 
 				AniUtil.stopAnimation(aniLoading);
 
-			} else {
-				Mp3Info mp3Info = (Mp3Info) msg.obj;
-
-				scanPathTextView.setText(mp3Info.getPath());
-				scanResultTextView.setText(msg.what + "首歌曲已添加到本地音乐");
+			} else if (msg.what == 0) {
+				String path = (String) msg.obj;
+				scanPathTextView.setText(path);
+				scanResultTextView.setText(size + "首歌曲已添加到本地音乐");
 			}
 		}
 
@@ -163,6 +180,7 @@ public class ScanMusicActivity extends Activity {
 
 	protected void cancel() {
 		cancelScan = true;
+		isScan = false;
 	}
 
 	private void scanMusic() {
@@ -199,31 +217,101 @@ public class ScanMusicActivity extends Activity {
 
 	}
 
-	private void scannerMusic() {
-		int size = 0;
-		// 查询媒体数据库
-		Cursor cursor = MediaUtils.getMediaCursor(this);
+	/**
+	 * 
+	 * @param Path
+	 *            搜索目录
+	 * @param Extension
+	 *            扩展名
+	 * @param IsIterative
+	 *            是否进入子文件夹
+	 */
+	public void scannerLocalMP3File(String Path, String Extension,
+			boolean IsIterative) {
+		File[] files = new File(Path).listFiles();
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+				File f = files[i];
+				if (f.isFile()) {
+					if (f.getPath()
+							.substring(
+									f.getPath().length() - Extension.length())
+							.equals(Extension)) // 判断扩展名
+					{
+						if (cancelScan)
+							return;
 
-		for (int i = 0; i < cursor.getCount(); i++) {
+						if (!f.exists()) {
+							continue;
+						}
 
-			if (cancelScan)
-				break;
-			Mp3Info mp3Info = MediaUtils.getMp3InfoByCursor(cursor);
-			//
-			// 将扫描到的数据保存到播放列表
-			//
-			size++;
-			Message msg = new Message();
-			msg.what = size;
-			msg.obj = mp3Info;
+						// 文件名
+						String displayName = f.getName();
+						if (displayName.contains(".mp3")) {
+							String[] displayNameArr = displayName.split(".mp3");
+							displayName = displayNameArr[0].trim();
+						}
 
-			handler.sendMessage(msg);
-
+						boolean isExists = SongDB.getSongInfoDB(this)
+								.songIsExists(displayName);
+						if (isExists) {
+							continue;
+						}
+						// 将扫描到的数据保存到播放列表
+						Mp3Info mp3Info = MediaUtils.getMp3InfoByFile(f
+								.getPath());
+						if (mp3Info != null) {
+							addMusicList(mp3Info);
+							size++;
+						} else {
+							continue;
+						}
+					}
+					Message msg = new Message();
+					msg.what = 0;
+					msg.obj = f.getPath();
+					handler.sendMessage(msg);
+					if (!IsIterative)
+						break;
+				} else if (f.isDirectory() && f.getPath().indexOf("/.") == -1) // 忽略点文件（隐藏文件/文件夹）
+					scannerLocalMP3File(f.getPath(), Extension, IsIterative);
+			}
 		}
-		cursor.close();
+	}
 
-		isScan = false;
+	private void scannerMusic() {
+		size = 0;
+		scannerLocalMP3File(
+				Environment.getExternalStorageDirectory().getPath(), ".mp3",
+				true);
+	}
 
+	/**
+	 * 添加歌曲到本地播放列表
+	 * 
+	 * @param mp3Info
+	 */
+	private void addMusicList(Mp3Info mp3Info) {
+
+		SongInfo songInfo = new SongInfo();
+
+		songInfo.setId(mp3Info.getId());
+		songInfo.setTitle(mp3Info.getTitle());
+		songInfo.setAlbum(mp3Info.getAlbum());
+		songInfo.setAlbumId(mp3Info.getAlbumId());
+		songInfo.setDisplayName(mp3Info.getDisplayName());
+		songInfo.setArtist(mp3Info.getArtist());
+		songInfo.setDuration(mp3Info.getDuration());
+		songInfo.setSize(mp3Info.getSize());
+		songInfo.setPath(mp3Info.getPath());
+		songInfo.setType(SongInfo.LOCAL);
+		songInfo.setAlbumUrl("");
+		songInfo.setDownUrl("");
+		songInfo.setDownSize(0);
+		songInfo.setPlayProgress(0);
+		songInfo.setValid(SongInfo.VALID);
+
+		SongDB.getSongInfoDB(this).add(songInfo);
 	}
 
 	public void back(View v) {

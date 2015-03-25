@@ -2,6 +2,8 @@ package com.happyplayer.common;
 
 import java.io.File;
 
+import com.happyplayer.ui.R;
+
 import android.graphics.Color;
 import android.os.Environment;
 
@@ -84,6 +86,26 @@ public class Constants {
 	 */
 	public static String DEF_COLOR_INDEX_KEY = "COLOR_INDEX_KEY";
 	public static int DEF_COLOR_INDEX = 0;
+	/**
+	 * 图片皮肤id
+	 */
+	public static int PICIDS[] = { R.drawable.skin_def, R.drawable.skin_def1,
+			R.drawable.skin_def2, R.drawable.skin_def3, R.drawable.skin_def4,
+			R.drawable.skin_def5, R.drawable.skin_def6, R.drawable.skin_def7,
+			R.drawable.skin_def8, R.drawable.skin_def9, R.drawable.skin_def10,
+			R.drawable.skin_def11 };
+	/**
+	 * 图片皮肤索引
+	 */
+	public static String DEF_PIC_INDEX_KEY = "DEF_PIC_INDEX_KEY";
+	public static int DEF_PIC_INDEX = 0;
+
+	/**
+	 * 记录上一次播放的歌曲sid
+	 */
+	public static String PLAY_SID_KEY = "PLAY_SID_KEY";
+	public static String PLAY_SID = "";
+
 	/**
 	 * 主页面标题文本被点击后的颜色
 	 */
