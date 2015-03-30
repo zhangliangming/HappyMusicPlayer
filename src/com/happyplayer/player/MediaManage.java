@@ -1,26 +1,44 @@
 package com.happyplayer.player;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Random;
 
 import android.content.Context;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 
 import com.happyplayer.common.Constants;
 import com.happyplayer.db.SongDB;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
+import com.happyplayer.util.DataUtil;
 
 public class MediaManage implements Observer {
 	private static MediaManage _mediaManage;
 	private static List<SongInfo> playlist;
-
+	private SongInfo playSongInfo;
 	private int playIndex = -1;
 	private String playSID = "";
 
+	private MediaPlayer player = null;
+	private Thread playerThread = null;
+	private SongMessage songMessage;
+
+	public static final int PLAYING = 1;
+
+	public static final int STOP = 0;
+
+	private int status = 0;
+
+	private Context context;
+
 	public MediaManage(Context context) {
+		this.context = context;
 		init(context);
 	}
 
@@ -32,12 +50,16 @@ public class MediaManage implements Observer {
 	}
 
 	private void init(Context context) {
+
 		playlist = SongDB.getSongInfoDB(context).getAllSong();
 		playSID = Constants.PLAY_SID;
 		for (int i = 0; i < playlist.size(); i++) {
 			SongInfo tempSongInfo = playlist.get(i);
 			if (tempSongInfo.getSid().equals(playSID)) {
+
 				playIndex = i;
+
+				playSongInfo = tempSongInfo;
 
 				// 发送历史歌曲数据给其它页面
 				SongMessage songMessage = new SongMessage();
@@ -71,13 +93,259 @@ public class MediaManage implements Observer {
 				SongInfo songInfo = songMessage.getSongInfo();
 				add(songInfo);
 			} else if (songMessage.getType() == SongMessage.SCAN_NUM) {
-				playIndex = getPlayIndex();
+				if (playIndex != -1) {
+					playIndex = getPlayIndex();
+				}
 			} else if (songMessage.getType() == SongMessage.SELECTPLAY) {
 				playIndex = getPlayIndex();
-				// System.out.println("SELECTPLAY:playIndex--->" + playIndex);
-				play(playlist.get(playIndex));
+				selectPlay(playlist.get(playIndex));
+			} else if (songMessage.getType() == SongMessage.PLAYORSTOPMUSIC) {
+				playOrStop();
+			} else if (songMessage.getType() == SongMessage.NEXTMUSIC) {
+				nextPlay(false);
+			} else if (songMessage.getType() == SongMessage.PREVMUSIC) {
+				prevSong();
+			} else if (songMessage.getType() == SongMessage.SEEKTO) {
+				int progress = songMessage.getProgress();
+				seekTo(progress);
 			}
 		}
+	}
+
+	/**
+	 * 快进
+	 * 
+	 * @param progress
+	 */
+	private void seekTo(int progress) {
+		if (player != null) {
+			player.stop();
+			player = null;
+		}
+		if (playSongInfo == null) {
+			return;
+		}
+		playSongInfo.setPlayProgress(progress);
+		if (playerThread == null) {
+			playerThread = new Thread(new PlayerRunable());
+			playerThread.start();
+		}
+		if (player == null) {
+			player = new MediaPlayer();
+			player.setOnCompletionListener(new OnCompletionListener() {
+
+				@Override
+				public void onCompletion(MediaPlayer mp) {
+					nextPlay(true);
+				}
+			});
+
+			try {
+				File file = new File(playSongInfo.getPath());
+				if (!file.exists()) {
+
+					songMessage = new SongMessage();
+					songMessage.setType(SongMessage.ERROR);
+					String errorMessage = "歌曲文件不存在，跳转下一首!!";
+					songMessage.setErrorMessage(errorMessage);
+					ObserverManage.getObserver().setMessage(songMessage);
+
+					// 跳转下一首
+					nextPlay(false);
+					return;
+				}
+
+				player.setDataSource(file.getAbsolutePath());
+				player.prepare();
+				if (playSongInfo.getPlayProgress() != 0) {
+					player.seekTo((int) playSongInfo.getPlayProgress());
+				}
+				player.start();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+
+				songMessage = new SongMessage();
+				songMessage.setType(SongMessage.ERROR);
+				String errorMessage = "歌曲文件格式不支持，跳转下一首!!";
+				songMessage.setErrorMessage(errorMessage);
+				ObserverManage.getObserver().setMessage(songMessage);
+
+				// 跳转下一首
+
+				nextPlay(false);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * 播放或者暂停
+	 * 
+	 */
+	private void playOrStop() {
+		if (playIndex == -1) {
+			songMessage = new SongMessage();
+			songMessage.setType(SongMessage.ERROR);
+			String errorMessage = "没的选中相关的歌曲!!";
+			songMessage.setErrorMessage(errorMessage);
+			ObserverManage.getObserver().setMessage(songMessage);
+		} else {
+			play(playlist.get(playIndex));
+		}
+	}
+
+	/**
+	 * 上一首
+	 */
+	private void prevSong() {
+		if (playlist.size() == 0) {
+			songMessage = new SongMessage();
+			songMessage.setType(SongMessage.ERROR);
+			String errorMessage = "没有歌曲列表!!";
+			songMessage.setErrorMessage(errorMessage);
+			ObserverManage.getObserver().setMessage(songMessage);
+			return;
+		}
+		playIndex = getPlayIndex();
+
+		int playMode = Constants.PLAY_MODE;
+		// 默认是0单曲循环，1顺序播放，2随机播放
+		switch (playMode) {
+		case 0:
+			break;
+		case 1:
+			playIndex--;
+			if (playIndex < 0) {
+				playIndex = 0;
+
+				songMessage = new SongMessage();
+				songMessage.setType(SongMessage.ERROR);
+				String errorMessage = "已经是第一首了!!";
+				songMessage.setErrorMessage(errorMessage);
+				ObserverManage.getObserver().setMessage(songMessage);
+
+				return;
+			}
+			break;
+		case 2:
+			playIndex = new Random().nextInt(playlist.size());
+			break;
+		}
+
+		SongInfo tempSongInfo = playlist.get(playIndex);
+
+		Constants.PLAY_SID = tempSongInfo.getSid();
+		songMessage = new SongMessage();
+		songMessage.setType(SongMessage.PREVMUSICED);
+		songMessage.setSongInfo(tempSongInfo);
+
+		DataUtil.save(context, Constants.PLAY_SID_KEY, Constants.PLAY_SID);
+
+		ObserverManage.getObserver().setMessage(songMessage);
+
+		if (player != null) {
+			player.stop();
+			player = null;
+		}
+		if (playSongInfo != null) {
+			playSongInfo = null;
+		}
+		play(tempSongInfo);
+	}
+
+	/**
+	 * 下一首
+	 * 
+	 * @param isFinsh
+	 *            是否是播放完成后调用
+	 * 
+	 */
+	private void nextPlay(boolean isFinsh) {
+		if (playlist.size() == 0) {
+			songMessage = new SongMessage();
+			songMessage.setType(SongMessage.ERROR);
+			String errorMessage = "没有歌曲列表!!";
+			songMessage.setErrorMessage(errorMessage);
+			ObserverManage.getObserver().setMessage(songMessage);
+			return;
+		}
+		playIndex = getPlayIndex();
+
+		int playMode = Constants.PLAY_MODE;
+		// 默认是0单曲循环，1顺序播放，2随机播放
+		switch (playMode) {
+		case 0:
+			break;
+		case 1:
+			playIndex++;
+			if (playIndex >= playlist.size()) {
+				playIndex = playlist.size() - 1;
+
+				if (isFinsh) {
+					playSongInfo = null;
+					playIndex = -1;
+					Constants.PLAY_SID = "";
+					songMessage = new SongMessage();
+					songMessage.setType(SongMessage.LASTPLAYFINISH);
+
+					SongInfo tempSongInfo = new SongInfo();
+					tempSongInfo.setSid("");
+					tempSongInfo.setPlayProgress(0);
+					tempSongInfo.setDuration(100);
+					tempSongInfo.setArtist("歌手");
+					tempSongInfo.setDisplayName("歌名");
+					songMessage.setSongInfo(tempSongInfo);
+
+					ObserverManage.getObserver().setMessage(songMessage);
+				} else {
+					songMessage = new SongMessage();
+					songMessage.setType(SongMessage.ERROR);
+					String errorMessage = "已经是最后一首了!!";
+					songMessage.setErrorMessage(errorMessage);
+					ObserverManage.getObserver().setMessage(songMessage);
+				}
+				return;
+			}
+			break;
+		case 2:
+			playIndex = new Random().nextInt(playlist.size());
+			break;
+		}
+
+		SongInfo tempSongInfo = playlist.get(playIndex);
+
+		Constants.PLAY_SID = tempSongInfo.getSid();
+		songMessage = new SongMessage();
+		songMessage.setType(SongMessage.NEXTMUSICED);
+		songMessage.setSongInfo(tempSongInfo);
+		DataUtil.save(context, Constants.PLAY_SID_KEY, Constants.PLAY_SID);
+		ObserverManage.getObserver().setMessage(songMessage);
+
+		if (player != null) {
+			player.stop();
+			player = null;
+		}
+		if (playSongInfo != null) {
+			playSongInfo = null;
+		}
+		play(tempSongInfo);
+	}
+
+	/**
+	 * 选择播放歌曲
+	 * 
+	 * @param songInfo
+	 */
+	private void selectPlay(SongInfo songInfo) {
+		if (player != null) {
+			player.stop();
+			player = null;
+		}
+		if (playSongInfo != null) {
+			playSongInfo = null;
+		}
+		play(songInfo);
 	}
 
 	/**
@@ -86,11 +354,113 @@ public class MediaManage implements Observer {
 	 * @param songInfo
 	 */
 	private void play(SongInfo songInfo) {
+		if (playerThread == null) {
+			playerThread = new Thread(new PlayerRunable());
+			playerThread.start();
+		}
+
+		status = STOP;
 		// 发送历史歌曲数据给其它页面
-		SongMessage songMessage = new SongMessage();
+		songMessage = new SongMessage();
 		songMessage.setType(SongMessage.INIT);
 		songMessage.setSongInfo(songInfo);
 		ObserverManage.getObserver().setMessage(songMessage);
+
+		if (player == null) {
+			player = new MediaPlayer();
+			player.setOnCompletionListener(new OnCompletionListener() {
+
+				@Override
+				public void onCompletion(MediaPlayer mp) {
+					nextPlay(true);
+				}
+			});
+
+			if (playSongInfo == null) {
+				playSongInfo = songInfo;
+				playSongInfo.setPlayProgress(0);
+			}
+			try {
+				File file = new File(playSongInfo.getPath());
+				if (!file.exists()) {
+
+					songMessage = new SongMessage();
+					songMessage.setType(SongMessage.ERROR);
+					String errorMessage = "歌曲文件不存在，跳转下一首!!";
+					songMessage.setErrorMessage(errorMessage);
+					ObserverManage.getObserver().setMessage(songMessage);
+
+					// 跳转下一首
+					nextPlay(false);
+					return;
+				}
+
+				player.setDataSource(file.getAbsolutePath());
+				player.prepare();
+				if (playSongInfo.getPlayProgress() != 0) {
+					player.seekTo((int) playSongInfo.getPlayProgress());
+				}
+				player.start();
+				status = PLAYING;
+			} catch (Exception e) {
+				e.printStackTrace();
+
+				songMessage = new SongMessage();
+				songMessage.setType(SongMessage.ERROR);
+				String errorMessage = "歌曲文件格式不支持，跳转下一首!!";
+				songMessage.setErrorMessage(errorMessage);
+				ObserverManage.getObserver().setMessage(songMessage);
+
+				// 跳转下一首
+
+				nextPlay(false);
+
+				return;
+			}
+		} else {
+			if (player != null) {
+				player.stop();
+				status = STOP;
+				player = null;
+				songMessage = new SongMessage();
+				songMessage.setSongInfo(playSongInfo);
+				songMessage.setType(SongMessage.STOPING);
+				ObserverManage.getObserver().setMessage(songMessage);
+			}
+		}
+	}
+
+	private class PlayerRunable implements Runnable {
+
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(100);
+					if (player != null && player.isPlaying()) {
+						if (playSongInfo != null) {
+							playSongInfo.setPlayProgress(player
+									.getCurrentPosition());
+
+							SongMessage songMessage = new SongMessage();
+							songMessage.setType(SongMessage.PLAYING);
+							songMessage.setSongInfo(playSongInfo);
+							ObserverManage.getObserver()
+									.setMessage(songMessage);
+						}
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/*
+	 * 获取播放状态
+	 */
+	public int getPlayStatus() {
+		return status;
 	}
 
 	/**
@@ -99,7 +469,7 @@ public class MediaManage implements Observer {
 	 * @return
 	 */
 	private int getPlayIndex() {
-		int index = 0;
+		int index = -1;
 		playSID = Constants.PLAY_SID;
 		for (int i = 0; i < playlist.size(); i++) {
 			SongInfo tempSongInfo = playlist.get(i);
@@ -156,5 +526,9 @@ public class MediaManage implements Observer {
 				break;
 			}
 		}
+	}
+
+	public SongInfo getPlaySongInfo() {
+		return playSongInfo;
 	}
 }

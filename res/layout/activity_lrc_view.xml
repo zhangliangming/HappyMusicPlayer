@@ -34,6 +34,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:layout_toRightOf="@+id/play_back"
+                android:ellipsize="middle"
+                android:singleLine="true"
                 android:text="歌名"
                 android:textColor="#ffffff"
                 android:textSize="18dp" />
@@ -45,32 +47,11 @@
                 android:layout_below="@+id/songName"
                 android:layout_marginTop="2dp"
                 android:layout_toRightOf="@+id/play_back"
+                android:ellipsize="middle"
+                android:singleLine="true"
                 android:text="歌手"
                 android:textColor="#ffffff"
                 android:textSize="15dp" />
-
-          <!--   <ImageButton
-                android:id="@+id/down"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/like"
-                android:background="@drawable/bar_buttombg"
-                android:onClick="down"
-                android:src="@drawable/kg_ic_player_menu_download" />
-
-            <CheckBox
-                android:id="@+id/like"
-                android:paddingLeft="0dp"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/bar_buttombg"
-                android:button="@null"
-                android:drawableRight="@drawable/like_bar_buttombg"
-                android:onClick="like" /> -->
         </RelativeLayout>
 
         <RelativeLayout
@@ -163,7 +144,6 @@
                 android:layout_marginRight="20dp"
                 android:layout_toLeftOf="@+id/playing_buttom"
                 android:background="@drawable/bar_buttombg"
-                android:onClick="prevSong"
                 android:src="@drawable/ic_player_prev_bg" />
 
             <ImageView
@@ -172,7 +152,6 @@
                 android:layout_height="40dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/bar_buttombg"
-                android:onClick="play"
                 android:src="@drawable/ic_player_play_bg" />
 
             <ImageView
@@ -181,7 +160,6 @@
                 android:layout_height="40dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/bar_buttombg"
-                android:onClick="pause"
                 android:src="@drawable/ic_player_pause_bg" />
 
             <ImageView
@@ -192,7 +170,6 @@
                 android:layout_marginLeft="20dp"
                 android:layout_toRightOf="@+id/playing_buttom"
                 android:background="@drawable/bar_buttombg"
-                android:onClick="nextSong"
                 android:src="@drawable/ic_player_next_bg" />
 
             <ImageView
@@ -203,7 +180,6 @@
                 android:layout_centerVertical="true"
                 android:layout_marginRight="20dp"
                 android:background="@drawable/bar_buttombg"
-                android:onClick="playlist"
                 android:src="@drawable/ic_player_current_playlist" />
         </RelativeLayout>
     </RelativeLayout>

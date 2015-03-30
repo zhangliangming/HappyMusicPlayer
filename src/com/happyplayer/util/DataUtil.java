@@ -65,6 +65,10 @@ public class DataUtil {
 		// 记录上一次的播放歌曲sid
 		Constants.PLAY_SID = preferences.getString(Constants.PLAY_SID_KEY,
 				Constants.PLAY_SID);
+		
+		// 记录播放模式
+		Constants.PLAY_MODE = preferences.getInt(Constants.PLAY_MODE_KEY,
+				Constants.PLAY_MODE);
 
 	}
 

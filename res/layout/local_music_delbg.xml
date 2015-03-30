@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.happyplayer.widget.TitleRelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/bottom_player_height" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0"
+                android:clickable="true"
+                android:src="@drawable/buttombg" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="2dp"
+                    android:layout_toLeftOf="@+id/line"
+                    android:background="@drawable/audio_list_item_rightmenu_playlater_default" />
+
+                <View
+                    android:id="@+id/line"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="2dp"
+                    android:layout_toRightOf="@+id/line"
+                    android:text="稍后播"
+                    android:textColor="#ffffff"
+                    android:textSize="15dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:text="已选择(0)"
+                    android:textColor="#ffffff"
+                    android:textSize="15dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0"
+                android:clickable="true"
+                android:src="@drawable/buttombg" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="2dp"
+                    android:layout_toLeftOf="@+id/line"
+                    android:background="@drawable/audio_list_item_rightmenu_delete_default" />
+
+                <View
+                    android:id="@+id/line"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="2dp"
+                    android:layout_toRightOf="@+id/line"
+                    android:text="删除"
+                    android:textColor="#ffffff"
+                    android:textSize="15dp" />
+            </RelativeLayout>
+        </LinearLayout>
+    </com.happyplayer.widget.TitleRelativeLayout>
+
+</RelativeLayout>

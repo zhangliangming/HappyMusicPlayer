@@ -1,6 +1,8 @@
 package com.happyplayer.adapter;
 
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -21,7 +24,7 @@ import com.happyplayer.util.DataUtil;
 import com.happyplayer.widget.PlayListItemRelativeLayout;
 import com.happyplayer.widget.PlayingImageView;
 
-public class PlayListAdapter extends BaseAdapter {
+public class PlayListAdapter extends BaseAdapter implements Observer {
 
 	/**
 	 * 标题
@@ -46,6 +49,7 @@ public class PlayListAdapter extends BaseAdapter {
 		this.categorys = categorys;
 		this.context = context;
 		mInflater = LayoutInflater.from(context);
+		ObserverManage.getObserver().addObserver(this);
 	}
 
 	@Override
@@ -186,11 +190,15 @@ public class PlayListAdapter extends BaseAdapter {
 				playingImageView.setVisibility(View.INVISIBLE);
 			}
 
+			final ImageButton playAfterImageButton = viewHolder
+					.getPlayAfterImageButton();
+
 			playListItemRelativeLayout
 					.setOnClickListener(new OnClickListener() {
 
 						@Override
 						public void onClick(View arg0) {
+
 							if (playIndexPosition == position) {
 								SongMessage songMessage = new SongMessage();
 								songMessage
@@ -202,7 +210,7 @@ public class PlayListAdapter extends BaseAdapter {
 							playListItemRelativeLayout.setSelect(true);
 							playingImageView.setVisibility(View.VISIBLE);
 							if (playIndexPosition != -1) {
-								reshPlayStatusUI(playIndexPosition);
+								reshPlayStatusUI(playIndexPosition, false);
 							}
 							playIndexPosition = position;
 							Constants.PLAY_SID = songInfo.getSid();
@@ -229,7 +237,7 @@ public class PlayListAdapter extends BaseAdapter {
 	 * 
 	 * @param wantedPosition
 	 */
-	private void reshPlayStatusUI(int wantedPosition) {
+	private void reshPlayStatusUI(int wantedPosition, boolean status) {
 		int firstPosition = listView.getFirstVisiblePosition()
 				- listView.getHeaderViewsCount();
 		int wantedChild = wantedPosition - firstPosition;
@@ -241,8 +249,14 @@ public class PlayListAdapter extends BaseAdapter {
 		ViewHolder holder = (ViewHolder) view.getTag();
 		if (holder == null)
 			return;
-		holder.getListitemBG().setSelect(false);
-		holder.getPlayingImageView().setVisibility(View.INVISIBLE);
+		if (status) {
+			holder.getListitemBG().setSelect(true);
+			holder.getPlayingImageView().setVisibility(View.VISIBLE);
+		} else {
+			holder.getListitemBG().setSelect(false);
+			holder.getPlayingImageView().setVisibility(View.INVISIBLE);
+		}
+
 	}
 
 	class TViewHolder {
@@ -275,8 +289,18 @@ public class PlayListAdapter extends BaseAdapter {
 		PlayListItemRelativeLayout listitemBG;
 		PlayingImageView playingImageView;
 
+		ImageButton playAfterImageButton;
+
 		ViewHolder(View view) {
 			this.view = view;
+		}
+
+		ImageButton getPlayAfterImageButton() {
+			if (playAfterImageButton == null) {
+				playAfterImageButton = (ImageButton) view
+						.findViewById(R.id.play_after);
+			}
+			return playAfterImageButton;
 		}
 
 		TextView getSongNameTextView() {
@@ -302,6 +326,46 @@ public class PlayListAdapter extends BaseAdapter {
 			return playingImageView;
 		}
 
+	}
+
+	@Override
+	public void update(Observable arg0, Object data) {
+		if (data instanceof SongMessage) {
+			SongMessage songMessage = (SongMessage) data;
+			if (songMessage.getType() == SongMessage.NEXTMUSICED
+					|| songMessage.getType() == SongMessage.PREVMUSICED
+					|| songMessage.getType() == SongMessage.LASTPLAYFINISH) {
+				reshNextPlayStatusUI(songMessage.getSongInfo());
+			}
+		}
+	}
+
+	/**
+	 * 刷新下一首的界面
+	 * 
+	 * @param songInfo
+	 */
+	private void reshNextPlayStatusUI(SongInfo songInfo) {
+		int oldPlayIndexPosition = playIndexPosition;
+		int count = 0;
+		if (null != categorys) {
+			// 所有分类中item的总和是ListVIew Item的总个数
+			for (Category category : categorys) {
+				List<SongInfo> songInfos = category.getCategoryItem();
+				for (int j = 0; j < songInfos.size(); j++) {
+					if (songInfos.get(j).getSid().equals(songInfo.getSid())) {
+						playIndexPosition = count + j + 1;
+						reshPlayStatusUI(playIndexPosition, true);
+						break;
+					}
+				}
+				count += category.getItemCount();
+			}
+			if (songInfo.getSid().equals("")) {
+				playIndexPosition = -1;
+			}
+			reshPlayStatusUI(oldPlayIndexPosition, false);
+		}
 	}
 
 }

@@ -263,14 +263,17 @@ public class ScanMusicActivity extends Activity {
 						if (mp3Info != null) {
 							addMusicList(mp3Info);
 							size++;
+							
+							Message msg = new Message();
+							msg.what = 0;
+							msg.obj = f.getPath();
+							handler.sendMessage(msg);
+							
 						} else {
 							continue;
 						}
 					}
-					Message msg = new Message();
-					msg.what = 0;
-					msg.obj = f.getPath();
-					handler.sendMessage(msg);
+
 					if (!IsIterative)
 						break;
 				} else if (f.isDirectory() && f.getPath().indexOf("/.") == -1) // 忽略点文件（隐藏文件/文件夹）

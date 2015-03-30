@@ -3,11 +3,6 @@ package com.happyplayer.widget;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.happyplayer.common.Constants;
-import com.happyplayer.model.SkinMessage;
-import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.ui.R;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,6 +24,12 @@ import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.happyplayer.common.Constants;
+import com.happyplayer.model.SkinMessage;
+import com.happyplayer.observable.ObserverManage;
+import com.happyplayer.ui.R;
+import com.happyplayer.util.MediaUtils;
+
 public class BaseSeekBar extends SeekBar implements Observer {
 	/**
 	 * 弹出提示信息窗口
@@ -38,8 +39,6 @@ public class BaseSeekBar extends SeekBar implements Observer {
 	 * 弹出窗口显示文本
 	 */
 	private TextView timeTip = null;
-
-	private boolean isPressedThumb = false;
 
 	private Handler handler = new Handler() {
 
@@ -152,14 +151,12 @@ public class BaseSeekBar extends SeekBar implements Observer {
 	 * 滑动开始
 	 */
 	public void startTrackingTouch() {
-		isPressedThumb = true;
 	}
 
 	/**
 	 * 滑动结束
 	 */
 	public void stopTrackingTouch() {
-		isPressedThumb = false;
 	}
 
 	/**
@@ -187,7 +184,8 @@ public class BaseSeekBar extends SeekBar implements Observer {
 	/**
 	 * 获取PopupWindow实例
 	 */
-	public void popupWindowShow(String timeStr) {
+	public void popupWindowShow(int timeLongStr) {
+		String timeStr = MediaUtils.formatTime(timeLongStr);
 		if (mPopupWindow != null && mPopupWindow.isShowing()) {
 			Message msg = new Message();
 			msg.obj = timeStr;

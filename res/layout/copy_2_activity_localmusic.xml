@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    tools:context=".LocalMusicActivity" >
+
+    <com.happyplayer.widget.TitleRelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/title_height" >
+
+        <ImageButton
+            android:id="@+id/backImageButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/ic_common_title_bar_back"
+            android:onClick="back"
+            android:src="@drawable/buttombg" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="本地音乐"
+            android:textColor="#ffffff"
+            android:textSize="18dp" />
+
+        <ImageButton
+            android:id="@+id/delete_song"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bar_buttombg"
+            android:src="@drawable/kg_skin_delete" />
+
+        <ImageButton
+            android:id="@+id/confirm"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/kg_skin_change_confirm"
+            android:src="@drawable/buttombg" />
+    </com.happyplayer.widget.TitleRelativeLayout>
+
+    <com.happyplayer.widget.LoadRelativeLayout
+        android:id="@+id/loadRelativeLayout "
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <!-- <ExpandableListView -->
+
+            <com.happyplayer.widget.BladeView
+                android:id="@+id/mLetterListView"
+                android:layout_width="20dip"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true" />
+
+            <ListView
+                android:id="@+id/playlistView"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toLeftOf="@+id/mLetterListView"
+                android:cacheColorHint="#00000000"
+                android:divider="@null"
+                android:fadingEdge="none"
+                android:groupIndicator="@null"
+                android:listSelector="#00000000"
+                android:overScrollMode="never"
+                android:scrollbars="none" />
+
+            <RelativeLayout
+                android:id="@+id/local_music_locate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="40dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/local_music_float_bg"
+                android:clickable="true" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/local_music_locate_song" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </com.happyplayer.widget.LoadRelativeLayout>
+
+</LinearLayout>

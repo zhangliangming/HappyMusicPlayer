@@ -105,6 +105,11 @@ public class Constants {
 	 */
 	public static String PLAY_SID_KEY = "PLAY_SID_KEY";
 	public static String PLAY_SID = "";
+	/**
+	 * 播放模式
+	 */
+	public static String PLAY_MODE_KEY = "PLAY_MODE_KEY";
+	public static int PLAY_MODE = 1;
 
 	/**
 	 * 主页面标题文本被点击后的颜色

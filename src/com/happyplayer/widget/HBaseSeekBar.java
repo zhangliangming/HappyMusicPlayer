@@ -25,6 +25,7 @@ import com.happyplayer.common.Constants;
 import com.happyplayer.model.SkinMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.ui.R;
+import com.happyplayer.util.MediaUtils;
 
 public class HBaseSeekBar extends SeekBar implements Observer {
 	/**
@@ -35,8 +36,6 @@ public class HBaseSeekBar extends SeekBar implements Observer {
 	 * 弹出窗口显示文本
 	 */
 	private TextView timeTip = null;
-
-	private boolean isPressedThumb = false;
 
 	private Handler handler = new Handler() {
 
@@ -120,14 +119,12 @@ public class HBaseSeekBar extends SeekBar implements Observer {
 	 * 滑动开始
 	 */
 	public void startTrackingTouch() {
-		isPressedThumb = true;
 	}
 
 	/**
 	 * 滑动结束
 	 */
 	public void stopTrackingTouch() {
-		isPressedThumb = false;
 	}
 
 	/**
@@ -155,7 +152,8 @@ public class HBaseSeekBar extends SeekBar implements Observer {
 	/**
 	 * 获取PopupWindow实例
 	 */
-	public void popupWindowShow(String timeStr) {
+	public void popupWindowShow(int timeLongStr) {
+		String timeStr = MediaUtils.formatTime(timeLongStr);
 		if (mPopupWindow != null && mPopupWindow.isShowing()) {
 			Message msg = new Message();
 			msg.obj = timeStr;

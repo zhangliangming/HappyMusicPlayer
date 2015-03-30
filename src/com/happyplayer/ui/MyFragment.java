@@ -52,7 +52,7 @@ public class MyFragment extends Fragment implements Observer {
 	 * 更新歌曲个数
 	 */
 	private final int UPDATE = 1;
-	
+
 	private int mCOUNT = 0;
 
 	private Handler handler = new Handler() {
@@ -247,6 +247,11 @@ public class MyFragment extends Fragment implements Observer {
 	 * 播放
 	 */
 	private void navPlayImageButton() {
+
+		SongMessage songMessage = new SongMessage();
+		songMessage.setType(SongMessage.NEXTMUSIC);
+		ObserverManage.getObserver().setMessage(songMessage);
+
 	}
 
 	@Override

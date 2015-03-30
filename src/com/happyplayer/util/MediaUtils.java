@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.mp3.MP3AudioHeader;
 import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.id3.ID3v23Frame;
 import org.jaudiotagger.tag.id3.ID3v23Tag;
@@ -77,11 +78,12 @@ public class MediaUtils {
 			ID3v23Frame.logger.setLevel(Level.SEVERE);
 			ID3v23Tag.logger.setLevel(Level.SEVERE);
 			MP3File mp3file = new MP3File(sourceFile);
-			if (mp3file.getAudioHeader() == null)
+			MP3AudioHeader header = mp3file.getMP3AudioHeader();
+			if (header == null)
 				return null;
 			mp3Info = new Mp3Info();
 			// 歌曲时长
-			long duration = 0;
+			long duration = getTrackLength(header.getTrackLengthAsString());
 			// 文件名
 			String displayName = sourceFile.getName();
 			if (displayName.contains(".mp3")) {
@@ -107,24 +109,57 @@ public class MediaUtils {
 			mp3Info.setPath(filePath);
 			mp3Info.setAlbumId(0);
 			mp3Info.setAlbum(album);
-			
+
 			mp3file = null;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	
+
 		return mp3Info;
 
+	}
+
+	/**
+	 * 获取歌曲长度
+	 * 
+	 * @param trackLengthAsString
+	 * @return
+	 */
+	private static long getTrackLength(String trackLengthAsString) {
+
+		if (trackLengthAsString.contains(":")) {
+			String temp[] = trackLengthAsString.split(":");
+			if (temp.length == 2) {
+				int m = Integer.parseInt(temp[0]);// 分
+				int s = Integer.parseInt(temp[1]);// 秒
+				int currTime = (m * 60 + s) * 1000;
+				return currTime;
+			}
+		}
+		return 0;
 	}
 
 	/**
 	 * 通过游标获取Mp3Info
 	 */
 	public static Mp3Info getMp3InfoByCursor(Cursor cursor) {
+		cursor.moveToNext();
+		
+		int isMusic = cursor.getInt(cursor
+				.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
+		if (isMusic == 0)
+			return null;
+
+		String url = cursor.getString(cursor
+				.getColumnIndex(MediaStore.Audio.Media.DATA));
+		String extension = ".mp3";
+		if (!url.substring(url.length() - extension.length()).equals(extension)) {
+			return null;
+		}
 		String artist = "";
 		String title = "";
 		Mp3Info mp3Info = new Mp3Info();
-		cursor.moveToNext();
+	
 		long id = cursor.getLong(cursor
 				.getColumnIndex(MediaStore.Audio.Media._ID));
 		String tmpTitle = cursor.getString(cursor
@@ -153,50 +188,36 @@ public class MediaUtils {
 				.getColumnIndex(MediaStore.Audio.Media.SIZE));
 		String album = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.ALBUM)); // 专辑
-		String url = cursor.getString(cursor
-				.getColumnIndex(MediaStore.Audio.Media.DATA));
-		int isMusic = cursor.getInt(cursor
-				.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
+
 		long albumid = cursor.getLong(cursor
 				.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-		if (isMusic != 0) {
-			mp3Info.setId(id);
-			mp3Info.setTitle(title);
-			mp3Info.setArtist(artist);
-			mp3Info.setDuration(duration);
-			mp3Info.setDisplayName(displayName);
-			mp3Info.setSize(size);
-			mp3Info.setPath(url);
-			mp3Info.setAlbumId(albumid);
-			mp3Info.setAlbum(album);
-		}
+
+		mp3Info.setId(id);
+		mp3Info.setTitle(title);
+		mp3Info.setArtist(artist);
+		mp3Info.setDuration(duration);
+		mp3Info.setDisplayName(displayName);
+		mp3Info.setSize(size);
+		mp3Info.setPath(url);
+		mp3Info.setAlbumId(albumid);
+		mp3Info.setAlbum(album);
 		return mp3Info;
 	}
 
 	/**
-	 * 格式化时间，将毫秒转换为分:秒格式
+	 * 时间格式转换
 	 * 
 	 * @param time
 	 * @return
 	 */
-	public static String formatTime(long time) {
-		String min = time / (1000 * 60) + "";
-		String sec = time % (1000 * 60) + "";
-		if (min.length() < 2) {
-			min = "0" + time / (1000 * 60) + "";
-		} else {
-			min = time / (1000 * 60) + "";
-		}
-		if (sec.length() == 4) {
-			sec = "0" + (time % (1000 * 60)) + "";
-		} else if (sec.length() == 3) {
-			sec = "00" + (time % (1000 * 60)) + "";
-		} else if (sec.length() == 2) {
-			sec = "000" + (time % (1000 * 60)) + "";
-		} else if (sec.length() == 1) {
-			sec = "0000" + (time % (1000 * 60)) + "";
-		}
-		return min + ":" + sec.trim().substring(0, 2);
+	public static String formatTime(int time) {
+
+		time /= 1000;
+		int minute = time / 60;
+		// int hour = minute / 60;
+		int second = time % 60;
+		minute %= 60;
+		return String.format("%02d:%02d", minute, second);
 	}
 
 	/**

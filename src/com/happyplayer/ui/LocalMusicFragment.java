@@ -88,6 +88,24 @@ public class LocalMusicFragment extends Fragment implements Observer,
 				((TextView) footView.findViewById(R.id.list_size_text))
 						.setText("共有" + count + "首歌曲");
 				loadRelativeLayout.showSuccessView();
+
+				//设置playlistView的位置
+				if (adapter == null)
+					return;
+				int playIndexPosition = adapter.getPlayIndexPosition();
+				if (playIndexPosition != -1) {
+					int firstPosition = playlistView.getFirstVisiblePosition()
+							- playlistView.getHeaderViewsCount();
+					int lastPosition = playlistView.getLastVisiblePosition()
+							- playlistView.getFooterViewsCount();
+					int middle = (lastPosition - firstPosition) / 2;
+					int position = playIndexPosition - middle;
+					if (position > 0) {
+						playlistView.setSelection(position);
+					} else {
+						playlistView.setSelection(0);
+					}
+				}
 				break;
 			}
 		}
@@ -182,14 +200,15 @@ public class LocalMusicFragment extends Fragment implements Observer,
 									- playlistView.getFooterViewsCount();
 							int middle = (lastPosition - firstPosition) / 2;
 							int position = playIndexPosition - middle;
-							if (position > 0){
+							if (position > 0) {
 								playlistView.setSelection(position);
-							}else{
+							} else {
 								playlistView.setSelection(0);
 							}
 						}
 					}
 				});
+
 	}
 
 	private void loadData() {

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical" >
+
+    <com.happyplayer.widget.PlayListItemRelativeLayout
+        android:id="@+id/listitemBG"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:clickable="true" >
+
+        <com.happyplayer.widget.PlayingImageView
+            android:id="@+id/flag"
+            android:layout_width="5dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/kg_ic_playing_bar_drag_closed" />
+
+        <CheckBox
+            android:id="@+id/select"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/flag"
+            android:button="@null"
+            android:clickable="false"
+            android:drawableRight="@drawable/selectbuttombg" />
+
+        <ImageButton
+            android:id="@+id/play_after"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@+id/flag"
+            android:background="@drawable/audio_item" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_toRightOf="@+id/select" >
+
+            <TextView
+                android:id="@+id/songname"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="40dp"
+                android:ellipsize="middle"
+                android:singleLine="true"
+                android:text="歌名"
+                android:textColor="#000000"
+                android:textSize="15dp" />
+        </RelativeLayout>
+    </com.happyplayer.widget.PlayListItemRelativeLayout>
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="#ff969696" />
+
+</LinearLayout>

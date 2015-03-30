@@ -3,8 +3,15 @@ package com.happyplayer.ui;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.TreeMap;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -19,14 +26,19 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RemoteViews;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
 import com.happyplayer.iface.PageAction;
+import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
@@ -37,7 +49,11 @@ import com.happyplayer.slidingmenu.SlidingMenu.OnOpenedListener;
 import com.happyplayer.util.ActivityManager;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.util.ImageUtil;
+import com.happyplayer.util.KscLyricsManamge;
+import com.happyplayer.util.KscLyricsParser;
 import com.happyplayer.util.MediaUtils;
+import com.happyplayer.widget.BaseSeekBar;
+import com.happyplayer.widget.KscTwoLineLyricsView;
 
 public class MainActivity extends FragmentActivity implements Observer {
 	private ViewPager viewPager;
@@ -80,6 +96,177 @@ public class MainActivity extends FragmentActivity implements Observer {
 	 * 暂停按钮
 	 */
 	private ImageButton pauseImageButton;
+	/**
+	 * 下一首按钮
+	 */
+	private ImageButton nextImageButton;
+
+	private BaseSeekBar seekBar;
+	/**
+	 * 判断其是否是正在拖动
+	 */
+	private boolean isStartTrackingTouch = false;
+	/**
+	 * 歌词解析
+	 */
+	private KscLyricsParser kscLyricsParser;
+	/**
+	 * 歌词
+	 */
+	private TreeMap<Integer, KscLyricsLineInfo> lyricsLineTreeMap;
+	/**
+	 * 歌词视图
+	 */
+	private KscTwoLineLyricsView kscTwoLineLyricsView;
+
+	private NotificationManager notificationManager;
+	private Notification mNotification;
+
+	BroadcastReceiver onClickReceiver = new BroadcastReceiver() {
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals("play")) {
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.PLAYORSTOPMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+			} else if (intent.getAction().equals("pause")) {
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.PLAYORSTOPMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+			} else if (intent.getAction().equals("next")) {
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.NEXTMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+			} else if (intent.getAction().equals("prew")) {
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.PREVMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+			} else if (intent.getAction().equals("close")) {
+				unregisterReceiver(onClickReceiver);
+				notificationManager.cancel(0);
+				ActivityManager.getInstance().exit();
+			}
+		}
+
+	};
+
+	private Handler notifyHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// 自定义界面
+			final RemoteViews mRemoteViews = new RemoteViews(getPackageName(),
+					R.layout.notify_view);
+
+			Intent buttoncloseIntent = new Intent("close");
+			PendingIntent pendcloseButtonIntent = PendingIntent.getBroadcast(
+					MainActivity.this, 0, buttoncloseIntent, 0);
+
+			mRemoteViews.setOnClickPendingIntent(R.id.close,
+					pendcloseButtonIntent);
+
+			Intent buttonplayIntent = new Intent("play");
+			PendingIntent pendplayButtonIntent = PendingIntent.getBroadcast(
+					MainActivity.this, 0, buttonplayIntent, 0);
+
+			mRemoteViews.setOnClickPendingIntent(R.id.play,
+					pendplayButtonIntent);
+
+			Intent buttonpauseIntent = new Intent("pause");
+			PendingIntent pendpauseButtonIntent = PendingIntent.getBroadcast(
+					MainActivity.this, 0, buttonpauseIntent, 0);
+
+			Intent buttonnextIntent = new Intent("next");
+			PendingIntent pendnextButtonIntent = PendingIntent.getBroadcast(
+					MainActivity.this, 0, buttonnextIntent, 0);
+
+			mRemoteViews.setOnClickPendingIntent(R.id.next,
+					pendnextButtonIntent);
+
+			Intent buttonprewtIntent = new Intent("prew");
+			PendingIntent pendprewButtonIntent = PendingIntent.getBroadcast(
+					MainActivity.this, 0, buttonprewtIntent, 0);
+
+			mRemoteViews.setOnClickPendingIntent(R.id.prew,
+					pendprewButtonIntent);
+
+			SongMessage songMessage = (SongMessage) msg.obj;
+			final SongInfo songInfo = songMessage.getSongInfo();
+			if (songInfo != null) {
+
+				switch (songMessage.getType()) {
+				case SongMessage.INIT:
+
+					mRemoteViews.setTextViewText(R.id.songName,
+							songInfo.getDisplayName());
+
+					mRemoteViews.setImageViewResource(R.id.play,
+							R.drawable.statusbar_btn_play);
+					mRemoteViews.setOnClickPendingIntent(R.id.play,
+							pendplayButtonIntent);
+
+					// 本地歌曲
+					if (songInfo.getType() == SongInfo.LOCAL) {
+						Bitmap bm = ImageUtil.getFirstArtwork(
+								songInfo.getPath(), songInfo.getSid());
+						if (bm != null) {
+							mRemoteViews.setImageViewBitmap(R.id.icon_pic, bm);// 显示专辑封面图片
+						} else {
+							mRemoteViews.setImageViewResource(R.id.icon_pic,
+									R.drawable.ic_launcher);// 显示专辑封面图片
+						}
+					} else {
+						// 网上下载歌曲
+					}
+
+					break;
+				case SongMessage.LASTPLAYFINISH:
+
+					mRemoteViews.setTextViewText(R.id.songName, "歌名");
+					mRemoteViews.setImageViewResource(R.id.play,
+							R.drawable.statusbar_btn_play);
+					mRemoteViews.setOnClickPendingIntent(R.id.play,
+							pendplayButtonIntent);
+
+					break;
+				case SongMessage.PLAYING:
+
+					mRemoteViews.setImageViewResource(R.id.play,
+							R.drawable.statusbar_btn_pause);
+					mRemoteViews.setOnClickPendingIntent(R.id.play,
+							pendpauseButtonIntent);
+
+					break;
+				case SongMessage.STOPING:
+
+					mRemoteViews.setImageViewResource(R.id.play,
+							R.drawable.statusbar_btn_play);
+					mRemoteViews.setOnClickPendingIntent(R.id.play,
+							pendplayButtonIntent);
+
+					break;
+
+				case SongMessage.ERROR:
+					mRemoteViews.setTextViewText(R.id.songName, "歌名");
+					mRemoteViews.setImageViewResource(R.id.play,
+							R.drawable.statusbar_btn_play);
+					mRemoteViews.setOnClickPendingIntent(R.id.play,
+							pendplayButtonIntent);
+					break;
+				}
+			} else {
+				mRemoteViews.setImageViewResource(R.id.icon_pic,
+						R.drawable.ic_launcher);// 显示专辑封面图片
+			}
+
+			mNotification.contentView = mRemoteViews;
+
+			// mRemoteViews.setOnClickPendingIntent(R.id.play,
+			// playPendingIntent());
+
+			notificationManager.notify(0, mNotification);
+		}
+
+	};
 
 	private Handler songHandler = new Handler() {
 
@@ -121,19 +308,139 @@ public class MainActivity extends FragmentActivity implements Observer {
 				} else {
 					// 网上下载歌曲
 				}
+
+				// pauseImageButton.setVisibility(View.INVISIBLE);
+				// playImageButton.setVisibility(View.VISIBLE);
+
+				songNameTextView.setText(songInfo.getDisplayName());
+				singerNameTextView.setText(songInfo.getArtist());
+				seekBar.setEnabled(true);
+				seekBar.setMax((int) songInfo.getDuration());
+				seekBar.setProgress((int) songInfo.getPlayProgress());
+				timeTextView
+						.setText("-"
+								+ MediaUtils.formatTime((int) (songInfo
+										.getDuration() - songInfo
+										.getPlayProgress())));
+
+				initKscLyrics(songInfo);
+
+				break;
+			case SongMessage.LASTPLAYFINISH:
+
 				pauseImageButton.setVisibility(View.INVISIBLE);
 				playImageButton.setVisibility(View.VISIBLE);
 				songNameTextView.setText(songInfo.getDisplayName());
 				singerNameTextView.setText(songInfo.getArtist());
+				seekBar.setEnabled(false);
+				seekBar.setMax((int) songInfo.getDuration());
+				seekBar.setProgress((int) songInfo.getPlayProgress());
+				timeTextView.setText("-00:00");
+
+				Bitmap bm = MediaUtils.getDefaultArtwork(MainActivity.this,
+						false);
+				singerPicImageView
+						.setBackgroundDrawable(new BitmapDrawable(bm));// 显示专辑封面图片
+				
+				initKscLyrics(songInfo);
+
 				break;
 			case SongMessage.PLAYING:
+
+				if (pauseImageButton.getVisibility() != View.VISIBLE) {
+					pauseImageButton.setVisibility(View.VISIBLE);
+				}
+				if (playImageButton.getVisibility() != View.INVISIBLE) {
+					playImageButton.setVisibility(View.INVISIBLE);
+				}
+
+				if (!isStartTrackingTouch) {
+					seekBar.setProgress((int) songInfo.getPlayProgress());
+
+					timeTextView
+							.setText("-"
+									+ MediaUtils.formatTime((int) (songInfo
+											.getDuration() - songInfo
+											.getPlayProgress())));
+				}
+
+				if(mMenu.isMenuShowing()){
+					reshLrcView((int) songInfo.getPlayProgress());
+				}
+
 				break;
 			case SongMessage.STOPING:
+				pauseImageButton.setVisibility(View.INVISIBLE);
+				playImageButton.setVisibility(View.VISIBLE);
+
+				seekBar.setProgress((int) songInfo.getPlayProgress());
+				timeTextView
+						.setText("-"
+								+ MediaUtils.formatTime((int) (songInfo
+										.getDuration() - songInfo
+										.getPlayProgress())));
+				
+				reshLrcView((int) songInfo.getPlayProgress());
+				break;
+			case SongMessage.ERROR:
+				// pauseImageButton.setVisibility(View.INVISIBLE);
+				// playImageButton.setVisibility(View.VISIBLE);
+
+				String errorMessage = songMessage.getErrorMessage();
+				Toast.makeText(MainActivity.this, errorMessage,
+						Toast.LENGTH_SHORT).show();
 				break;
 			}
 		}
 
 	};
+
+	/**
+	 * 初始化歌词
+	 * 
+	 * @param songInfo
+	 *            当前歌曲的信息
+	 */
+	private void initKscLyrics(final SongInfo songInfo) {
+		new AsyncTaskHandler() {
+			@Override
+			protected void onPostExecute(Object result) {
+				kscLyricsParser = (KscLyricsParser) result;
+				lyricsLineTreeMap = kscLyricsParser.getLyricsLineTreeMap();
+				kscTwoLineLyricsView.init();
+				if (lyricsLineTreeMap.size() != 0) {
+					kscTwoLineLyricsView.setKscLyricsParser(kscLyricsParser);
+					kscTwoLineLyricsView
+							.setLyricsLineTreeMap(lyricsLineTreeMap);
+					kscTwoLineLyricsView.setBlLrc(true);
+					kscTwoLineLyricsView.invalidate();
+				} else {
+					kscTwoLineLyricsView.setBlLrc(false);
+					kscTwoLineLyricsView.invalidate();
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+
+				return KscLyricsManamge.getKscLyricsParser(songInfo
+						.getDisplayName());
+			}
+		}.execute();
+	}
+
+	/**
+	 * 
+	 * @param playProgress
+	 *            根据当前歌曲播放进度，刷新歌词
+	 */
+	private void reshLrcView(int playProgress) {
+		// 判断当前的歌曲是否有歌词
+		boolean blLrc = kscTwoLineLyricsView.getBlLrc();
+		if (blLrc) {
+			kscTwoLineLyricsView.showLrc(playProgress);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +449,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 				null);
 		setContentView(mainView);
 		init();
+		createNotifiView();
 		setBackground();
 		ObserverManage.getObserver().addObserver(this);
 		ActivityManager.getInstance().addActivity(this);
@@ -182,13 +490,58 @@ public class MainActivity extends FragmentActivity implements Observer {
 		songNameTextView = (TextView) centMenu.findViewById(R.id.song_name);
 		playImageButton = (ImageButton) centMenu.findViewById(R.id.play_buttom);
 		playImageButton.setVisibility(View.VISIBLE);
+
+		playImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.PLAYORSTOPMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+
+			}
+		});
+
 		pauseImageButton = (ImageButton) centMenu
 				.findViewById(R.id.pause_buttom);
 		pauseImageButton.setVisibility(View.INVISIBLE);
 
+		pauseImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.PLAYORSTOPMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+
+			}
+		});
+
+		nextImageButton = (ImageButton) centMenu.findViewById(R.id.next_buttom);
+
+		nextImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.NEXTMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+
+			}
+		});
+
 		mMenu.setContent(centMenu);
 
-		mMenu.setMenu(R.layout.left_menu);
+		View left_Menu = LayoutInflater.from(this).inflate(R.layout.left_menu,
+				null, false);
+
+		kscTwoLineLyricsView = (KscTwoLineLyricsView) left_Menu
+				.findViewById(R.id.kscTwoLineLyricsView);
+
+		mMenu.setMenu(left_Menu);
 		mMenu.setOnOpenedListener(new OnOpenedListener() {
 
 			@Override
@@ -215,10 +568,93 @@ public class MainActivity extends FragmentActivity implements Observer {
 						Constants.BAR_LRC_IS_OPEN);
 			}
 		});
+
+		seekBar = (BaseSeekBar) centMenu.findViewById(R.id.seekBar);
+		seekBar.setEnabled(false);
+		seekBar.setProgress(0);
+		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+				// // 拖动条进度改变的时候调用
+				if (isStartTrackingTouch) {
+					// 往弹出窗口传输相关的进度
+					seekBar.popupWindowShow(seekBar.getProgress());
+				}
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar arg0) {
+				// 拖动条开始拖动的时候调用
+				seekBar.popupWindowShow(seekBar.getProgress());
+				isStartTrackingTouch = true;
+			}
+
+			@Override
+			public void onStopTrackingTouch(SeekBar arg0) {
+				isStartTrackingTouch = false;
+				// 拖动条停止拖动的时候调用
+				seekBar.popupWindowDismiss();
+
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.SEEKTO);
+				songMessage.setProgress(seekBar.getProgress());
+				ObserverManage.getObserver().setMessage(songMessage);
+			}
+		});
+
 		if (Constants.BAR_LRC_IS_OPEN) {
 			mMenu.toggle();
 		}
 
+	}
+
+	private void createNotifiView() {
+
+		// 获取到系统的notificationManager
+		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("play");
+		filter.addAction("pause");
+		filter.addAction("next");
+		filter.addAction("prew");
+		filter.addAction("close");
+		registerReceiver(onClickReceiver, filter);
+		// 更新通知栏
+		int icon = R.drawable.ic_launcher;
+		CharSequence tickerText = "乐乐音乐，传播好的音乐";
+		long when = System.currentTimeMillis();
+		mNotification = new Notification(icon, tickerText, when);
+		// FLAG_AUTO_CANCEL 该通知能被状态栏的清除按钮给清除掉
+		// FLAG_NO_CLEAR 该通知不能被状态栏的清除按钮给清除掉
+		// FLAG_ONGOING_EVENT 通知放置在正在运行
+		// FLAG_INSISTENT 是否一直进行，比如音乐一直播放，知道用户响应
+		mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
+		// mNotification.flags |= Notification.FLAG_NO_CLEAR;
+
+		// DEFAULT_ALL 使用所有默认值，比如声音，震动，闪屏等等
+		// DEFAULT_LIGHTS 使用默认闪光提示
+		// DEFAULT_SOUND 使用默认提示声音
+		// DEFAULT_VIBRATE 使用默认手机震动，需加上<uses-permission
+		// android:name="android.permission.VIBRATE" />权限
+		// mNotification.defaults = Notification.DEFAULT_SOUND;
+
+		Intent intent = new Intent(Intent.ACTION_MAIN);
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		intent.setClass(MainActivity.this, MainActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+				| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+
+		PendingIntent pendingIntent = PendingIntent
+				.getActivity(MainActivity.this, 0, intent,
+						PendingIntent.FLAG_CANCEL_CURRENT);
+		mNotification.contentIntent = pendingIntent;
+
+		SongMessage songMessage = new SongMessage();
+		songMessage.setSongInfo(null);
+		Message msg = new Message();
+		msg.obj = songMessage;
+		notifyHandler.sendMessage(msg);
 	}
 
 	private void setBackground() {
@@ -281,6 +717,8 @@ public class MainActivity extends FragmentActivity implements Observer {
 							.show();
 					mExitTime = System.currentTimeMillis();
 				} else {
+					unregisterReceiver(onClickReceiver);
+					notificationManager.cancel(0);
 					ActivityManager.getInstance().exit();
 				}
 			} else {
@@ -329,10 +767,18 @@ public class MainActivity extends FragmentActivity implements Observer {
 			}
 		} else if (data instanceof SongMessage) {
 			SongMessage songMessage = (SongMessage) data;
-			if (songMessage.getType() == SongMessage.INIT) {
+			if (songMessage.getType() == SongMessage.INIT
+					|| songMessage.getType() == SongMessage.PLAYING
+					|| songMessage.getType() == SongMessage.STOPING
+					|| songMessage.getType() == SongMessage.ERROR
+					|| songMessage.getType() == SongMessage.LASTPLAYFINISH) {
 				Message msg = new Message();
 				msg.obj = songMessage;
 				songHandler.sendMessage(msg);
+
+				Message msg2 = new Message();
+				msg2.obj = songMessage;
+				notifyHandler.sendMessage(msg2);
 			}
 		}
 	}
