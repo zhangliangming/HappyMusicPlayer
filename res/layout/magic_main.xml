@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/bg_player_queue_back" >
+
+    <ImageView
+        android:id="@+id/singer_pic"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/playing_bar_default_avatar" />
+
+    <com.happyplayer.widget.StopImageView
+        android:id="@+id/playing_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/singer_pic"
+        android:layout_alignLeft="@+id/singer_pic"
+        android:layout_alignRight="@+id/singer_pic"
+        android:layout_alignTop="@+id/singer_pic"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/fx_information_bg"
+        android:gravity="bottom|center_horizontal"
+        android:text="-00:00"
+        android:textColor="#ffffff" />
+
+</RelativeLayout>

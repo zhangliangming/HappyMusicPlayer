@@ -120,6 +120,8 @@ public class MediaManage implements Observer {
 	private void seekTo(int progress) {
 		if (player != null) {
 			player.stop();
+			player.reset();
+			player.release();
 			player = null;
 		}
 		if (playSongInfo == null) {
@@ -246,6 +248,8 @@ public class MediaManage implements Observer {
 
 		if (player != null) {
 			player.stop();
+			player.reset();
+			player.release();
 			player = null;
 		}
 		if (playSongInfo != null) {
@@ -324,6 +328,8 @@ public class MediaManage implements Observer {
 
 		if (player != null) {
 			player.stop();
+			player.reset();
+			player.release();
 			player = null;
 		}
 		if (playSongInfo != null) {
@@ -340,6 +346,8 @@ public class MediaManage implements Observer {
 	private void selectPlay(SongInfo songInfo) {
 		if (player != null) {
 			player.stop();
+			player.reset();
+			player.release();
 			player = null;
 		}
 		if (playSongInfo != null) {

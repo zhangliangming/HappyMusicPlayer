@@ -65,10 +65,24 @@ public class DataUtil {
 		// 记录上一次的播放歌曲sid
 		Constants.PLAY_SID = preferences.getString(Constants.PLAY_SID_KEY,
 				Constants.PLAY_SID);
-		
+
 		// 记录播放模式
 		Constants.PLAY_MODE = preferences.getInt(Constants.PLAY_MODE_KEY,
 				Constants.PLAY_MODE);
+
+		// 显示桌面歌词
+		Constants.SHOWDESLRC = preferences.getBoolean(Constants.SHOWDESLRC_KEY,
+				Constants.SHOWDESLRC);
+
+		Constants.ICON_VIEWX = preferences.getInt(Constants.ICON_VIEWX_KEY,
+				Constants.ICON_VIEWX);
+
+		Constants.ICON_VIEWY = preferences.getInt(Constants.ICON_VIEWY_KEY,
+				Constants.ICON_VIEWY);
+
+		// 显示EASYTOUCH
+		Constants.SHOWEASYTOUCH = preferences.getBoolean(
+				Constants.SHOWEASYTOUCH_KEY, Constants.SHOWEASYTOUCH);
 
 	}
 

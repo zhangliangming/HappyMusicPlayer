@@ -63,16 +63,6 @@
                 android:textColor="#000000"
                 android:textSize="15dp" />
 
-            <!--
-                 <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@+id/num"
-                android:background="@drawable/btn_forward" />
-            -->
-
             <com.happyplayer.widget.NavPlayImageButton
                 android:id="@+id/navPlayImageButton"
                 android:layout_width="45dp"
@@ -117,43 +107,6 @@
                 android:background="@drawable/btn_forward" />
         </com.happyplayer.widget.ListViewRelativeLayout>
 
-        <!--
-        <com.happyplayer.widget.ListViewRelativeLayout
-            android:id="@+id/mylove"
-            android:layout_width="fill_parent"
-            android:layout_height="75dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:clickable="true" >
-
-            <ImageView
-                android:id="@+id/itempic"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="5dp"
-                android:background="@drawable/btn_mylove" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@+id/itempic"
-                android:text="我的收藏"
-                android:textColor="#000000"
-                android:textSize="18dp" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="20dp"
-                android:background="@drawable/btn_forward" />
-        </com.happyplayer.widget.ListViewRelativeLayout>
-        -->
-
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="75dp"
@@ -184,7 +137,8 @@
                     android:layout_height="25dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginRight="10dp"
+                    android:clickable="false" />
             </com.happyplayer.widget.ListViewRelativeLayout>
 
             <View
@@ -196,19 +150,11 @@
                 android:background="#d2d2d2" />
 
             <com.happyplayer.widget.ListViewRelativeLayout
-                android:id="@+id/skinsetting"
+                android:id="@+id/showEasyTouch"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_height="75dp"
                 android:layout_toRightOf="@+id/line"
                 android:clickable="true" >
-
-                <com.happyplayer.widget.SkinImageButton
-                    android:clickable="false"
-                    android:id="@+id/itempic"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="5dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -216,11 +162,48 @@
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@+id/itempic"
-                    android:text="系统皮肤"
+                    android:text="EasyTouch"
                     android:textColor="#000000"
                     android:textSize="18dp" />
+
+                <CheckBox
+                    android:id="@+id/EasyTouchcheckbox"
+                    style="@style/CustomCheckboxTheme"
+                    android:layout_width="60dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:clickable="false" />
             </com.happyplayer.widget.ListViewRelativeLayout>
         </RelativeLayout>
+
+        <com.happyplayer.widget.ListViewRelativeLayout
+            android:id="@+id/skinsetting"
+            android:layout_width="fill_parent"
+            android:layout_height="75dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:clickable="true" >
+
+            <com.happyplayer.widget.SkinImageButton
+                android:id="@+id/itempic"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:clickable="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@+id/itempic"
+                android:text="系统皮肤"
+                android:textColor="#000000"
+                android:textSize="18dp" />
+        </com.happyplayer.widget.ListViewRelativeLayout>
     </LinearLayout>
 
 </ScrollView>

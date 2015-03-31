@@ -13,13 +13,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.happyplayer.async.AsyncTaskHandler;
+import com.happyplayer.common.Constants;
 import com.happyplayer.iface.PageAction;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.player.MediaManage;
+import com.happyplayer.util.DataUtil;
 import com.happyplayer.widget.ListViewRelativeLayout;
 import com.happyplayer.widget.NavPlayImageButton;
 
@@ -41,6 +44,10 @@ public class MyFragment extends Fragment implements Observer {
 	// private ListViewRelativeLayout setting;
 
 	private ListViewRelativeLayout showdesLrc;
+	private CheckBox showcheckboxCheckBox;
+
+	private ListViewRelativeLayout showEasyTouch;
+	private CheckBox showEasyTouchCheckBox;
 
 	private ListViewRelativeLayout skinsetting;
 
@@ -110,6 +117,17 @@ public class MyFragment extends Fragment implements Observer {
 				.findViewById(R.id.showdesLrc);
 		showdesLrc.setOnClickListener(new ItemOnClick());
 
+		showcheckboxCheckBox = (CheckBox) mMainView
+				.findViewById(R.id.showcheckbox);
+		showcheckboxCheckBox.setChecked(Constants.SHOWDESLRC);
+
+		showEasyTouch = (ListViewRelativeLayout) mMainView
+				.findViewById(R.id.showEasyTouch);
+		showEasyTouch.setOnClickListener(new ItemOnClick());
+		showEasyTouchCheckBox = (CheckBox) mMainView
+				.findViewById(R.id.EasyTouchcheckbox);
+		showEasyTouchCheckBox.setChecked(Constants.SHOWEASYTOUCH);
+
 		skinsetting = (ListViewRelativeLayout) mMainView
 				.findViewById(R.id.skinsetting);
 		skinsetting.setOnClickListener(new ItemOnClick());
@@ -133,19 +151,21 @@ public class MyFragment extends Fragment implements Observer {
 			@Override
 			protected void onPostExecute(Object result) {
 
-			}
-
-			@Override
-			protected Object doInBackground() throws Exception {
-
-				mCOUNT = MediaManage.getMediaManage(
-						MyFragment.this.getActivity()).getCount();
-
 				Message msg = new Message();
 				msg.what = COUNT;
 				msg.obj = mCOUNT;
 
 				handler.sendMessage(msg);
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+
+				Thread.sleep(50);
+
+				mCOUNT = MediaManage.getMediaManage(
+						MyFragment.this.getActivity()).getCount();
+
 				return null;
 			}
 		}.execute();
@@ -185,6 +205,10 @@ public class MyFragment extends Fragment implements Observer {
 				navPlayImageButton();
 				break;
 			case R.id.showdesLrc:
+				showdesLrc();
+				break;
+			case R.id.showEasyTouch:
+				showEasyTouch();
 				break;
 			case R.id.skinsetting:
 				gotoSkinSetting();
@@ -201,6 +225,34 @@ public class MyFragment extends Fragment implements Observer {
 		// Intent intent = new Intent(getActivity(), LocalMusicActivity.class);
 		// getActivity().startActivity(intent);
 		action.addPage(new LocalMusicFragment(action));
+	}
+
+	public void showEasyTouch() {
+		if (showEasyTouchCheckBox.isChecked()) {
+			showEasyTouchCheckBox.setChecked(false);
+			Constants.SHOWEASYTOUCH = false;
+		} else {
+			Constants.SHOWEASYTOUCH = true;
+			showEasyTouchCheckBox.setChecked(true);
+		}
+
+		DataUtil.save(getActivity(), Constants.SHOWEASYTOUCH_KEY,
+				Constants.SHOWEASYTOUCH);
+	}
+
+	public void showdesLrc() {
+
+		if (showcheckboxCheckBox.isChecked()) {
+			showcheckboxCheckBox.setChecked(false);
+			Constants.SHOWDESLRC = false;
+		} else {
+			Constants.SHOWDESLRC = true;
+			showcheckboxCheckBox.setChecked(true);
+		}
+
+		DataUtil.save(getActivity(), Constants.SHOWDESLRC_KEY,
+				Constants.SHOWDESLRC);
+
 	}
 
 	/**

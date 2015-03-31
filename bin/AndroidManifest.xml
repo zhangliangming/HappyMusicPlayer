@@ -48,6 +48,7 @@
         <activity android:name="com.happyplayer.ui.LrcViewActivity"></activity>
         <activity android:name="com.happyplayer.ui.SkinPicActivity"></activity>
         <activity android:name="com.happyplayer.ui.SkinColorActivity"></activity>
+        <service android:name="com.happyplayer.service.BackupService"></service>
     </application>
 
 </manifest>

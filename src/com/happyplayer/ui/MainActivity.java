@@ -43,6 +43,7 @@ import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
+import com.happyplayer.service.BackupService;
 import com.happyplayer.slidingmenu.SlidingMenu;
 import com.happyplayer.slidingmenu.SlidingMenu.OnClosedListener;
 import com.happyplayer.slidingmenu.SlidingMenu.OnOpenedListener;
@@ -141,9 +142,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 				songMessage.setType(SongMessage.PREVMUSIC);
 				ObserverManage.getObserver().setMessage(songMessage);
 			} else if (intent.getAction().equals("close")) {
-				unregisterReceiver(onClickReceiver);
-				notificationManager.cancel(0);
-				ActivityManager.getInstance().exit();
+				close();
 			}
 		}
 
@@ -341,7 +340,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 						false);
 				singerPicImageView
 						.setBackgroundDrawable(new BitmapDrawable(bm));// 显示专辑封面图片
-				
+
 				initKscLyrics(songInfo);
 
 				break;
@@ -364,7 +363,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 											.getPlayProgress())));
 				}
 
-				if(mMenu.isMenuShowing()){
+				if (mMenu.isMenuShowing()) {
 					reshLrcView((int) songInfo.getPlayProgress());
 				}
 
@@ -379,7 +378,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 								+ MediaUtils.formatTime((int) (songInfo
 										.getDuration() - songInfo
 										.getPlayProgress())));
-				
+
 				reshLrcView((int) songInfo.getPlayProgress());
 				break;
 			case SongMessage.ERROR:
@@ -430,6 +429,19 @@ public class MainActivity extends FragmentActivity implements Observer {
 	}
 
 	/**
+	 * 退出程序
+	 */
+	private void close() {
+		Intent backupServiceIntent = new Intent(MainActivity.this,
+				BackupService.class);
+		stopService(backupServiceIntent);
+
+		unregisterReceiver(onClickReceiver);
+		notificationManager.cancel(0);
+		ActivityManager.getInstance().exit();
+	}
+
+	/**
 	 * 
 	 * @param playProgress
 	 *            根据当前歌曲播放进度，刷新歌词
@@ -451,6 +463,10 @@ public class MainActivity extends FragmentActivity implements Observer {
 		init();
 		createNotifiView();
 		setBackground();
+
+		Intent intentService = new Intent(this, BackupService.class);
+		startService(intentService);
+
 		ObserverManage.getObserver().addObserver(this);
 		ActivityManager.getInstance().addActivity(this);
 	}
@@ -621,7 +637,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 		filter.addAction("close");
 		registerReceiver(onClickReceiver, filter);
 		// 更新通知栏
-		int icon = R.drawable.ic_launcher;
+		int icon = R.drawable.icon;
 		CharSequence tickerText = "乐乐音乐，传播好的音乐";
 		long when = System.currentTimeMillis();
 		mNotification = new Notification(icon, tickerText, when);
@@ -717,9 +733,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 							.show();
 					mExitTime = System.currentTimeMillis();
 				} else {
-					unregisterReceiver(onClickReceiver);
-					notificationManager.cancel(0);
-					ActivityManager.getInstance().exit();
+					close();
 				}
 			} else {
 				viewPager.setCurrentItem(0);
@@ -779,6 +793,8 @@ public class MainActivity extends FragmentActivity implements Observer {
 				Message msg2 = new Message();
 				msg2.obj = songMessage;
 				notifyHandler.sendMessage(msg2);
+			} else if (songMessage.getType() == SongMessage.EXIT) {
+				close();
 			}
 		}
 	}

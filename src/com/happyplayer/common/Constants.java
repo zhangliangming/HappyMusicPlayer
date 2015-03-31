@@ -119,4 +119,27 @@ public class Constants {
 	 * 主页面标题文本默认颜色
 	 */
 	public static int TEXT_COLOR = Color.rgb(0, 0, 0);
+
+	/**
+	 * 显示桌面歌词
+	 */
+	public static String SHOWDESLRC_KEY = "SHOWDESLRC_KEY";
+	public static boolean SHOWDESLRC = false;
+	/**
+	 * 图标x坐标
+	 */
+	public static String ICON_VIEWX_KEY = "ICON_VIEWX_KEY";
+	public static int ICON_VIEWX = 0;
+
+	/**
+	 * 图标y坐标
+	 */
+	public static String ICON_VIEWY_KEY = "ICON_VIEWY_KEY";
+	public static int ICON_VIEWY = 0;
+
+	/**
+	 * 显示EASYTOUCH
+	 */
+	public static String SHOWEASYTOUCH_KEY = "SHOWEASYTOUCH_KEY";
+	public static boolean SHOWEASYTOUCH = false;
 }
