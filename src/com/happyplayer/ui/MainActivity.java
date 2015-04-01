@@ -43,7 +43,8 @@ import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.service.BackupService;
+import com.happyplayer.service.EasytouchService;
+import com.happyplayer.service.FloatLrcService;
 import com.happyplayer.slidingmenu.SlidingMenu;
 import com.happyplayer.slidingmenu.SlidingMenu.OnClosedListener;
 import com.happyplayer.slidingmenu.SlidingMenu.OnOpenedListener;
@@ -122,7 +123,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 
 	private NotificationManager notificationManager;
 	private Notification mNotification;
-
+	private Notification mLrcNotification;
 	BroadcastReceiver onClickReceiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals("play")) {
@@ -143,6 +144,34 @@ public class MainActivity extends FragmentActivity implements Observer {
 				ObserverManage.getObserver().setMessage(songMessage);
 			} else if (intent.getAction().equals("close")) {
 				close();
+			} else if (intent.getAction().equals("lrcMove")) {
+				if (Constants.DESLRCMOVE) {
+					Constants.DESLRCMOVE = false;
+				} else {
+					Constants.DESLRCMOVE = true;
+				}
+				
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.DESLRCMOVE);
+				ObserverManage.getObserver().setMessage(songMessage);
+
+				notificationManager.cancel(1);
+				createNotifiLrcView();
+
+				new AsyncTaskHandler() {
+
+					@Override
+					protected void onPostExecute(Object result) {
+
+					}
+
+					protected Object doInBackground() throws Exception {
+
+						DataUtil.save(MainActivity.this,
+								Constants.DESLRCMOVE_KEY, Constants.DESLRCMOVE);
+						return null;
+					}
+				}.execute();
 			}
 		}
 
@@ -152,117 +181,155 @@ public class MainActivity extends FragmentActivity implements Observer {
 
 		@Override
 		public void handleMessage(Message msg) {
-			// 自定义界面
-			final RemoteViews mRemoteViews = new RemoteViews(getPackageName(),
-					R.layout.notify_view);
+			switch (msg.what) {
+			case 0:
+				// 自定义界面
+				final RemoteViews mRemoteViews = new RemoteViews(
+						getPackageName(), R.layout.notify_view);
 
-			Intent buttoncloseIntent = new Intent("close");
-			PendingIntent pendcloseButtonIntent = PendingIntent.getBroadcast(
-					MainActivity.this, 0, buttoncloseIntent, 0);
+				Intent buttoncloseIntent = new Intent("close");
+				PendingIntent pendcloseButtonIntent = PendingIntent
+						.getBroadcast(MainActivity.this, 0, buttoncloseIntent,
+								0);
 
-			mRemoteViews.setOnClickPendingIntent(R.id.close,
-					pendcloseButtonIntent);
+				mRemoteViews.setOnClickPendingIntent(R.id.close,
+						pendcloseButtonIntent);
 
-			Intent buttonplayIntent = new Intent("play");
-			PendingIntent pendplayButtonIntent = PendingIntent.getBroadcast(
-					MainActivity.this, 0, buttonplayIntent, 0);
+				Intent buttonplayIntent = new Intent("play");
+				PendingIntent pendplayButtonIntent = PendingIntent
+						.getBroadcast(MainActivity.this, 0, buttonplayIntent, 0);
 
-			mRemoteViews.setOnClickPendingIntent(R.id.play,
-					pendplayButtonIntent);
+				mRemoteViews.setOnClickPendingIntent(R.id.play,
+						pendplayButtonIntent);
 
-			Intent buttonpauseIntent = new Intent("pause");
-			PendingIntent pendpauseButtonIntent = PendingIntent.getBroadcast(
-					MainActivity.this, 0, buttonpauseIntent, 0);
+				Intent buttonpauseIntent = new Intent("pause");
+				PendingIntent pendpauseButtonIntent = PendingIntent
+						.getBroadcast(MainActivity.this, 0, buttonpauseIntent,
+								0);
 
-			Intent buttonnextIntent = new Intent("next");
-			PendingIntent pendnextButtonIntent = PendingIntent.getBroadcast(
-					MainActivity.this, 0, buttonnextIntent, 0);
+				Intent buttonnextIntent = new Intent("next");
+				PendingIntent pendnextButtonIntent = PendingIntent
+						.getBroadcast(MainActivity.this, 0, buttonnextIntent, 0);
 
-			mRemoteViews.setOnClickPendingIntent(R.id.next,
-					pendnextButtonIntent);
+				mRemoteViews.setOnClickPendingIntent(R.id.next,
+						pendnextButtonIntent);
 
-			Intent buttonprewtIntent = new Intent("prew");
-			PendingIntent pendprewButtonIntent = PendingIntent.getBroadcast(
-					MainActivity.this, 0, buttonprewtIntent, 0);
+				Intent buttonprewtIntent = new Intent("prew");
+				PendingIntent pendprewButtonIntent = PendingIntent
+						.getBroadcast(MainActivity.this, 0, buttonprewtIntent,
+								0);
 
-			mRemoteViews.setOnClickPendingIntent(R.id.prew,
-					pendprewButtonIntent);
+				mRemoteViews.setOnClickPendingIntent(R.id.prew,
+						pendprewButtonIntent);
 
-			SongMessage songMessage = (SongMessage) msg.obj;
-			final SongInfo songInfo = songMessage.getSongInfo();
-			if (songInfo != null) {
+				SongMessage songMessage = (SongMessage) msg.obj;
+				final SongInfo songInfo = songMessage.getSongInfo();
+				if (songInfo != null) {
 
-				switch (songMessage.getType()) {
-				case SongMessage.INIT:
+					switch (songMessage.getType()) {
+					case SongMessage.INIT:
 
-					mRemoteViews.setTextViewText(R.id.songName,
-							songInfo.getDisplayName());
+						mRemoteViews.setTextViewText(R.id.songName,
+								songInfo.getDisplayName());
 
-					mRemoteViews.setImageViewResource(R.id.play,
-							R.drawable.statusbar_btn_play);
-					mRemoteViews.setOnClickPendingIntent(R.id.play,
-							pendplayButtonIntent);
+						mRemoteViews.setImageViewResource(R.id.play,
+								R.drawable.statusbar_btn_play);
+						mRemoteViews.setOnClickPendingIntent(R.id.play,
+								pendplayButtonIntent);
 
-					// 本地歌曲
-					if (songInfo.getType() == SongInfo.LOCAL) {
-						Bitmap bm = ImageUtil.getFirstArtwork(
-								songInfo.getPath(), songInfo.getSid());
-						if (bm != null) {
-							mRemoteViews.setImageViewBitmap(R.id.icon_pic, bm);// 显示专辑封面图片
+						// 本地歌曲
+						if (songInfo.getType() == SongInfo.LOCAL) {
+							Bitmap bm = ImageUtil.getFirstArtwork(
+									songInfo.getPath(), songInfo.getSid());
+							if (bm != null) {
+								mRemoteViews.setImageViewBitmap(R.id.icon_pic,
+										bm);// 显示专辑封面图片
+							} else {
+								mRemoteViews.setImageViewResource(
+										R.id.icon_pic, R.drawable.ic_launcher);// 显示专辑封面图片
+							}
 						} else {
-							mRemoteViews.setImageViewResource(R.id.icon_pic,
-									R.drawable.ic_launcher);// 显示专辑封面图片
+							// 网上下载歌曲
 						}
-					} else {
-						// 网上下载歌曲
+
+						break;
+					case SongMessage.LASTPLAYFINISH:
+
+						mRemoteViews.setTextViewText(R.id.songName, "歌名");
+						mRemoteViews.setImageViewResource(R.id.play,
+								R.drawable.statusbar_btn_play);
+						mRemoteViews.setOnClickPendingIntent(R.id.play,
+								pendplayButtonIntent);
+
+						break;
+					case SongMessage.PLAYING:
+
+						mRemoteViews.setImageViewResource(R.id.play,
+								R.drawable.statusbar_btn_pause);
+						mRemoteViews.setOnClickPendingIntent(R.id.play,
+								pendpauseButtonIntent);
+
+						break;
+					case SongMessage.STOPING:
+
+						mRemoteViews.setImageViewResource(R.id.play,
+								R.drawable.statusbar_btn_play);
+						mRemoteViews.setOnClickPendingIntent(R.id.play,
+								pendplayButtonIntent);
+
+						break;
+
+					case SongMessage.ERROR:
+						mRemoteViews.setTextViewText(R.id.songName, "歌名");
+						mRemoteViews.setImageViewResource(R.id.play,
+								R.drawable.statusbar_btn_play);
+						mRemoteViews.setOnClickPendingIntent(R.id.play,
+								pendplayButtonIntent);
+						break;
 					}
-
-					break;
-				case SongMessage.LASTPLAYFINISH:
-
-					mRemoteViews.setTextViewText(R.id.songName, "歌名");
-					mRemoteViews.setImageViewResource(R.id.play,
-							R.drawable.statusbar_btn_play);
-					mRemoteViews.setOnClickPendingIntent(R.id.play,
-							pendplayButtonIntent);
-
-					break;
-				case SongMessage.PLAYING:
-
-					mRemoteViews.setImageViewResource(R.id.play,
-							R.drawable.statusbar_btn_pause);
-					mRemoteViews.setOnClickPendingIntent(R.id.play,
-							pendpauseButtonIntent);
-
-					break;
-				case SongMessage.STOPING:
-
-					mRemoteViews.setImageViewResource(R.id.play,
-							R.drawable.statusbar_btn_play);
-					mRemoteViews.setOnClickPendingIntent(R.id.play,
-							pendplayButtonIntent);
-
-					break;
-
-				case SongMessage.ERROR:
-					mRemoteViews.setTextViewText(R.id.songName, "歌名");
-					mRemoteViews.setImageViewResource(R.id.play,
-							R.drawable.statusbar_btn_play);
-					mRemoteViews.setOnClickPendingIntent(R.id.play,
-							pendplayButtonIntent);
-					break;
+				} else {
+					mRemoteViews.setImageViewResource(R.id.icon_pic,
+							R.drawable.ic_launcher);// 显示专辑封面图片
 				}
-			} else {
-				mRemoteViews.setImageViewResource(R.id.icon_pic,
-						R.drawable.ic_launcher);// 显示专辑封面图片
+
+				mNotification.contentView = mRemoteViews;
+
+				// mRemoteViews.setOnClickPendingIntent(R.id.play,
+				// playPendingIntent());
+
+				notificationManager.notify(0, mNotification);
+				break;
+			case 1:
+
+				// 自定义界面
+				final RemoteViews notifyLrcView = new RemoteViews(
+						getPackageName(), R.layout.notify_lrc_view);
+
+				Intent lrcMoveIntent = new Intent("lrcMove");
+				PendingIntent pendlrcMoveIntent = PendingIntent.getBroadcast(
+						MainActivity.this, 0, lrcMoveIntent, 0);
+
+				notifyLrcView.setOnClickPendingIntent(R.id.bg,
+						pendlrcMoveIntent);
+				if (Constants.DESLRCMOVE) {
+					notifyLrcView.setImageViewResource(R.id.lrc_pic,
+							R.drawable.minilyric_desktop_unlocked);
+					notifyLrcView.setTextViewText(R.id.title1, "点击解锁桌面歌词");
+					notifyLrcView.setTextViewText(R.id.title2, "桌面歌词已解锁");
+				} else {
+					notifyLrcView.setImageViewResource(R.id.lrc_pic,
+							R.drawable.minilyric_desktop_lock);
+					notifyLrcView.setTextViewText(R.id.title1, "点击解锁桌面歌词");
+					notifyLrcView.setTextViewText(R.id.title2, "桌面歌词已锁定");
+				}
+
+				mLrcNotification.contentView = notifyLrcView;
+
+				notificationManager.notify(1, mLrcNotification);
+				break;
+
 			}
 
-			mNotification.contentView = mRemoteViews;
-
-			// mRemoteViews.setOnClickPendingIntent(R.id.play,
-			// playPendingIntent());
-
-			notificationManager.notify(0, mNotification);
 		}
 
 	};
@@ -432,12 +499,17 @@ public class MainActivity extends FragmentActivity implements Observer {
 	 * 退出程序
 	 */
 	private void close() {
-		Intent backupServiceIntent = new Intent(MainActivity.this,
-				BackupService.class);
-		stopService(backupServiceIntent);
+		Intent easytouchServiceIntent = new Intent(MainActivity.this,
+				EasytouchService.class);
+		stopService(easytouchServiceIntent);
+
+		Intent floatLrcServiceIntent = new Intent(MainActivity.this,
+				FloatLrcService.class);
+		stopService(floatLrcServiceIntent);
 
 		unregisterReceiver(onClickReceiver);
 		notificationManager.cancel(0);
+		notificationManager.cancel(1);
 		ActivityManager.getInstance().exit();
 	}
 
@@ -464,8 +536,14 @@ public class MainActivity extends FragmentActivity implements Observer {
 		createNotifiView();
 		setBackground();
 
-		Intent intentService = new Intent(this, BackupService.class);
-		startService(intentService);
+		if (Constants.SHOWDESLRC)
+			createNotifiLrcView();
+
+		Intent easytouchServiceIntent = new Intent(this, EasytouchService.class);
+		startService(easytouchServiceIntent);
+
+		Intent floatLrcServiceIntent = new Intent(this, FloatLrcService.class);
+		startService(floatLrcServiceIntent);
 
 		ObserverManage.getObserver().addObserver(this);
 		ActivityManager.getInstance().addActivity(this);
@@ -669,7 +747,44 @@ public class MainActivity extends FragmentActivity implements Observer {
 		SongMessage songMessage = new SongMessage();
 		songMessage.setSongInfo(null);
 		Message msg = new Message();
+		msg.what = 0;
 		msg.obj = songMessage;
+		notifyHandler.sendMessage(msg);
+	}
+
+	private void createNotifiLrcView() {
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("lrcMove");
+		registerReceiver(onClickReceiver, filter);
+		// 更新通知栏
+		int icon;
+		if (Constants.DESLRCMOVE) {
+			icon = R.drawable.minilyric_desktop_unlocked;
+		} else {
+			icon = R.drawable.minilyric_desktop_lock;
+		}
+
+		CharSequence tickerText = "";
+		long when = System.currentTimeMillis();
+		mLrcNotification = new Notification(icon, tickerText, when);
+		// FLAG_AUTO_CANCEL 该通知能被状态栏的清除按钮给清除掉
+		// FLAG_NO_CLEAR 该通知不能被状态栏的清除按钮给清除掉
+		// FLAG_ONGOING_EVENT 通知放置在正在运行
+		// FLAG_INSISTENT 是否一直进行，比如音乐一直播放，知道用户响应
+		mLrcNotification.flags |= Notification.FLAG_ONGOING_EVENT;
+		// mNotification.flags |= Notification.FLAG_NO_CLEAR;
+
+		// DEFAULT_ALL 使用所有默认值，比如声音，震动，闪屏等等
+		// DEFAULT_LIGHTS 使用默认闪光提示
+		// DEFAULT_SOUND 使用默认提示声音
+		// DEFAULT_VIBRATE 使用默认手机震动，需加上<uses-permission
+		// android:name="android.permission.VIBRATE" />权限
+		// mNotification.defaults = Notification.DEFAULT_SOUND;
+
+		SongMessage songMessage = new SongMessage();
+		songMessage.setSongInfo(null);
+		Message msg = new Message();
+		msg.what = 1;
 		notifyHandler.sendMessage(msg);
 	}
 
@@ -795,6 +910,11 @@ public class MainActivity extends FragmentActivity implements Observer {
 				notifyHandler.sendMessage(msg2);
 			} else if (songMessage.getType() == SongMessage.EXIT) {
 				close();
+			} else if (songMessage.getType() == SongMessage.DES_LRC) {
+				notificationManager.cancel(1);
+				if (Constants.SHOWDESLRC) {
+					createNotifiLrcView();
+				}
 			}
 		}
 	}

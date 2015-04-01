@@ -86,8 +86,14 @@ public class SongMessage {
 	 * 退出
 	 */
 	public static final int EXIT = 17;
-	
-	public static final int HOME = 18;
+	/***
+	 * 桌面歌词
+	 */
+	public static final int DES_LRC = 18;
+	/**
+	 * 桌面歌词是否可移动
+	 */
+	public static final int DESLRCMOVE = 19;
 	// 0是扫描完成后提醒 1是添加歌曲 2是歌曲插队 3是删除歌曲 4是删除歌曲和本地文件
 	// 5 是上一首 6是下一首 7是播放或者暂停 8是快进 9是正在播放 10是播放暂停 11初始化 12播放选中的歌曲
 	private int type;

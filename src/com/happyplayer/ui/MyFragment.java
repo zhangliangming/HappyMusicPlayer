@@ -250,8 +250,24 @@ public class MyFragment extends Fragment implements Observer {
 			showcheckboxCheckBox.setChecked(true);
 		}
 
-		DataUtil.save(getActivity(), Constants.SHOWDESLRC_KEY,
-				Constants.SHOWDESLRC);
+		new AsyncTaskHandler() {
+
+			@Override
+			protected void onPostExecute(Object result) {
+
+			}
+
+			protected Object doInBackground() throws Exception {
+
+				DataUtil.save(getActivity(), Constants.SHOWDESLRC_KEY,
+						Constants.SHOWDESLRC);
+				return null;
+			}
+		}.execute();
+
+		SongMessage songMessage = new SongMessage();
+		songMessage.setType(SongMessage.DES_LRC);
+		ObserverManage.getObserver().setMessage(songMessage);
 
 	}
 

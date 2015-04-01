@@ -38,17 +38,27 @@
         </activity>
         <activity android:name="com.happyplayer.ui.GuideActivity" >
         </activity>
-        <activity
-            android:name="com.happyplayer.ui.SettingActivity">
+        <activity android:name="com.happyplayer.ui.SettingActivity" >
         </activity>
-        <activity android:name="com.happyplayer.ui.LocalMusicActivity"></activity>
-        <activity android:name="com.happyplayer.ui.MyDownloadActivity"></activity>
-        <activity android:name="com.happyplayer.ui.MyLoveActivity"></activity>
-        <activity android:name="com.happyplayer.ui.ScanMusicActivity"></activity>
-        <activity android:name="com.happyplayer.ui.LrcViewActivity"></activity>
-        <activity android:name="com.happyplayer.ui.SkinPicActivity"></activity>
-        <activity android:name="com.happyplayer.ui.SkinColorActivity"></activity>
-        <service android:name="com.happyplayer.service.BackupService"></service>
+        <activity android:name="com.happyplayer.ui.LocalMusicActivity" >
+        </activity>
+        <activity android:name="com.happyplayer.ui.MyDownloadActivity" >
+        </activity>
+        <activity android:name="com.happyplayer.ui.MyLoveActivity" >
+        </activity>
+        <activity android:name="com.happyplayer.ui.ScanMusicActivity" >
+        </activity>
+        <activity android:name="com.happyplayer.ui.LrcViewActivity" >
+        </activity>
+        <activity android:name="com.happyplayer.ui.SkinPicActivity" >
+        </activity>
+        <activity android:name="com.happyplayer.ui.SkinColorActivity" >
+        </activity>
+
+        <service android:name="com.happyplayer.service.EasytouchService" >
+        </service>
+        <service android:name="com.happyplayer.service.FloatLrcService" >
+        </service>
     </application>
 
 </manifest>

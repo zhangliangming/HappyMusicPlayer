@@ -368,11 +368,6 @@ public class MediaManage implements Observer {
 		}
 
 		status = STOP;
-		// 发送历史歌曲数据给其它页面
-		songMessage = new SongMessage();
-		songMessage.setType(SongMessage.INIT);
-		songMessage.setSongInfo(songInfo);
-		ObserverManage.getObserver().setMessage(songMessage);
 
 		if (player == null) {
 			player = new MediaPlayer();
@@ -387,6 +382,12 @@ public class MediaManage implements Observer {
 			if (playSongInfo == null) {
 				playSongInfo = songInfo;
 				playSongInfo.setPlayProgress(0);
+
+				// 发送历史歌曲数据给其它页面
+				songMessage = new SongMessage();
+				songMessage.setType(SongMessage.INIT);
+				songMessage.setSongInfo(songInfo);
+				ObserverManage.getObserver().setMessage(songMessage);
 			}
 			try {
 				File file = new File(playSongInfo.getPath());

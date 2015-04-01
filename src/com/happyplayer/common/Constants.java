@@ -126,6 +126,11 @@ public class Constants {
 	public static String SHOWDESLRC_KEY = "SHOWDESLRC_KEY";
 	public static boolean SHOWDESLRC = false;
 	/**
+	 * 桌面歌词是否可以移动
+	 */
+	public static String DESLRCMOVE_KEY = "DESLRCMOVE_KEY";
+	public static boolean DESLRCMOVE = true;
+	/**
 	 * 图标x坐标
 	 */
 	public static String ICON_VIEWX_KEY = "ICON_VIEWX_KEY";
@@ -142,4 +147,16 @@ public class Constants {
 	 */
 	public static String SHOWEASYTOUCH_KEY = "SHOWEASYTOUCH_KEY";
 	public static boolean SHOWEASYTOUCH = false;
+
+	/**
+	 * 歌词窗口x坐标
+	 */
+	public static String LRCX_KEY = "LRCX_KEY";
+	public static int LRCX = 0;
+
+	/**
+	 * 歌词窗口y坐标
+	 */
+	public static String LRCY_KEY = "LRCY_KEY";
+	public static int LRCY = 0;
 }

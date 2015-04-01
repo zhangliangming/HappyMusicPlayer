@@ -74,15 +74,21 @@ public class DataUtil {
 		Constants.SHOWDESLRC = preferences.getBoolean(Constants.SHOWDESLRC_KEY,
 				Constants.SHOWDESLRC);
 
+		Constants.DESLRCMOVE = preferences.getBoolean(Constants.DESLRCMOVE_KEY,
+				Constants.DESLRCMOVE);
+
+		Constants.LRCX = preferences.getInt(Constants.LRCX_KEY, Constants.LRCX);
+
+		Constants.LRCY = preferences.getInt(Constants.LRCY_KEY, Constants.LRCY);
+
+		// 显示EASYTOUCH
+		Constants.SHOWEASYTOUCH = preferences.getBoolean(
+				Constants.SHOWEASYTOUCH_KEY, Constants.SHOWEASYTOUCH);
 		Constants.ICON_VIEWX = preferences.getInt(Constants.ICON_VIEWX_KEY,
 				Constants.ICON_VIEWX);
 
 		Constants.ICON_VIEWY = preferences.getInt(Constants.ICON_VIEWY_KEY,
 				Constants.ICON_VIEWY);
-
-		// 显示EASYTOUCH
-		Constants.SHOWEASYTOUCH = preferences.getBoolean(
-				Constants.SHOWEASYTOUCH_KEY, Constants.SHOWEASYTOUCH);
 
 	}
 

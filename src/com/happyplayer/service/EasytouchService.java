@@ -48,7 +48,7 @@ import com.happyplayer.widget.StopImageView;
  * 桌面后台窗口
  * 
  */
-public class BackupService extends Service implements Observer {
+public class EasytouchService extends Service implements Observer {
 	private Context context;
 	private WindowManager wm = null;
 	private WindowManager.LayoutParams iconParams = null;
@@ -102,7 +102,7 @@ public class BackupService extends Service implements Observer {
 	}
 
 	private void init() {
-		context = BackupService.this.getBaseContext();
+		context = EasytouchService.this.getBaseContext();
 
 		// 获取WindowManager
 		wm = (WindowManager) getApplicationContext().getSystemService("window");
@@ -255,6 +255,7 @@ public class BackupService extends Service implements Observer {
 
 			@Override
 			public void onClick(View v) {
+				EndTime = 3000;
 				SongMessage songMessage = new SongMessage();
 				songMessage.setType(SongMessage.PLAYORSTOPMUSIC);
 				ObserverManage.getObserver().setMessage(songMessage);
@@ -264,6 +265,7 @@ public class BackupService extends Service implements Observer {
 
 			@Override
 			public void onClick(View v) {
+				EndTime = 3000;
 				SongMessage songMessage = new SongMessage();
 				songMessage.setType(SongMessage.PLAYORSTOPMUSIC);
 				ObserverManage.getObserver().setMessage(songMessage);
@@ -273,6 +275,7 @@ public class BackupService extends Service implements Observer {
 
 			@Override
 			public void onClick(View v) {
+				EndTime = 3000;
 				SongMessage songMessage = new SongMessage();
 				songMessage.setType(SongMessage.PREVMUSIC);
 				ObserverManage.getObserver().setMessage(songMessage);
@@ -282,6 +285,7 @@ public class BackupService extends Service implements Observer {
 
 			@Override
 			public void onClick(View v) {
+				EndTime = 3000;
 				SongMessage songMessage = new SongMessage();
 				songMessage.setType(SongMessage.NEXTMUSIC);
 				ObserverManage.getObserver().setMessage(songMessage);
@@ -347,10 +351,10 @@ public class BackupService extends Service implements Observer {
 			loadMainViewData();
 
 			if (EndTime < 0) {
-				EndTime = 2000;
+				EndTime = 3000;
 				handler.post(upDateVol);
 			} else {
-				EndTime = 2000;
+				EndTime = 3000;
 			}
 		}
 	}
