@@ -302,6 +302,16 @@ public class MediaManage implements Observer {
 					songMessage.setSongInfo(tempSongInfo);
 
 					ObserverManage.getObserver().setMessage(songMessage);
+
+					if (player != null) {
+						player.stop();
+						player.reset();
+						player.release();
+						player = null;
+					}
+					
+					DataUtil.save(context, Constants.PLAY_SID_KEY, Constants.PLAY_SID);
+					
 				} else {
 					songMessage = new SongMessage();
 					songMessage.setType(SongMessage.ERROR);
@@ -429,8 +439,10 @@ public class MediaManage implements Observer {
 		} else {
 			if (player != null) {
 				player.stop();
-				status = STOP;
+				player.reset();
+				player.release();
 				player = null;
+				status = STOP;
 				songMessage = new SongMessage();
 				songMessage.setSongInfo(playSongInfo);
 				songMessage.setType(SongMessage.STOPING);

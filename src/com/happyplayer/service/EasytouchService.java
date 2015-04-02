@@ -20,8 +20,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -332,6 +330,7 @@ public class EasytouchService extends Service implements Observer {
 							&& wmMainLayout.getTop() < y
 							&& y < wmMainLayout.getBottom()) {
 					} else {
+						EndTime = -200;
 						addIconView();
 					}
 
@@ -367,7 +366,7 @@ public class EasytouchService extends Service implements Observer {
 				EndTime -= 200;
 				handler.postDelayed(upDateVol, 200);
 			} else {
-				if(mainViewShow){
+				if (mainViewShow) {
 					addIconView();
 				}
 			}
@@ -501,6 +500,13 @@ public class EasytouchService extends Service implements Observer {
 					msg.what = 0;
 					msg.obj = songInfo;
 					mHandler.sendMessage(msg);
+				} else {
+					Bitmap bm = MediaUtils.getDefaultArtwork(context, false);
+					singerPicImageView
+							.setBackgroundDrawable(new BitmapDrawable(bm));// 显示专辑封面图片
+
+					timeTextView.setVisibility(View.INVISIBLE);
+					playingStatus.setVisibility(View.VISIBLE);
 				}
 				return null;
 			}
@@ -626,7 +632,7 @@ public class EasytouchService extends Service implements Observer {
 				if (iconViewShow) {
 					timeTextView.setText("-00:00");
 					timeTextView.setVisibility(View.INVISIBLE);
-					playingStatus.setVisibility(View.INVISIBLE);
+					playingStatus.setVisibility(View.VISIBLE);
 					Bitmap bm = MediaUtils.getDefaultArtwork(context, false);
 					singerPicImageView
 							.setBackgroundDrawable(new BitmapDrawable(bm));// 显示专辑封面图片
