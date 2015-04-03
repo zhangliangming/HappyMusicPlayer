@@ -138,6 +138,7 @@ public class MediaManage implements Observer {
 
 				@Override
 				public void onCompletion(MediaPlayer mp) {
+					mp.release();
 					nextPlay(true);
 				}
 			});
@@ -309,9 +310,10 @@ public class MediaManage implements Observer {
 						player.release();
 						player = null;
 					}
-					
-					DataUtil.save(context, Constants.PLAY_SID_KEY, Constants.PLAY_SID);
-					
+
+					DataUtil.save(context, Constants.PLAY_SID_KEY,
+							Constants.PLAY_SID);
+
 				} else {
 					songMessage = new SongMessage();
 					songMessage.setType(SongMessage.ERROR);
@@ -385,6 +387,7 @@ public class MediaManage implements Observer {
 
 				@Override
 				public void onCompletion(MediaPlayer mp) {
+					mp.release();
 					nextPlay(true);
 				}
 			});
