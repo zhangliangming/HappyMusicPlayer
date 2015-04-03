@@ -367,7 +367,9 @@ public class EasytouchService extends Service implements Observer {
 				handler.postDelayed(upDateVol, 200);
 			} else {
 				if (mainViewShow) {
-					addIconView();
+					if (!isTopActivity(context)) {
+						addIconView();
+					}
 				}
 			}
 
