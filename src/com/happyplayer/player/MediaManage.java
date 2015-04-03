@@ -138,7 +138,7 @@ public class MediaManage implements Observer {
 
 				@Override
 				public void onCompletion(MediaPlayer mp) {
-					mp.release();
+					mp.reset();
 					nextPlay(true);
 				}
 			});
@@ -387,7 +387,7 @@ public class MediaManage implements Observer {
 
 				@Override
 				public void onCompletion(MediaPlayer mp) {
-					mp.release();
+					mp.reset();
 					nextPlay(true);
 				}
 			});

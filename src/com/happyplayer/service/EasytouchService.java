@@ -166,7 +166,9 @@ public class EasytouchService extends Service implements Observer {
 					iconParams.alpha = 0.6f;
 					wm.updateViewLayout(iconView, iconParams);
 					if (sumX > -10 && sumX < 10 && sumY > -10 && sumY < 10) {
-						addMainView();
+						if (!isTopActivity(context)) {
+							addMainView();
+						}
 					} else {
 						float endRawX = rawX - startX;
 						float endRawY = rawY - startY;
@@ -298,7 +300,9 @@ public class EasytouchService extends Service implements Observer {
 
 					@Override
 					protected void onPostExecute(Object result) {
-						addIconView();
+						if (!isTopActivity(context)) {
+							addIconView();
+						}
 					}
 
 					@Override
@@ -331,7 +335,9 @@ public class EasytouchService extends Service implements Observer {
 							&& y < wmMainLayout.getBottom()) {
 					} else {
 						EndTime = -200;
-						addIconView();
+						if (!isTopActivity(context)) {
+							addIconView();
+						}
 					}
 
 				}
