@@ -537,18 +537,30 @@ public class MainActivity extends FragmentActivity implements Observer {
 	 * 退出程序
 	 */
 	private void close() {
-		Intent easytouchServiceIntent = new Intent(MainActivity.this,
-				EasytouchService.class);
-		stopService(easytouchServiceIntent);
 
-		Intent floatLrcServiceIntent = new Intent(MainActivity.this,
-				FloatLrcService.class);
-		stopService(floatLrcServiceIntent);
+		Constants.APPCLOSE = true;
+
+		if (Constants.SHOWEASYTOUCH) {
+			Intent easytouchServiceIntent = new Intent(MainActivity.this,
+					EasytouchService.class);
+			stopService(easytouchServiceIntent);
+		}
+		if (Constants.SHOWDESLRC) {
+			Intent floatLrcServiceIntent = new Intent(MainActivity.this,
+					FloatLrcService.class);
+			stopService(floatLrcServiceIntent);
+		}
 
 		unregisterReceiver(onClickReceiver);
 		notificationManager.cancel(0);
 		notificationManager.cancel(1);
 		ActivityManager.getInstance().exit();
+	}
+
+	@Override
+	protected void onDestroy() {
+		close();
+		super.onDestroy();
 	}
 
 	/**
@@ -577,11 +589,17 @@ public class MainActivity extends FragmentActivity implements Observer {
 		if (Constants.SHOWDESLRC)
 			createNotifiLrcView();
 
-		Intent easytouchServiceIntent = new Intent(this, EasytouchService.class);
-		startService(easytouchServiceIntent);
+		if (Constants.SHOWEASYTOUCH) {
+			Intent easytouchServiceIntent = new Intent(this,
+					EasytouchService.class);
+			startService(easytouchServiceIntent);
+		}
 
-		Intent floatLrcServiceIntent = new Intent(this, FloatLrcService.class);
-		startService(floatLrcServiceIntent);
+		if (Constants.SHOWDESLRC) {
+			Intent floatLrcServiceIntent = new Intent(this,
+					FloatLrcService.class);
+			startService(floatLrcServiceIntent);
+		}
 
 		ObserverManage.getObserver().addObserver(this);
 		ActivityManager.getInstance().addActivity(this);

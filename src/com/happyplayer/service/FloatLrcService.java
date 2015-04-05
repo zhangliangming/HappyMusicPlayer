@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -253,6 +252,10 @@ public class FloatLrcService extends Service implements Observer {
 	public void onDestroy() {
 		handler.removeCallbacks(myRunnable);
 		super.onDestroy();
+		if (!Constants.APPCLOSE) {
+			// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
+			startService(new Intent(this, FloatLrcService.class));
+		}
 	}
 
 	protected void loadFloatLyricsData(final SongInfo songInfo) {

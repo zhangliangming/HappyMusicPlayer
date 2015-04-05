@@ -6,7 +6,6 @@ import java.util.Observer;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -716,6 +714,12 @@ public class EasytouchService extends Service implements Observer {
 	public void onDestroy() {
 		handler.removeCallbacks(myRunnable);
 		super.onDestroy();
+
+		// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
+		if (!Constants.APPCLOSE) {
+			startService(new Intent(this, EasytouchService.class));
+		}
+
 	}
 
 	/**

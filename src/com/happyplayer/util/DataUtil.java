@@ -90,8 +90,8 @@ public class DataUtil {
 		Constants.ICON_VIEWY = preferences.getInt(Constants.ICON_VIEWY_KEY,
 				Constants.ICON_VIEWY);
 		
-		Constants.SHOWLOCK = preferences.getBoolean(
-				Constants.SHOWLOCK_KEY, Constants.SHOWLOCK);
+		// Constants.SHOWLOCK = preferences.getBoolean(
+		// Constants.SHOWLOCK_KEY, Constants.SHOWLOCK);
 
 	}
 

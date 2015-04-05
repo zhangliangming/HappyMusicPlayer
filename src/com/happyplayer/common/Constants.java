@@ -147,11 +147,6 @@ public class Constants {
 	 */
 	public static String SHOWEASYTOUCH_KEY = "SHOWEASYTOUCH_KEY";
 	public static boolean SHOWEASYTOUCH = false;
-	/**
-	 * 锁屏歌词
-	 */
-	public static String SHOWLOCK_KEY = "SHOWLOCK_KEY";
-	public static boolean SHOWLOCK = false;
 
 	/**
 	 * 歌词窗口x坐标
@@ -164,4 +159,9 @@ public class Constants {
 	 */
 	public static String LRCY_KEY = "LRCY_KEY";
 	public static int LRCY = 0;
+	
+	/**
+	 * app是否退出 0是否 1是 退出
+	 */
+	public static boolean APPCLOSE = false;
 }

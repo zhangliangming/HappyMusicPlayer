@@ -22,6 +22,8 @@ import com.happyplayer.iface.PageAction;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.player.MediaManage;
+import com.happyplayer.service.EasytouchService;
+import com.happyplayer.service.FloatLrcService;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.widget.ListViewRelativeLayout;
 import com.happyplayer.widget.NavPlayImageButton;
@@ -49,8 +51,8 @@ public class MyFragment extends Fragment implements Observer {
 	private ListViewRelativeLayout showEasyTouch;
 	private CheckBox showEasyTouchCheckBox;
 
-	private ListViewRelativeLayout showLock;
-	private CheckBox showlockCheckBox;
+	// private ListViewRelativeLayout showLock;
+	// private CheckBox showlockCheckBox;
 
 	private ListViewRelativeLayout skinsetting;
 
@@ -116,12 +118,12 @@ public class MyFragment extends Fragment implements Observer {
 		// mMainView.findViewById(R.id.mylove);
 		// mylove.setOnClickListener(new ItemOnClick());
 
-		showLock = (ListViewRelativeLayout) mMainView
-				.findViewById(R.id.showlock);
-		showLock.setOnClickListener(new ItemOnClick());
-		showlockCheckBox = (CheckBox) mMainView
-				.findViewById(R.id.showlockcheckbox);
-		showlockCheckBox.setChecked(Constants.SHOWLOCK);
+		// showLock = (ListViewRelativeLayout) mMainView
+		// .findViewById(R.id.showlock);
+		// showLock.setOnClickListener(new ItemOnClick());
+		// showlockCheckBox = (CheckBox) mMainView
+		// .findViewById(R.id.showlockcheckbox);
+		// showlockCheckBox.setChecked(Constants.SHOWLOCK);
 
 		showdesLrc = (ListViewRelativeLayout) mMainView
 				.findViewById(R.id.showdesLrc);
@@ -223,9 +225,9 @@ public class MyFragment extends Fragment implements Observer {
 			case R.id.skinsetting:
 				gotoSkinSetting();
 				break;
-			case R.id.showlock:
-				showLock();
-				break;
+			// case R.id.showlock:
+			// showLock();
+			// break;
 			}
 		}
 
@@ -244,35 +246,61 @@ public class MyFragment extends Fragment implements Observer {
 		if (showEasyTouchCheckBox.isChecked()) {
 			showEasyTouchCheckBox.setChecked(false);
 			Constants.SHOWEASYTOUCH = false;
+
+			Intent easytouchServiceIntent = new Intent(getActivity(),
+					EasytouchService.class);
+			getActivity().stopService(easytouchServiceIntent);
+
 		} else {
 			Constants.SHOWEASYTOUCH = true;
 			showEasyTouchCheckBox.setChecked(true);
+
+			Intent easytouchServiceIntent = new Intent(getActivity(),
+					EasytouchService.class);
+			getActivity().startService(easytouchServiceIntent);
+
 		}
 
 		DataUtil.save(getActivity(), Constants.SHOWEASYTOUCH_KEY,
 				Constants.SHOWEASYTOUCH);
 	}
 
-	private void showLock() {
-		if (showlockCheckBox.isChecked()) {
-			showlockCheckBox.setChecked(false);
-			Constants.SHOWLOCK = false;
-		} else {
-			Constants.SHOWLOCK = true;
-			showlockCheckBox.setChecked(true);
-		}
-
-		DataUtil.save(getActivity(), Constants.SHOWLOCK_KEY, Constants.SHOWLOCK);
-	}
+	// private void showLock() {
+	// if (showlockCheckBox.isChecked()) {
+	// showlockCheckBox.setChecked(false);
+	// Constants.SHOWLOCK = false;
+	//
+	// Intent lockServiceIntent = new Intent(getActivity(),
+	// LockService.class);
+	// getActivity().stopService(lockServiceIntent);
+	// } else {
+	// Constants.SHOWLOCK = true;
+	// showlockCheckBox.setChecked(true);
+	//
+	// Intent lockServiceIntent = new Intent(getActivity(),
+	// LockService.class);
+	// getActivity().startService(lockServiceIntent);
+	// }
+	//
+	// DataUtil.save(getActivity(), Constants.SHOWLOCK_KEY, Constants.SHOWLOCK);
+	// }
 
 	public void showdesLrc() {
 
 		if (showcheckboxCheckBox.isChecked()) {
 			showcheckboxCheckBox.setChecked(false);
 			Constants.SHOWDESLRC = false;
+
+			Intent floatLrcServiceIntent = new Intent(getActivity(),
+					FloatLrcService.class);
+			getActivity().stopService(floatLrcServiceIntent);
 		} else {
 			Constants.SHOWDESLRC = true;
 			showcheckboxCheckBox.setChecked(true);
+
+			Intent floatLrcServiceIntent = new Intent(getActivity(),
+					FloatLrcService.class);
+			getActivity().startService(floatLrcServiceIntent);
 		}
 
 		new AsyncTaskHandler() {
