@@ -20,7 +20,7 @@ import com.happyplayer.util.DataUtil;
 
 public class MediaManage implements Observer {
 	private static MediaManage _mediaManage;
-	private static List<SongInfo> playlist;
+	private List<SongInfo> playlist;
 	private SongInfo playSongInfo;
 	private int playIndex = -1;
 	private String playSID = "";
@@ -99,6 +99,9 @@ public class MediaManage implements Observer {
 			} else if (songMessage.getType() == SongMessage.SELECTPLAY) {
 				playIndex = getPlayIndex();
 				selectPlay(playlist.get(playIndex));
+			} else if (songMessage.getType() == SongMessage.SELECTPLAYED) {
+				playIndex = getPlayIndex();
+				selectPlay(playlist.get(playIndex));
 			} else if (songMessage.getType() == SongMessage.PLAYORSTOPMUSIC) {
 				playOrStop();
 			} else if (songMessage.getType() == SongMessage.NEXTMUSIC) {
@@ -119,7 +122,8 @@ public class MediaManage implements Observer {
 	 */
 	private void seekTo(int progress) {
 		if (player != null) {
-			player.stop();
+			if (player.isPlaying())
+				player.stop();
 			player.reset();
 			player.release();
 			player = null;
@@ -138,7 +142,6 @@ public class MediaManage implements Observer {
 
 				@Override
 				public void onCompletion(MediaPlayer mp) {
-					mp.reset();
 					nextPlay(true);
 				}
 			});
@@ -248,7 +251,8 @@ public class MediaManage implements Observer {
 		ObserverManage.getObserver().setMessage(songMessage);
 
 		if (player != null) {
-			player.stop();
+			if (player.isPlaying())
+				player.stop();
 			player.reset();
 			player.release();
 			player = null;
@@ -305,7 +309,8 @@ public class MediaManage implements Observer {
 					ObserverManage.getObserver().setMessage(songMessage);
 
 					if (player != null) {
-						player.stop();
+						if (player.isPlaying())
+							player.stop();
 						player.reset();
 						player.release();
 						player = null;
@@ -339,7 +344,8 @@ public class MediaManage implements Observer {
 		ObserverManage.getObserver().setMessage(songMessage);
 
 		if (player != null) {
-			player.stop();
+			if (player.isPlaying())
+				player.stop();
 			player.reset();
 			player.release();
 			player = null;
@@ -357,7 +363,8 @@ public class MediaManage implements Observer {
 	 */
 	private void selectPlay(SongInfo songInfo) {
 		if (player != null) {
-			player.stop();
+			if (player.isPlaying())
+				player.stop();
 			player.reset();
 			player.release();
 			player = null;
@@ -387,7 +394,6 @@ public class MediaManage implements Observer {
 
 				@Override
 				public void onCompletion(MediaPlayer mp) {
-					mp.reset();
 					nextPlay(true);
 				}
 			});
@@ -441,7 +447,8 @@ public class MediaManage implements Observer {
 			}
 		} else {
 			if (player != null) {
-				player.stop();
+				if (player.isPlaying())
+					player.stop();
 				player.reset();
 				player.release();
 				player = null;
@@ -492,7 +499,7 @@ public class MediaManage implements Observer {
 	 * 
 	 * @return
 	 */
-	private int getPlayIndex() {
+	public int getPlayIndex() {
 		int index = -1;
 		playSID = Constants.PLAY_SID;
 		for (int i = 0; i < playlist.size(); i++) {
@@ -550,6 +557,10 @@ public class MediaManage implements Observer {
 				break;
 			}
 		}
+	}
+
+	public List<SongInfo> getPlaylist() {
+		return playlist;
 	}
 
 	public SongInfo getPlaySongInfo() {

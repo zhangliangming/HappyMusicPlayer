@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <translate
+        android:duration="100"
+        android:fromYDelta="@dimen/bottom_player_height"
+        android:toYDelta="0" />
+
+    <!--
+         <alpha
+        android:duration="1000"
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0" />
+    -->
+
+</set>

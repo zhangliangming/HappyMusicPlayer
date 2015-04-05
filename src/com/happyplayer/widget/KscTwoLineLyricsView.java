@@ -343,6 +343,33 @@ public class KscTwoLineLyricsView extends View implements Observer {
 	}
 
 	/**
+	 * 获取快进时的时间歌词 供进度条使用
+	 * 
+	 * @param playProgress
+	 */
+	public String getTimeLrc(int playProgress) {
+		// System.out.println("playProgress:#########" + playProgress);
+		String lrc = "";
+		if (!blLrc)
+			return lrc;
+		if (kscLyricsParser == null)
+			return lrc;
+		int index = kscLyricsParser
+				.getLineNumberFromCurPlayingTime(playProgress);
+		// System.out.println("index:#########" + index);
+		if (lyricsLineTreeMap == null || index >= lyricsLineTreeMap.size())
+			return lrc;
+		// System.out.println("lyricsLineTreeMap.size():#########"
+		// + lyricsLineTreeMap.size());
+		KscLyricsLineInfo kscLyricsLineInfo = lyricsLineTreeMap.get(index);
+		// System.out.println("kscLyricsLineInfo:--" + kscLyricsLineInfo);
+		if (kscLyricsLineInfo == null)
+			return lrc;
+		lrc = kscLyricsLineInfo.getLineLyrics();
+		return lrc;
+	}
+
+	/**
 	 * 初始化数据
 	 */
 	public void init() {

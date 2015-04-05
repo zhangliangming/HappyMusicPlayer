@@ -334,7 +334,8 @@ public class PlayListAdapter extends BaseAdapter implements Observer {
 			SongMessage songMessage = (SongMessage) data;
 			if (songMessage.getType() == SongMessage.NEXTMUSICED
 					|| songMessage.getType() == SongMessage.PREVMUSICED
-					|| songMessage.getType() == SongMessage.LASTPLAYFINISH) {
+					|| songMessage.getType() == SongMessage.LASTPLAYFINISH
+					|| songMessage.getType() == SongMessage.SELECTPLAYED) {
 				reshNextPlayStatusUI(songMessage.getSongInfo());
 			}
 		}

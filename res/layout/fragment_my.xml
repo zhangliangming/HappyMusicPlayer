@@ -178,32 +178,74 @@
             </com.happyplayer.widget.ListViewRelativeLayout>
         </RelativeLayout>
 
-        <com.happyplayer.widget.ListViewRelativeLayout
-            android:id="@+id/skinsetting"
+        <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="75dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:clickable="true" >
+            android:layout_marginRight="20dp" >
 
-            <com.happyplayer.widget.SkinImageButton
-                android:id="@+id/itempic"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="5dp"
-                android:clickable="false" />
+            <com.happyplayer.widget.ListViewRelativeLayout
+                android:id="@+id/showlock"
+                android:layout_width="fill_parent"
+                android:layout_height="75dp"
+                android:layout_toLeftOf="@+id/line"
+                android:clickable="true" >
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@+id/itempic"
+                    android:text="锁屏歌词"
+                    android:textColor="#000000"
+                    android:textSize="18dp" />
+
+                <CheckBox
+                    android:id="@+id/showlockcheckbox"
+                    style="@style/CustomCheckboxTheme"
+                    android:layout_width="60dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:clickable="false" />
+            </com.happyplayer.widget.ListViewRelativeLayout>
+
+            <View
+                android:id="@+id/line"
+                android:layout_width="1dp"
+                android:layout_height="fill_parent"
+                android:layout_centerInParent="true"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@+id/itempic"
-                android:text="系统皮肤"
-                android:textColor="#000000"
-                android:textSize="18dp" />
-        </com.happyplayer.widget.ListViewRelativeLayout>
+                android:background="#d2d2d2" />
+
+            <com.happyplayer.widget.ListViewRelativeLayout
+                android:id="@+id/skinsetting"
+                android:layout_width="fill_parent"
+                android:layout_height="75dp"
+                android:layout_toRightOf="@+id/line"
+                android:clickable="true" >
+
+                <com.happyplayer.widget.SkinImageButton
+                    android:id="@+id/itempic"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:clickable="false" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@+id/itempic"
+                    android:text="系统皮肤"
+                    android:textColor="#000000"
+                    android:textSize="18dp" />
+            </com.happyplayer.widget.ListViewRelativeLayout>
+        </RelativeLayout>
     </LinearLayout>
 
 </ScrollView>

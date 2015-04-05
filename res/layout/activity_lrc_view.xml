@@ -34,7 +34,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:layout_toRightOf="@+id/play_back"
-                android:ellipsize="middle"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
                 android:text="歌名"
                 android:textColor="#ffffff"
@@ -59,6 +62,18 @@
             android:layout_height="fill_parent"
             android:layout_above="@+id/seekbar"
             android:layout_below="@+id/header" >
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/bottom_player_height"
+                android:layout_alignParentBottom="true"
+                android:background="#20000000" >
+
+                <com.happyplayer.widget.KscTwoLineMLyricsView
+                    android:id="@+id/kscTwoLineLyricsView "
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" />
+            </RelativeLayout>
         </RelativeLayout>
 
         <RelativeLayout

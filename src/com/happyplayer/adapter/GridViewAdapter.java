@@ -61,28 +61,10 @@ public class GridViewAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		final ImageView picImageView = holder.getpicImageView();
-		picImageView
-				.setBackgroundResource(R.drawable.ic_playlist_recommend_icon_default);
+		ImageView picImageView = holder.getpicImageView();
 
-		new AsyncTaskHandler() {
-
-			@Override
-			protected void onPostExecute(Object result) {
-				Bitmap bm = (Bitmap) result;
-				if (bm == null) {
-					picImageView
-							.setBackgroundResource(R.drawable.ic_playlist_recommend_icon_default);
-				} else {
-					picImageView.setBackgroundDrawable(new BitmapDrawable(bm));
-				}
-			}
-
-			@Override
-			protected Object doInBackground() throws Exception {
-				return ImageUtil.readBitmap(context, picIDS[position]);
-			}
-		}.execute();
+		ImageUtil.loadResourceImage(context, picImageView, picIDS[position],
+				R.drawable.ic_playlist_recommend_icon_default);
 
 		final ImageView selectImageView = holder.getselectImageView();
 		if (position != Constants.DEF_PIC_INDEX) {

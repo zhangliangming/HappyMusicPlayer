@@ -39,12 +39,24 @@ public class BaseSeekBar extends SeekBar implements Observer {
 	 * 弹出窗口显示文本
 	 */
 	private TextView timeTip = null;
+	/**
+	 * 时间歌词
+	 */
+	private TextView timeLrc = null;
+
+	private class SeekBarMessage {
+		String timeTip;
+		String timeLrc;
+	}
 
 	private Handler handler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
-			timeTip.setText((String) msg.obj);
+
+			SeekBarMessage sm = (SeekBarMessage) msg.obj;
+			timeLrc.setText(sm.timeLrc);
+			timeTip.setText(sm.timeTip);
 		}
 	};
 
@@ -122,7 +134,7 @@ public class BaseSeekBar extends SeekBar implements Observer {
 		bmp = Bitmap.createBitmap(baseBitmap.getWidth(),
 				baseBitmap.getHeight(), baseBitmap.getConfig());
 		initbm();
-		
+
 		ObserverManage.getObserver().addObserver(this);
 	}
 
@@ -162,7 +174,7 @@ public class BaseSeekBar extends SeekBar implements Observer {
 	/**
 	 * 创建PopupWindow
 	 */
-	private void initPopuptWindow(String timeStr) {
+	private void initPopuptWindow(String timeStr, View v, String lrc) {
 		DisplayMetrics dm = new DisplayMetrics();
 		dm = context.getResources().getDisplayMetrics();
 		int screenWidth = dm.widthPixels;
@@ -171,27 +183,33 @@ public class BaseSeekBar extends SeekBar implements Observer {
 				R.layout.seekbar_progress_dialog, null);
 		timeTip = (TextView) popupWindow.findViewById(R.id.time_tip);
 		timeTip.setText(timeStr);
-		mPopupWindow = new PopupWindow(popupWindow, 100, 50, true);
+
+		timeLrc = (TextView) popupWindow.findViewById(R.id.time_lrc);
+		timeLrc.setText(lrc);
+
+		mPopupWindow = new PopupWindow(popupWindow, screenWidth, 80, true);
 		// mPopupWindow = new PopupWindow(popupWindow, LayoutParams.FILL_PARENT,
 		// LayoutParams.FILL_PARENT, true);
 		// int[] location = new int[2];
 		// this.getLocationInWindow(location); // 获取在当前窗口内的绝对坐标
 		// this.getLocationOnScreen(location);//获取在整个屏幕内的绝对坐标
-		mPopupWindow.showAsDropDown(this, (screenWidth) / 2 - 100 - 100 / 3,
-				0 - this.getHeight() - 50);
+		mPopupWindow.showAsDropDown(v, 0, 0 - v.getHeight() - 80);
 	}
 
 	/**
 	 * 获取PopupWindow实例
 	 */
-	public void popupWindowShow(int timeLongStr) {
+	public void popupWindowShow(int timeLongStr, View v, String lrc) {
 		String timeStr = MediaUtils.formatTime(timeLongStr);
 		if (mPopupWindow != null && mPopupWindow.isShowing()) {
 			Message msg = new Message();
-			msg.obj = timeStr;
+			SeekBarMessage sm = new SeekBarMessage();
+			sm.timeTip = timeStr;
+			sm.timeLrc = lrc;
+			msg.obj = sm;
 			handler.sendMessage(msg);
 		} else {
-			initPopuptWindow(timeStr);
+			initPopuptWindow(timeStr, v, lrc);
 		}
 	}
 

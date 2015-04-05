@@ -6,6 +6,7 @@ import java.util.Observer;
 import java.util.TreeMap;
 
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
 import android.content.Context;
@@ -238,7 +239,7 @@ public class FloatLrcService extends Service implements Observer {
 	private Runnable myRunnable = new Runnable() {
 		public void run() {
 			Message msg = new Message();
-			if (isTopActivity(context)) {
+			if (!isBackground(context)) {
 				msg.what = 1;
 			} else {
 				msg.what = 0;
@@ -294,16 +295,44 @@ public class FloatLrcService extends Service implements Observer {
 	 * @param context
 	 * @return
 	 */
-	private boolean isTopActivity(Context context) {
-		String packageName = context.getPackageName();
+	// private boolean isTopActivity(Context context) {
+	// String packageName = context.getPackageName();
+	// ActivityManager activityManager = (ActivityManager) context
+	// .getSystemService(Context.ACTIVITY_SERVICE);
+	// List<RunningTaskInfo> tasksInfo = activityManager.getRunningTasks(1);
+	// if (tasksInfo.size() > 0) {
+	// // 应用程序位于堆栈的顶层
+	// if (packageName.equals(tasksInfo.get(0).topActivity
+	// .getPackageName())) {
+	// return true;
+	// }
+	// }
+	// return false;
+	// }
+	public static boolean isBackground(Context context) {
 		ActivityManager activityManager = (ActivityManager) context
 				.getSystemService(Context.ACTIVITY_SERVICE);
-		List<RunningTaskInfo> tasksInfo = activityManager.getRunningTasks(1);
-		if (tasksInfo.size() > 0) {
-			// 应用程序位于堆栈的顶层
-			if (packageName.equals(tasksInfo.get(0).topActivity
-					.getPackageName())) {
-				return true;
+		List<RunningAppProcessInfo> appProcesses = activityManager
+				.getRunningAppProcesses();
+		for (RunningAppProcessInfo appProcess : appProcesses) {
+			if (appProcess.processName.equals(context.getPackageName())) {
+				/*
+				 * BACKGROUND=400 EMPTY=500 FOREGROUND=100 GONE=1000
+				 * PERCEPTIBLE=130 SERVICE=300 ISIBLE=200
+				 */
+				// Log.i(context.getPackageName(), "此appimportace ="
+				// + appProcess.importance
+				// + ",context.getClass().getName()="
+				// + context.getClass().getName());
+				if (appProcess.importance != RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+					// Log.i(context.getPackageName(), "处于后台"
+					// + appProcess.processName);
+					return true;
+				} else {
+					// Log.i(context.getPackageName(), "处于前台"
+					// + appProcess.processName);
+					return false;
+				}
 			}
 		}
 		return false;

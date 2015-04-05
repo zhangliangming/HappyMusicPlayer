@@ -147,6 +147,11 @@ public class Constants {
 	 */
 	public static String SHOWEASYTOUCH_KEY = "SHOWEASYTOUCH_KEY";
 	public static boolean SHOWEASYTOUCH = false;
+	/**
+	 * 锁屏歌词
+	 */
+	public static String SHOWLOCK_KEY = "SHOWLOCK_KEY";
+	public static boolean SHOWLOCK = false;
 
 	/**
 	 * 歌词窗口x坐标

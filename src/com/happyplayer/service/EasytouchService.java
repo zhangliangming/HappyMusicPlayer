@@ -5,6 +5,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -66,6 +68,8 @@ public class EasytouchService extends Service implements Observer {
 	 * 歌手图片和专辑图片
 	 */
 	private ImageView singerPicImageView;
+
+	private TextView songNameTextView;
 
 	private TextView timeTextView;
 
@@ -129,6 +133,8 @@ public class EasytouchService extends Service implements Observer {
 
 		timeTextView = (TextView) iconView.findViewById(R.id.time);
 
+		songNameTextView = (TextView) iconView.findViewById(R.id.song_name);
+
 		playingStatus = (StopImageView) iconView
 				.findViewById(R.id.playing_status);
 
@@ -136,7 +142,7 @@ public class EasytouchService extends Service implements Observer {
 		iconParams.width = 140;
 		iconParams.height = 140;
 
-		iconParams.alpha = 0.8f;
+		iconParams.alpha = 0.9f;
 		iconView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
 				LayoutParams.FILL_PARENT));
 
@@ -166,7 +172,7 @@ public class EasytouchService extends Service implements Observer {
 					iconParams.alpha = 0.6f;
 					wm.updateViewLayout(iconView, iconParams);
 					if (sumX > -10 && sumX < 10 && sumY > -10 && sumY < 10) {
-						if (!isTopActivity(context)) {
+						if (isBackground(context)) {
 							addMainView();
 						}
 					} else {
@@ -300,7 +306,7 @@ public class EasytouchService extends Service implements Observer {
 
 					@Override
 					protected void onPostExecute(Object result) {
-						if (!isTopActivity(context)) {
+						if (isBackground(context)) {
 							addIconView();
 						}
 					}
@@ -335,7 +341,7 @@ public class EasytouchService extends Service implements Observer {
 							&& y < wmMainLayout.getBottom()) {
 					} else {
 						EndTime = -200;
-						if (!isTopActivity(context)) {
+						if (isBackground(context)) {
 							addIconView();
 						}
 					}
@@ -373,7 +379,7 @@ public class EasytouchService extends Service implements Observer {
 				handler.postDelayed(upDateVol, 200);
 			} else {
 				if (mainViewShow) {
-					if (!isTopActivity(context)) {
+					if (isBackground(context)) {
 						addIconView();
 					}
 				}
@@ -392,37 +398,45 @@ public class EasytouchService extends Service implements Observer {
 
 			switch (msg.what) {
 			case 0:
-				// 本地歌曲
-				if (songInfo.getType() == SongInfo.LOCAL) {
-					new AsyncTaskHandler() {
+				// // 本地歌曲
+				// if (songInfo.getType() == SongInfo.LOCAL) {
+				// new AsyncTaskHandler() {
+				//
+				// @Override
+				// protected void onPostExecute(Object result) {
+				// Bitmap bm = (Bitmap) result;
+				// if (bm != null) {
+				// singerPicImageView
+				// .setBackgroundDrawable(new BitmapDrawable(
+				// bm));
+				// // 显示专辑封面图片
+				// } else {
+				// bm = MediaUtils.getDefaultArtwork(context,
+				// false);
+				// singerPicImageView
+				// .setBackgroundDrawable(new BitmapDrawable(
+				// bm));// 显示专辑封面图片
+				// }
+				// }
+				//
+				// @Override
+				// protected Object doInBackground() throws Exception {
+				// return ImageUtil.getFirstArtwork(
+				// songInfo.getPath(), songInfo.getSid());
+				// }
+				// }.execute();
+				//
+				// } else {
+				// // 网上下载歌曲
+				// }
 
-						@Override
-						protected void onPostExecute(Object result) {
-							Bitmap bm = (Bitmap) result;
-							if (bm != null) {
-								singerPicImageView
-										.setBackgroundDrawable(new BitmapDrawable(
-												bm));
-								// 显示专辑封面图片
-							} else {
-								bm = MediaUtils.getDefaultArtwork(context,
-										false);
-								singerPicImageView
-										.setBackgroundDrawable(new BitmapDrawable(
-												bm));// 显示专辑封面图片
-							}
-						}
+				ImageUtil.loadAlbum(context, singerPicImageView,
+						R.drawable.playing_bar_default_avatar,
+						songInfo.getPath(), songInfo.getSid(),
+						songInfo.getDownUrl());
 
-						@Override
-						protected Object doInBackground() throws Exception {
-							return ImageUtil.getFirstArtwork(
-									songInfo.getPath(), songInfo.getSid());
-						}
-					}.execute();
+				songNameTextView.setText(songInfo.getDisplayName());
 
-				} else {
-					// 网上下载歌曲
-				}
 				timeTextView.setVisibility(View.INVISIBLE);
 				if (status == MediaManage.STOP)
 					playingStatus.setVisibility(View.VISIBLE);
@@ -512,7 +526,7 @@ public class EasytouchService extends Service implements Observer {
 					Bitmap bm = MediaUtils.getDefaultArtwork(context, false);
 					singerPicImageView
 							.setBackgroundDrawable(new BitmapDrawable(bm));// 显示专辑封面图片
-
+					songNameTextView.setText("");
 					timeTextView.setVisibility(View.INVISIBLE);
 					playingStatus.setVisibility(View.VISIBLE);
 				}
@@ -582,7 +596,7 @@ public class EasytouchService extends Service implements Observer {
 	private Runnable myRunnable = new Runnable() {
 		public void run() {
 			Message msg = new Message();
-			if (isTopActivity(context)) {
+			if (!isBackground(context)) {
 				msg.what = 1;
 			} else {
 				msg.what = 0;
@@ -601,43 +615,52 @@ public class EasytouchService extends Service implements Observer {
 			final SongInfo songInfo = songMessage.getSongInfo();
 			switch (songMessage.getType()) {
 			case SongMessage.INIT:
-				// 本地歌曲
-				if (songInfo.getType() == SongInfo.LOCAL) {
-					if (iconViewShow) {
-						new AsyncTaskHandler() {
+				// // 本地歌曲
+				// if (songInfo.getType() == SongInfo.LOCAL) {
+				// if (iconViewShow) {
+				// new AsyncTaskHandler() {
+				//
+				// @Override
+				// protected void onPostExecute(Object result) {
+				// Bitmap bm = (Bitmap) result;
+				// if (bm != null) {
+				// singerPicImageView
+				// .setBackgroundDrawable(new BitmapDrawable(
+				// bm));
+				// // 显示专辑封面图片
+				// } else {
+				// bm = MediaUtils.getDefaultArtwork(context,
+				// false);
+				// singerPicImageView
+				// .setBackgroundDrawable(new BitmapDrawable(
+				// bm));// 显示专辑封面图片
+				// }
+				// }
+				//
+				// @Override
+				// protected Object doInBackground() throws Exception {
+				// return ImageUtil.getFirstArtwork(
+				// songInfo.getPath(), songInfo.getSid());
+				// }
+				// }.execute();
+				// timeTextView.setVisibility(View.INVISIBLE);
+				// playingStatus.setVisibility(View.VISIBLE);
+				// }
+				// } else {
+				// // 网上下载歌曲
+				// }
 
-							@Override
-							protected void onPostExecute(Object result) {
-								Bitmap bm = (Bitmap) result;
-								if (bm != null) {
-									singerPicImageView
-											.setBackgroundDrawable(new BitmapDrawable(
-													bm));
-									// 显示专辑封面图片
-								} else {
-									bm = MediaUtils.getDefaultArtwork(context,
-											false);
-									singerPicImageView
-											.setBackgroundDrawable(new BitmapDrawable(
-													bm));// 显示专辑封面图片
-								}
-							}
+				ImageUtil.loadAlbum(context, singerPicImageView,
+						R.drawable.playing_bar_default_avatar,
+						songInfo.getPath(), songInfo.getSid(),
+						songInfo.getDownUrl());
 
-							@Override
-							protected Object doInBackground() throws Exception {
-								return ImageUtil.getFirstArtwork(
-										songInfo.getPath(), songInfo.getSid());
-							}
-						}.execute();
-						timeTextView.setVisibility(View.INVISIBLE);
-						playingStatus.setVisibility(View.VISIBLE);
-					}
-				} else {
-					// 网上下载歌曲
-				}
+				songNameTextView.setText(songInfo.getDisplayName());
+
 				break;
 			case SongMessage.LASTPLAYFINISH:
 				if (iconViewShow) {
+					songNameTextView.setText("");
 					timeTextView.setText("-00:00");
 					timeTextView.setVisibility(View.INVISIBLE);
 					playingStatus.setVisibility(View.VISIBLE);
@@ -701,16 +724,45 @@ public class EasytouchService extends Service implements Observer {
 	 * @param context
 	 * @return
 	 */
-	private boolean isTopActivity(Context context) {
-		String packageName = context.getPackageName();
+	// private boolean isTopActivity(Context context) {
+	// String packageName = context.getPackageName();
+	// ActivityManager activityManager = (ActivityManager) context
+	// .getSystemService(Context.ACTIVITY_SERVICE);
+	// List<RunningTaskInfo> tasksInfo = activityManager.getRunningTasks(1);
+	// if (tasksInfo.size() > 0) {
+	// // 应用程序位于堆栈的顶层
+	// if (packageName.equals(tasksInfo.get(0).topActivity
+	// .getPackageName())) {
+	// return true;
+	// }
+	// }
+	// return false;
+	// }
+
+	public static boolean isBackground(Context context) {
 		ActivityManager activityManager = (ActivityManager) context
 				.getSystemService(Context.ACTIVITY_SERVICE);
-		List<RunningTaskInfo> tasksInfo = activityManager.getRunningTasks(1);
-		if (tasksInfo.size() > 0) {
-			// 应用程序位于堆栈的顶层
-			if (packageName.equals(tasksInfo.get(0).topActivity
-					.getPackageName())) {
-				return true;
+		List<RunningAppProcessInfo> appProcesses = activityManager
+				.getRunningAppProcesses();
+		for (RunningAppProcessInfo appProcess : appProcesses) {
+			if (appProcess.processName.equals(context.getPackageName())) {
+				/*
+				 * BACKGROUND=400 EMPTY=500 FOREGROUND=100 GONE=1000
+				 * PERCEPTIBLE=130 SERVICE=300 ISIBLE=200
+				 */
+				// Log.i(context.getPackageName(), "此appimportace ="
+				// + appProcess.importance
+				// + ",context.getClass().getName()="
+				// + context.getClass().getName());
+				if (appProcess.importance != RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+					// Log.i(context.getPackageName(), "处于后台"
+					// + appProcess.processName);
+					return true;
+				} else {
+					// Log.i(context.getPackageName(), "处于前台"
+					// + appProcess.processName);
+					return false;
+				}
 			}
 		}
 		return false;

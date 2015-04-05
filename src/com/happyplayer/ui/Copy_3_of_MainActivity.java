@@ -55,7 +55,8 @@ import com.happyplayer.util.MediaUtils;
 import com.happyplayer.widget.BaseSeekBar;
 import com.happyplayer.widget.KscTwoLineLyricsView;
 
-public class Copy_3_of_MainActivity extends FragmentActivity implements Observer {
+public class Copy_3_of_MainActivity extends FragmentActivity implements
+		Observer {
 	private ViewPager viewPager;
 	/**
 	 * 页面列表
@@ -204,19 +205,24 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements Observer
 					mRemoteViews.setOnClickPendingIntent(R.id.play,
 							pendplayButtonIntent);
 
-					// 本地歌曲
-					if (songInfo.getType() == SongInfo.LOCAL) {
-						Bitmap bm = ImageUtil.getFirstArtwork(
-								songInfo.getPath(), songInfo.getSid());
-						if (bm != null) {
-							mRemoteViews.setImageViewBitmap(R.id.icon_pic, bm);// 显示专辑封面图片
-						} else {
-							mRemoteViews.setImageViewResource(R.id.icon_pic,
-									R.drawable.ic_launcher);// 显示专辑封面图片
-						}
-					} else {
-						// 网上下载歌曲
-					}
+					// // 本地歌曲
+					// if (songInfo.getType() == SongInfo.LOCAL) {
+					// Bitmap bm = ImageUtil.getFirstArtwork(
+					// songInfo.getPath(), songInfo.getSid());
+					// if (bm != null) {
+					// mRemoteViews.setImageViewBitmap(R.id.icon_pic, bm);//
+					// 显示专辑封面图片
+					// } else {
+					// mRemoteViews.setImageViewResource(R.id.icon_pic,
+					// R.drawable.ic_launcher);// 显示专辑封面图片
+					// }
+					// } else {
+					// // 网上下载歌曲
+					// }
+					ImageUtil.loadAlbum(Copy_3_of_MainActivity.this,singerPicImageView,
+							R.drawable.playing_bar_default_avatar,
+							songInfo.getPath(), songInfo.getSid(),
+							songInfo.getDownUrl());
 
 					break;
 				case SongMessage.LASTPLAYFINISH:
@@ -277,37 +283,41 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements Observer
 			final SongInfo songInfo = songMessage.getSongInfo();
 			switch (songMessage.getType()) {
 			case SongMessage.INIT:
-				// 本地歌曲
-				if (songInfo.getType() == SongInfo.LOCAL) {
-					new AsyncTaskHandler() {
-
-						@Override
-						protected void onPostExecute(Object result) {
-							Bitmap bm = (Bitmap) result;
-							if (bm != null) {
-								singerPicImageView
-										.setBackgroundDrawable(new BitmapDrawable(
-												bm));
-								// 显示专辑封面图片
-							} else {
-								bm = MediaUtils.getDefaultArtwork(
-										Copy_3_of_MainActivity.this, false);
-								singerPicImageView
-										.setBackgroundDrawable(new BitmapDrawable(
-												bm));// 显示专辑封面图片
-							}
-						}
-
-						@Override
-						protected Object doInBackground() throws Exception {
-							return ImageUtil.getFirstArtwork(
-									songInfo.getPath(), songInfo.getSid());
-						}
-					}.execute();
-
-				} else {
-					// 网上下载歌曲
-				}
+				// // 本地歌曲
+				// if (songInfo.getType() == SongInfo.LOCAL) {
+				// new AsyncTaskHandler() {
+				//
+				// @Override
+				// protected void onPostExecute(Object result) {
+				// Bitmap bm = (Bitmap) result;
+				// if (bm != null) {
+				// singerPicImageView
+				// .setBackgroundDrawable(new BitmapDrawable(
+				// bm));
+				// // 显示专辑封面图片
+				// } else {
+				// bm = MediaUtils.getDefaultArtwork(
+				// Copy_3_of_MainActivity.this, false);
+				// singerPicImageView
+				// .setBackgroundDrawable(new BitmapDrawable(
+				// bm));// 显示专辑封面图片
+				// }
+				// }
+				//
+				// @Override
+				// protected Object doInBackground() throws Exception {
+				// return ImageUtil.getFirstArtwork(
+				// songInfo.getPath(), songInfo.getSid());
+				// }
+				// }.execute();
+				//
+				// } else {
+				// // 网上下载歌曲
+				// }
+				ImageUtil.loadAlbum(Copy_3_of_MainActivity.this,singerPicImageView,
+						R.drawable.playing_bar_default_avatar,
+						songInfo.getPath(), songInfo.getSid(),
+						songInfo.getDownUrl());
 
 				// pauseImageButton.setVisibility(View.INVISIBLE);
 				// playImageButton.setVisibility(View.VISIBLE);
@@ -337,11 +347,11 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements Observer
 				seekBar.setMax((int) songInfo.getDuration());
 				timeTextView.setText("-00:00");
 
-				Bitmap bm = MediaUtils.getDefaultArtwork(Copy_3_of_MainActivity.this,
-						false);
+				Bitmap bm = MediaUtils.getDefaultArtwork(
+						Copy_3_of_MainActivity.this, false);
 				singerPicImageView
 						.setBackgroundDrawable(new BitmapDrawable(bm));// 显示专辑封面图片
-				
+
 				initKscLyrics(songInfo);
 
 				break;
@@ -364,7 +374,7 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements Observer
 											.getPlayProgress())));
 				}
 
-				if(mMenu.isMenuShowing()){
+				if (mMenu.isMenuShowing()) {
 					reshLrcView((int) songInfo.getPlayProgress());
 				}
 
@@ -549,7 +559,8 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements Observer
 						.setBackgroundResource(R.drawable.kg_ic_playing_bar_drag_opened);
 				timeTextView.setVisibility(View.VISIBLE);
 				Constants.BAR_LRC_IS_OPEN = true;
-				DataUtil.save(Copy_3_of_MainActivity.this, Constants.BAR_LRC_IS_OPEN_KEY,
+				DataUtil.save(Copy_3_of_MainActivity.this,
+						Constants.BAR_LRC_IS_OPEN_KEY,
 						Constants.BAR_LRC_IS_OPEN);
 			}
 		});
@@ -563,7 +574,8 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements Observer
 				timeTextView.setVisibility(View.INVISIBLE);
 
 				Constants.BAR_LRC_IS_OPEN = false;
-				DataUtil.save(Copy_3_of_MainActivity.this, Constants.BAR_LRC_IS_OPEN_KEY,
+				DataUtil.save(Copy_3_of_MainActivity.this,
+						Constants.BAR_LRC_IS_OPEN_KEY,
 						Constants.BAR_LRC_IS_OPEN);
 			}
 		});
@@ -578,14 +590,14 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements Observer
 				// // 拖动条进度改变的时候调用
 				if (isStartTrackingTouch) {
 					// 往弹出窗口传输相关的进度
-					seekBar.popupWindowShow(seekBar.getProgress());
+					seekBar.popupWindowShow(seekBar.getProgress(),mMenu,kscTwoLineLyricsView.getTimeLrc(seekBar.getProgress()));
 				}
 			}
 
 			@Override
 			public void onStartTrackingTouch(SeekBar arg0) {
 				// 拖动条开始拖动的时候调用
-				seekBar.popupWindowShow(seekBar.getProgress());
+				seekBar.popupWindowShow(seekBar.getProgress(),mMenu,kscTwoLineLyricsView.getTimeLrc(seekBar.getProgress()));
 				isStartTrackingTouch = true;
 			}
 
@@ -640,13 +652,14 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements Observer
 
 		Intent intent = new Intent(Intent.ACTION_MAIN);
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
-		intent.setClass(Copy_3_of_MainActivity.this, Copy_3_of_MainActivity.class);
+		intent.setClass(Copy_3_of_MainActivity.this,
+				Copy_3_of_MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
 				| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 
-		PendingIntent pendingIntent = PendingIntent
-				.getActivity(Copy_3_of_MainActivity.this, 0, intent,
-						PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getActivity(
+				Copy_3_of_MainActivity.this, 0, intent,
+				PendingIntent.FLAG_CANCEL_CURRENT);
 		mNotification.contentIntent = pendingIntent;
 
 		SongMessage songMessage = new SongMessage();

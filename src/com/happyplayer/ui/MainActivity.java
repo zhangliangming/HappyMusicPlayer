@@ -1,6 +1,7 @@
 package com.happyplayer.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.TreeMap;
@@ -14,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,18 +25,26 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.happyplayer.adapter.PopupPlayListAdapter;
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
 import com.happyplayer.iface.PageAction;
@@ -43,6 +53,7 @@ import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
+import com.happyplayer.player.MediaManage;
 import com.happyplayer.service.EasytouchService;
 import com.happyplayer.service.FloatLrcService;
 import com.happyplayer.slidingmenu.SlidingMenu;
@@ -91,6 +102,16 @@ public class MainActivity extends FragmentActivity implements Observer {
 	 */
 	private TextView singerNameTextView;
 	/**
+	 * 播放列表弹出窗口
+	 */
+	private PopupWindow mPopupWindow;
+	/**
+	 * 弹出窗口播放列表
+	 */
+	private ListView popPlayListView;
+
+	private TextView popPlaysumTextTextView;
+	/**
 	 * 播放按钮
 	 */
 	private ImageButton playImageButton;
@@ -102,6 +123,10 @@ public class MainActivity extends FragmentActivity implements Observer {
 	 * 下一首按钮
 	 */
 	private ImageButton nextImageButton;
+	/**
+	 * 播放列表按钮
+	 */
+	private ImageButton listImageButton;
 
 	private BaseSeekBar seekBar;
 	/**
@@ -150,7 +175,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 				} else {
 					Constants.DESLRCMOVE = true;
 				}
-				
+
 				SongMessage songMessage = new SongMessage();
 				songMessage.setType(SongMessage.DESLRCMOVE);
 				ObserverManage.getObserver().setMessage(songMessage);
@@ -237,21 +262,29 @@ public class MainActivity extends FragmentActivity implements Observer {
 						mRemoteViews.setOnClickPendingIntent(R.id.play,
 								pendplayButtonIntent);
 
-						// 本地歌曲
-						if (songInfo.getType() == SongInfo.LOCAL) {
-							Bitmap bm = ImageUtil.getFirstArtwork(
-									songInfo.getPath(), songInfo.getSid());
-							if (bm != null) {
-								mRemoteViews.setImageViewBitmap(R.id.icon_pic,
-										bm);// 显示专辑封面图片
-							} else {
-								mRemoteViews.setImageViewResource(
-										R.id.icon_pic, R.drawable.ic_launcher);// 显示专辑封面图片
-							}
+						// // 本地歌曲
+						// if (songInfo.getType() == SongInfo.LOCAL) {
+						// Bitmap bm = ImageUtil.getFirstArtwork(
+						// songInfo.getPath(), songInfo.getSid());
+						// if (bm != null) {
+						// mRemoteViews.setImageViewBitmap(R.id.icon_pic,
+						// bm);// 显示专辑封面图片
+						// } else {
+						// mRemoteViews.setImageViewResource(
+						// R.id.icon_pic, R.drawable.ic_launcher);// 显示专辑封面图片
+						// }
+						// } else {
+						// // 网上下载歌曲
+						// }
+						Bitmap bm = ImageUtil.getAlbum(MainActivity.this,
+								songInfo.getPath(), songInfo.getSid(),
+								songInfo.getDownUrl(), "");
+						if (bm != null) {
+							mRemoteViews.setImageViewBitmap(R.id.icon_pic, bm);// 显示专辑封面图片
 						} else {
-							// 网上下载歌曲
+							mRemoteViews.setImageViewResource(R.id.icon_pic,
+									R.drawable.ic_launcher);// 显示专辑封面图片
 						}
-
 						break;
 					case SongMessage.LASTPLAYFINISH:
 
@@ -343,37 +376,42 @@ public class MainActivity extends FragmentActivity implements Observer {
 			final SongInfo songInfo = songMessage.getSongInfo();
 			switch (songMessage.getType()) {
 			case SongMessage.INIT:
-				// 本地歌曲
-				if (songInfo.getType() == SongInfo.LOCAL) {
-					new AsyncTaskHandler() {
+				// // 本地歌曲
+				// if (songInfo.getType() == SongInfo.LOCAL) {
+				// new AsyncTaskHandler() {
+				//
+				// @Override
+				// protected void onPostExecute(Object result) {
+				// Bitmap bm = (Bitmap) result;
+				// if (bm != null) {
+				// singerPicImageView
+				// .setBackgroundDrawable(new BitmapDrawable(
+				// bm));
+				// // 显示专辑封面图片
+				// } else {
+				// bm = MediaUtils.getDefaultArtwork(
+				// MainActivity.this, false);
+				// singerPicImageView
+				// .setBackgroundDrawable(new BitmapDrawable(
+				// bm));// 显示专辑封面图片
+				// }
+				// }
+				//
+				// @Override
+				// protected Object doInBackground() throws Exception {
+				// return ImageUtil.getFirstArtwork(
+				// songInfo.getPath(), songInfo.getSid());
+				// }
+				// }.execute();
+				//
+				// } else {
+				// // 网上下载歌曲
+				// }
 
-						@Override
-						protected void onPostExecute(Object result) {
-							Bitmap bm = (Bitmap) result;
-							if (bm != null) {
-								singerPicImageView
-										.setBackgroundDrawable(new BitmapDrawable(
-												bm));
-								// 显示专辑封面图片
-							} else {
-								bm = MediaUtils.getDefaultArtwork(
-										MainActivity.this, false);
-								singerPicImageView
-										.setBackgroundDrawable(new BitmapDrawable(
-												bm));// 显示专辑封面图片
-							}
-						}
-
-						@Override
-						protected Object doInBackground() throws Exception {
-							return ImageUtil.getFirstArtwork(
-									songInfo.getPath(), songInfo.getSid());
-						}
-					}.execute();
-
-				} else {
-					// 网上下载歌曲
-				}
+				ImageUtil.loadAlbum(MainActivity.this, singerPicImageView,
+						R.drawable.playing_bar_default_avatar,
+						songInfo.getPath(), songInfo.getSid(),
+						songInfo.getDownUrl());
 
 				// pauseImageButton.setVisibility(View.INVISIBLE);
 				// playImageButton.setVisibility(View.VISIBLE);
@@ -627,6 +665,22 @@ public class MainActivity extends FragmentActivity implements Observer {
 			}
 		});
 
+		listImageButton = (ImageButton) centMenu.findViewById(R.id.list_buttom);
+		listImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				getPopupWindowInstance();
+
+				int[] location = new int[2];
+				mMenu.getLocationOnScreen(location);
+
+				mPopupWindow.showAtLocation(mMenu, Gravity.NO_GRAVITY,
+						location[0], location[1] - mPopupWindow.getHeight());
+			}
+		});
+
 		mMenu.setContent(centMenu);
 
 		View left_Menu = LayoutInflater.from(this).inflate(R.layout.left_menu,
@@ -672,15 +726,21 @@ public class MainActivity extends FragmentActivity implements Observer {
 			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
 				// // 拖动条进度改变的时候调用
 				if (isStartTrackingTouch) {
+					int progress = seekBar.getProgress();
+					// System.out.println("onProgressChanged :--->" + progress);
 					// 往弹出窗口传输相关的进度
-					seekBar.popupWindowShow(seekBar.getProgress());
+					seekBar.popupWindowShow(progress, mMenu,
+							kscTwoLineLyricsView.getTimeLrc(progress));
 				}
 			}
 
 			@Override
 			public void onStartTrackingTouch(SeekBar arg0) {
+				int progress = seekBar.getProgress();
+				// System.out.println("onStartTrackingTouch :--->" + progress);
 				// 拖动条开始拖动的时候调用
-				seekBar.popupWindowShow(seekBar.getProgress());
+				seekBar.popupWindowShow(progress, mMenu,
+						kscTwoLineLyricsView.getTimeLrc(progress));
 				isStartTrackingTouch = true;
 			}
 
@@ -690,9 +750,12 @@ public class MainActivity extends FragmentActivity implements Observer {
 				// 拖动条停止拖动的时候调用
 				seekBar.popupWindowDismiss();
 
+				int progress = seekBar.getProgress();
+				// System.out.println("onStopTrackingTouch :--->" + progress);
+
 				SongMessage songMessage = new SongMessage();
 				songMessage.setType(SongMessage.SEEKTO);
-				songMessage.setProgress(seekBar.getProgress());
+				songMessage.setProgress(progress);
 				ObserverManage.getObserver().setMessage(songMessage);
 			}
 		});
@@ -701,6 +764,174 @@ public class MainActivity extends FragmentActivity implements Observer {
 			mMenu.toggle();
 		}
 
+	}
+
+	/**
+	 * 获取PopupWindow实例
+	 */
+	private void getPopupWindowInstance() {
+		if (null != mPopupWindow) {
+			mPopupWindow.dismiss();
+			return;
+		} else {
+			initPopuptWindow();
+
+			List<SongInfo> playlist = MediaManage.getMediaManage(
+					MainActivity.this).getPlaylist();
+
+			popPlaysumTextTextView.setText("播放列表(" + playlist.size() + ")");
+
+			popPlayListView
+					.setAdapter(new PopupPlayListAdapter(MainActivity.this,
+							playlist, popPlayListView, mPopupWindow));
+
+			int playIndex = MediaManage.getMediaManage(MainActivity.this)
+					.getPlayIndex();
+			if (playIndex != -1) {
+				popPlayListView.setSelection(playIndex);
+			}
+		}
+	}
+
+	/**
+	 * 创建PopupWindow
+	 */
+	private void initPopuptWindow() {
+		LayoutInflater layoutInflater = LayoutInflater.from(this);
+		final View popupWindow = layoutInflater.inflate(
+				R.layout.popup_main_playlist, null);
+
+		mPopupWindow = new PopupWindow(popupWindow, LayoutParams.FILL_PARENT,
+				getWindowManager().getDefaultDisplay().getHeight()
+						- mMenu.getHeight() - 50, true);
+
+		// 实例化一个ColorDrawable颜色为半透明
+		ColorDrawable dw = new ColorDrawable(0xb0000000);
+		mPopupWindow.setBackgroundDrawable(dw);
+
+		// 设置popWindow的显示和消失动画
+		// mPopupWindow.setAnimationStyle(R.style.mypopwindow_anim_style);
+		// 设置popWindow弹出窗体可点击，这句话必须添加，并且是true
+		mPopupWindow.setFocusable(true);
+		// mPopupWindow.setOutsideTouchable(true);
+		popupWindow.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				// int bottomHeight = mMenu.getTop();
+				int topHeight = popupWindow.findViewById(R.id.pop_layout)
+						.getTop();
+				int y = (int) event.getY();
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					// y > bottomHeight ||
+					if (topHeight > y) {
+						mPopupWindow.dismiss();
+					}
+				}
+				return true;
+			}
+		});
+
+		// popWindow消失监听方法
+		mPopupWindow.setOnDismissListener(new OnDismissListener() {
+
+			@Override
+			public void onDismiss() {
+				mPopupWindow = null;
+			}
+		});
+
+		/**
+		 * 顺序播放
+		 */
+		final ImageView modeALLImageButton = (ImageView) popupWindow
+				.findViewById(R.id.mode_all_buttom);
+		/**
+		 * 随机播放
+		 */
+		final ImageView modeRandomImageButton = (ImageView) popupWindow
+				.findViewById(R.id.mode_random_buttom);
+		/**
+		 * 单曲循环
+		 */
+		final ImageView modeSingleImageButton = (ImageView) popupWindow
+				.findViewById(R.id.mode_single_buttom);
+
+		modeALLImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				modeALLImageButton.setVisibility(View.INVISIBLE);
+				modeRandomImageButton.setVisibility(View.VISIBLE);
+				modeSingleImageButton.setVisibility(View.INVISIBLE);
+				Toast.makeText(MainActivity.this, "随机播放", Toast.LENGTH_SHORT)
+						.show();
+
+				Constants.PLAY_MODE = 2;
+				DataUtil.save(MainActivity.this, Constants.PLAY_MODE_KEY,
+						Constants.PLAY_MODE);
+			}
+		});
+
+		modeRandomImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				modeALLImageButton.setVisibility(View.INVISIBLE);
+				modeRandomImageButton.setVisibility(View.INVISIBLE);
+				modeSingleImageButton.setVisibility(View.VISIBLE);
+				Toast.makeText(MainActivity.this, "单曲循环", Toast.LENGTH_SHORT)
+						.show();
+
+				Constants.PLAY_MODE = 0;
+				DataUtil.save(MainActivity.this, Constants.PLAY_MODE_KEY,
+						Constants.PLAY_MODE);
+			}
+		});
+
+		modeSingleImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				modeALLImageButton.setVisibility(View.VISIBLE);
+				modeRandomImageButton.setVisibility(View.INVISIBLE);
+				modeSingleImageButton.setVisibility(View.INVISIBLE);
+
+				Toast.makeText(MainActivity.this, "顺序播放", Toast.LENGTH_SHORT)
+						.show();
+
+				Constants.PLAY_MODE = 1;
+				DataUtil.save(MainActivity.this, Constants.PLAY_MODE_KEY,
+						Constants.PLAY_MODE);
+			}
+		});
+
+		// 默认是0单曲循环，1顺序播放，2随机播放
+		switch (Constants.PLAY_MODE) {
+		case 0:
+			modeALLImageButton.setVisibility(View.INVISIBLE);
+			modeRandomImageButton.setVisibility(View.INVISIBLE);
+			modeSingleImageButton.setVisibility(View.VISIBLE);
+			break;
+		case 1:
+			modeALLImageButton.setVisibility(View.VISIBLE);
+			modeRandomImageButton.setVisibility(View.INVISIBLE);
+			modeSingleImageButton.setVisibility(View.INVISIBLE);
+			break;
+		case 2:
+			modeALLImageButton.setVisibility(View.INVISIBLE);
+			modeRandomImageButton.setVisibility(View.VISIBLE);
+			modeSingleImageButton.setVisibility(View.INVISIBLE);
+			break;
+		}
+
+		popPlayListView = (ListView) popupWindow
+				.findViewById(R.id.playlistView);
+
+		popPlaysumTextTextView = (TextView) popupWindow
+				.findViewById(R.id.playsumText);
 	}
 
 	private void createNotifiView() {

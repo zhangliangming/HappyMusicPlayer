@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="40dp"
-    android:background="#ffffff" >
+    android:layout_height="50dp"
+    android:background="@drawable/bg_player_queue_back" >
 
     <TextView
         android:id="@+id/time_tip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/time_lrc"
+        android:ellipsize="middle"
+        android:singleLine="true"
+        android:text="00:00"
+        android:textColor="#ffffff"
+        android:textSize="18dp" />
+
+    <TextView
+        android:id="@+id/time_lrc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="4:00"
+        android:layout_marginLeft="5dp"
+        android:ellipsize="middle"
+        android:singleLine="true"
+        android:text=""
+        android:textColor="#ffffff"
         android:textSize="18dp" />
 
 </RelativeLayout>

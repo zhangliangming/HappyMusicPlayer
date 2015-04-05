@@ -49,6 +49,9 @@ public class MyFragment extends Fragment implements Observer {
 	private ListViewRelativeLayout showEasyTouch;
 	private CheckBox showEasyTouchCheckBox;
 
+	private ListViewRelativeLayout showLock;
+	private CheckBox showlockCheckBox;
+
 	private ListViewRelativeLayout skinsetting;
 
 	/**
@@ -112,6 +115,13 @@ public class MyFragment extends Fragment implements Observer {
 		// mylove = (ListViewRelativeLayout)
 		// mMainView.findViewById(R.id.mylove);
 		// mylove.setOnClickListener(new ItemOnClick());
+
+		showLock = (ListViewRelativeLayout) mMainView
+				.findViewById(R.id.showlock);
+		showLock.setOnClickListener(new ItemOnClick());
+		showlockCheckBox = (CheckBox) mMainView
+				.findViewById(R.id.showlockcheckbox);
+		showlockCheckBox.setChecked(Constants.SHOWLOCK);
 
 		showdesLrc = (ListViewRelativeLayout) mMainView
 				.findViewById(R.id.showdesLrc);
@@ -213,6 +223,9 @@ public class MyFragment extends Fragment implements Observer {
 			case R.id.skinsetting:
 				gotoSkinSetting();
 				break;
+			case R.id.showlock:
+				showLock();
+				break;
 			}
 		}
 
@@ -238,6 +251,18 @@ public class MyFragment extends Fragment implements Observer {
 
 		DataUtil.save(getActivity(), Constants.SHOWEASYTOUCH_KEY,
 				Constants.SHOWEASYTOUCH);
+	}
+
+	private void showLock() {
+		if (showlockCheckBox.isChecked()) {
+			showlockCheckBox.setChecked(false);
+			Constants.SHOWLOCK = false;
+		} else {
+			Constants.SHOWLOCK = true;
+			showlockCheckBox.setChecked(true);
+		}
+
+		DataUtil.save(getActivity(), Constants.SHOWLOCK_KEY, Constants.SHOWLOCK);
 	}
 
 	public void showdesLrc() {

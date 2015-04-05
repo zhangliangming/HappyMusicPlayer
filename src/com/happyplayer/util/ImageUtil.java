@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.SoftReference;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -19,15 +22,50 @@ import org.jaudiotagger.tag.id3.ID3v23Frame;
 import org.jaudiotagger.tag.id3.ID3v23Tag;
 import org.jaudiotagger.tag.id3.framebody.FrameBodyAPIC;
 
-import com.happyplayer.common.Constants;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.DisplayMetrics;
+import android.widget.ImageView;
+
+import com.happyplayer.async.AsyncTaskHandler;
+import com.happyplayer.common.Constants;
 
 public class ImageUtil {
 	// 软引用内存缓存
 	public static Map<String, SoftReference<Bitmap>> sImageCache = new HashMap<String, SoftReference<Bitmap>>();
+
+	/**
+	 * 加载资源图片
+	 * 
+	 * @param context
+	 * @param imageview
+	 * @param resourceID
+	 * @param defResourceID
+	 */
+	public static void loadResourceImage(final Context context,
+			final ImageView imageview, final int resourceID,
+			final int defResourceID) {
+		imageview.setBackgroundResource(defResourceID);
+		new AsyncTaskHandler() {
+
+			@Override
+			protected void onPostExecute(Object result) {
+				Bitmap bm = (Bitmap) result;
+				if (bm == null) {
+					imageview.setBackgroundResource(defResourceID);
+				} else {
+					imageview.setBackgroundDrawable(new BitmapDrawable(bm));
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				return ImageUtil.readBitmap(context, resourceID);
+			}
+		}.execute();
+	}
 
 	/**
 	 * 通过资源id获取资源图片
@@ -65,25 +103,86 @@ public class ImageUtil {
 	}
 
 	/**
+	 * 加载专辑图片
+	 * 
+	 * @param imageview
+	 * @param defResourceID
+	 * @param filePath
+	 * @param fileSid
+	 * @param url
+	 */
+	public static void loadAlbum(final Context context,
+			final ImageView imageview, final int defResourceID,
+			final String filePath, final String fileSid, final String url) {
+		final String fileName = Constants.PATH_ALBUM + File.separator + fileSid
+				+ ".jpg";
+		imageview.setBackgroundResource(defResourceID);
+		new AsyncTaskHandler() {
+
+			@Override
+			protected void onPostExecute(Object result) {
+				Bitmap bm = (Bitmap) result;
+				if (bm == null) {
+					imageview.setBackgroundResource(defResourceID);
+				} else {
+					saveImage(bm, fileName);
+					imageview.setBackgroundDrawable(new BitmapDrawable(bm));
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				return getAlbum(context, filePath, fileSid, url, fileName);
+			}
+		}.execute();
+	}
+
+	/**
+	 * 获取图片数据
+	 * 
+	 * @param filePath
+	 * @param fileSid
+	 * @param url
+	 * @return
+	 */
+	public static Bitmap getAlbum(Context context, String filePath,
+			String fileSid, String url, String fileName) {
+		if (fileName == null || fileName.equals("")) {
+			fileName = Constants.PATH_ALBUM + File.separator + fileSid + ".jpg";
+		}
+		Bitmap bm = getFirstArtwork(context, filePath, fileSid, fileName);
+		if (bm != null) {
+			return bm;
+		}
+		if (url != null && !url.equals("")) {
+			bm = getBitmap(url);
+			if (bm != null) {
+				sImageCache.put(filePath, new SoftReference<Bitmap>(bm));
+			}
+		}
+		return bm;
+	}
+
+	/**
 	 * 根据歌曲文件获取相关的专辑图片
 	 * 
 	 * @param filePath
 	 *            文件路径
 	 * @return
 	 */
-	public static Bitmap getFirstArtwork(String filePath, String fileSid) {
-		String fileName = Constants.PATH_ALBUM + File.separator + fileSid
-				+ ".jpg";
+	private static Bitmap getFirstArtwork(Context context, String filePath,
+			String fileSid, String fileName) {
+
 		Bitmap bm = null;
 		if (sImageCache.containsKey(filePath)) {
 			bm = sImageCache.get(filePath).get();
 			if (bm == null) {
-				bm = loadFirstArtwork(filePath, fileName);
+				bm = loadFirstArtwork(filePath, fileName, context);
 			} else {
 				return bm;
 			}
 		} else {
-			bm = loadFirstArtwork(filePath, fileName);
+			bm = loadFirstArtwork(filePath, fileName, context);
 		}
 		return bm;
 	}
@@ -95,18 +194,17 @@ public class ImageUtil {
 	 *            文件路径
 	 * @return
 	 */
-	private static Bitmap loadFirstArtwork(String filePath, String fileName) {
+	private static Bitmap loadFirstArtwork(String filePath, String fileName,
+			Context context) {
 		File artworkFile = new File(fileName);
 		Bitmap bm = null;
 		if (artworkFile.exists()) {
-			bm = getImageFormFile(filePath);
-			if (bm == null) {
-				bm = getArtworkFormFile(filePath, fileName);
-			} else {
+			bm = getImageFormFile(filePath, context);
+			if (bm != null) {
 				sImageCache.put(filePath, new SoftReference<Bitmap>(bm));
-				saveImage(bm, fileName);
 				return bm;
 			}
+			bm = getArtworkFormFile(filePath, fileName);
 		} else {
 			bm = getArtworkFormFile(filePath, fileName);
 		}
@@ -119,12 +217,11 @@ public class ImageUtil {
 	 * @param bm
 	 * @param fileName
 	 */
-	public static void saveImage(Bitmap bm, String fileName) {
+	private static void saveImage(Bitmap bm, String fileName) {
 		if (bm == null) {
 			return;
 		}
 		try {
-			// 两层文件夹建立方法
 			// 你要存放的文件
 			File file = new File(fileName);
 			// file文件的上一层文件夹
@@ -151,7 +248,7 @@ public class ImageUtil {
 	 * @param filePath
 	 * @return
 	 */
-	public static Bitmap getArtworkFormFile(String filePath, String fileName) {
+	private static Bitmap getArtworkFormFile(String filePath, String fileName) {
 		File sourceFile = new File(filePath);
 		if (!sourceFile.exists())
 			return null;
@@ -174,7 +271,6 @@ public class ImageUtil {
 								imageData.length);
 						sImageCache
 								.put(filePath, new SoftReference<Bitmap>(bm));
-						saveImage(bm, fileName);
 						return bm;
 					} else {
 						return null;
@@ -195,12 +291,17 @@ public class ImageUtil {
 	/**
 	 * 从文件中获取图片
 	 */
-	public static Bitmap getImageFormFile(String filePath) {
+	private static Bitmap getImageFormFile(String filePath, Context context) {
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inJustDecodeBounds = true;
 		BitmapFactory.decodeFile(filePath, opts);
-		// 压缩到640x640
-		opts.inSampleSize = computeSampleSize(opts, -1, 640 * 640);
+
+		/** 这里是获取手机屏幕的分辨率用来处理 图片 溢出问题的。begin */
+		DisplayMetrics dm = new DisplayMetrics();
+		dm = context.getResources().getDisplayMetrics();
+		int displaypixels = dm.widthPixels * dm.heightPixels;
+
+		opts.inSampleSize = computeSampleSize(opts, -1, displaypixels);
 		opts.inJustDecodeBounds = false;
 		try {
 			return BitmapFactory.decodeFile(filePath, opts);
@@ -210,7 +311,7 @@ public class ImageUtil {
 		return null;
 	}
 
-	public static int computeSampleSize(BitmapFactory.Options options,
+	private static int computeSampleSize(BitmapFactory.Options options,
 			int minSideLength, int maxNumOfPixels) {
 		int initialSize = computeInitialSampleSize(options, minSideLength,
 				maxNumOfPixels);
@@ -228,7 +329,7 @@ public class ImageUtil {
 		return roundedSize;
 	}
 
-	public static int computeInitialSampleSize(BitmapFactory.Options options,
+	private static int computeInitialSampleSize(BitmapFactory.Options options,
 			int minSideLength, int maxNumOfPixels) {
 		double w = options.outWidth;
 		double h = options.outHeight;
@@ -247,5 +348,55 @@ public class ImageUtil {
 		} else {
 			return upperBound;
 		}
+	}
+
+	/**
+	 * 根据一个网络连接(URL)获取bitmap图像
+	 * 
+	 * @param imageUri
+	 * @return
+	 */
+	public static Bitmap getBitmap(URL imageUri) {
+		// 显示网络上的图片
+		URL myFileUrl = imageUri;
+		Bitmap bitmap = null;
+		try {
+			HttpURLConnection conn = (HttpURLConnection) myFileUrl
+					.openConnection();
+			conn.setDoInput(true);
+			conn.connect();
+			InputStream is = conn.getInputStream();
+			bitmap = BitmapFactory.decodeStream(is);
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return bitmap;
+	}
+
+	/**
+	 * 根据一个网络连接(String)获取bitmap图像
+	 * 
+	 * @param imageUri
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	public static Bitmap getBitmap(String imageUri) {
+		// 显示网络上的图片
+		Bitmap bitmap = null;
+		try {
+			URL myFileUrl = new URL(imageUri);
+			HttpURLConnection conn = (HttpURLConnection) myFileUrl
+					.openConnection();
+			conn.setDoInput(true);
+			conn.connect();
+			InputStream is = conn.getInputStream();
+			bitmap = BitmapFactory.decodeStream(is);
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return bitmap;
 	}
 }

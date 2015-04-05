@@ -1,23 +1,35 @@
 package com.happyplayer.ui;
 
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.TreeMap;
 
 import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.happyplayer.adapter.PopupPlayListAdapter;
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
+import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
@@ -25,8 +37,11 @@ import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.player.MediaManage;
 import com.happyplayer.util.ActivityManager;
 import com.happyplayer.util.DataUtil;
+import com.happyplayer.util.KscLyricsManamge;
+import com.happyplayer.util.KscLyricsParser;
 import com.happyplayer.util.MediaUtils;
 import com.happyplayer.widget.HBaseSeekBar;
+import com.happyplayer.widget.KscTwoLineMLyricsView;
 
 public class LrcViewActivity extends Activity implements Observer {
 
@@ -66,6 +81,8 @@ public class LrcViewActivity extends Activity implements Observer {
 	 */
 	private ImageView modeSingleImageButton;
 
+	private RelativeLayout seekbarRelativeLayout;
+
 	/**
 	 * 判断其是否是正在拖动
 	 */
@@ -75,6 +92,56 @@ public class LrcViewActivity extends Activity implements Observer {
 	private TextView songProgressTextView;
 
 	private TextView songSizeTextView;
+
+	/**
+	 * 歌词解析
+	 */
+	private KscLyricsParser kscLyricsParser;
+	/**
+	 * 歌词
+	 */
+	private TreeMap<Integer, KscLyricsLineInfo> lyricsLineTreeMap;
+	/**
+	 * 歌词视图
+	 */
+	private KscTwoLineMLyricsView kscTwoLineLyricsView;
+
+	private ImageView listImageButton;
+	/**
+	 * 播放列表弹出窗口
+	 */
+	private PopupWindow mPopupWindow;
+	/**
+	 * 弹出窗口播放列表
+	 */
+	private ListView popPlayListView;
+
+	private TextView popPlaysumTextTextView;
+
+	private Handler playmodeHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			// 默认是0单曲循环，1顺序播放，2随机播放
+			switch (Constants.PLAY_MODE) {
+			case 0:
+				modeALLImageButton.setVisibility(View.INVISIBLE);
+				modeRandomImageButton.setVisibility(View.INVISIBLE);
+				modeSingleImageButton.setVisibility(View.VISIBLE);
+				break;
+			case 1:
+				modeALLImageButton.setVisibility(View.VISIBLE);
+				modeRandomImageButton.setVisibility(View.INVISIBLE);
+				modeSingleImageButton.setVisibility(View.INVISIBLE);
+				break;
+			case 2:
+				modeALLImageButton.setVisibility(View.INVISIBLE);
+				modeRandomImageButton.setVisibility(View.VISIBLE);
+				modeSingleImageButton.setVisibility(View.INVISIBLE);
+				break;
+			}
+		}
+	};
 
 	private Handler songHandler = new Handler() {
 
@@ -98,6 +165,8 @@ public class LrcViewActivity extends Activity implements Observer {
 				songSizeTextView.setText(MediaUtils.formatTime((int) songInfo
 						.getDuration()));
 
+				initKscLyrics(songInfo);
+
 				break;
 			case SongMessage.LASTPLAYFINISH:
 
@@ -111,6 +180,7 @@ public class LrcViewActivity extends Activity implements Observer {
 				songProgressTextView.setText("00:00");
 				songSizeTextView.setText("00:00");
 
+				initKscLyrics(songInfo);
 				break;
 
 			case SongMessage.PLAYING:
@@ -126,6 +196,8 @@ public class LrcViewActivity extends Activity implements Observer {
 					songProgressTextView.setText(MediaUtils
 							.formatTime((int) songInfo.getPlayProgress()));
 				}
+
+				reshLrcView((int) songInfo.getPlayProgress());
 				break;
 			case SongMessage.STOPING:
 				seekBar.setProgress((int) songInfo.getPlayProgress());
@@ -134,6 +206,8 @@ public class LrcViewActivity extends Activity implements Observer {
 
 				pauseImageButton.setVisibility(View.INVISIBLE);
 				playImageButton.setVisibility(View.VISIBLE);
+
+				reshLrcView((int) songInfo.getPlayProgress());
 				break;
 
 			}
@@ -162,6 +236,8 @@ public class LrcViewActivity extends Activity implements Observer {
 					.getPlayProgress()));
 			songSizeTextView.setText(MediaUtils.formatTime((int) songInfo
 					.getDuration()));
+
+			initKscLyrics(songInfo);
 		}
 
 	};
@@ -198,6 +274,40 @@ public class LrcViewActivity extends Activity implements Observer {
 			}
 		}.execute();
 
+	}
+
+	/**
+	 * 初始化歌词
+	 * 
+	 * @param songInfo
+	 *            当前歌曲的信息
+	 */
+	private void initKscLyrics(final SongInfo songInfo) {
+		new AsyncTaskHandler() {
+			@Override
+			protected void onPostExecute(Object result) {
+				kscLyricsParser = (KscLyricsParser) result;
+				lyricsLineTreeMap = kscLyricsParser.getLyricsLineTreeMap();
+				kscTwoLineLyricsView.init();
+				if (lyricsLineTreeMap.size() != 0) {
+					kscTwoLineLyricsView.setKscLyricsParser(kscLyricsParser);
+					kscTwoLineLyricsView
+							.setLyricsLineTreeMap(lyricsLineTreeMap);
+					kscTwoLineLyricsView.setBlLrc(true);
+					kscTwoLineLyricsView.invalidate();
+				} else {
+					kscTwoLineLyricsView.setBlLrc(false);
+					kscTwoLineLyricsView.invalidate();
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+
+				return KscLyricsManamge.getKscLyricsParser(songInfo
+						.getDisplayName());
+			}
+		}.execute();
 	}
 
 	private void init() {
@@ -343,6 +453,8 @@ public class LrcViewActivity extends Activity implements Observer {
 			break;
 		}
 
+		seekbarRelativeLayout = (RelativeLayout) findViewById(R.id.seekbar);
+
 		seekBar = (HBaseSeekBar) findViewById(R.id.playerSeekBar);
 		seekBar.setEnabled(false);
 		seekBar.setProgress(0);
@@ -352,15 +464,20 @@ public class LrcViewActivity extends Activity implements Observer {
 			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
 				// // 拖动条进度改变的时候调用
 				if (isStartTrackingTouch) {
+					int progress = seekBar.getProgress();
 					// 往弹出窗口传输相关的进度
-					seekBar.popupWindowShow(seekBar.getProgress());
+					seekBar.popupWindowShow(progress, seekbarRelativeLayout,
+							kscTwoLineLyricsView.getTimeLrc(progress));
+
 				}
 			}
 
 			@Override
 			public void onStartTrackingTouch(SeekBar arg0) {
-				// 拖动条开始拖动的时候调用
-				seekBar.popupWindowShow(seekBar.getProgress());
+				int progress = seekBar.getProgress();
+				// 往弹出窗口传输相关的进度
+				seekBar.popupWindowShow(progress, seekbarRelativeLayout,
+						kscTwoLineLyricsView.getTimeLrc(progress));
 				isStartTrackingTouch = true;
 			}
 
@@ -376,6 +493,210 @@ public class LrcViewActivity extends Activity implements Observer {
 				ObserverManage.getObserver().setMessage(songMessage);
 			}
 		});
+
+		kscTwoLineLyricsView = (KscTwoLineMLyricsView) findViewById(R.id.kscTwoLineLyricsView);
+
+		listImageButton = (ImageView) findViewById(R.id.playlist_buttom);
+		listImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				getPopupWindowInstance();
+
+				int[] location = new int[2];
+				listImageButton.getLocationOnScreen(location);
+
+				mPopupWindow.showAtLocation(listImageButton,
+						Gravity.NO_GRAVITY, location[0], location[1]
+								- mPopupWindow.getHeight());
+			}
+		});
+	}
+
+	/**
+	 * 获取PopupWindow实例
+	 */
+	private void getPopupWindowInstance() {
+		if (null != mPopupWindow) {
+			mPopupWindow.dismiss();
+			return;
+		} else {
+			initPopuptWindow();
+
+			List<SongInfo> playlist = MediaManage.getMediaManage(
+					LrcViewActivity.this).getPlaylist();
+
+			popPlaysumTextTextView.setText("播放列表(" + playlist.size() + ")");
+
+			popPlayListView.setAdapter(new PopupPlayListAdapter(
+					LrcViewActivity.this, playlist, popPlayListView,
+					mPopupWindow));
+
+			int playIndex = MediaManage.getMediaManage(LrcViewActivity.this)
+					.getPlayIndex();
+			if (playIndex != -1) {
+				popPlayListView.setSelection(playIndex);
+			}
+		}
+	}
+
+	/**
+	 * 创建PopupWindow
+	 */
+	private void initPopuptWindow() {
+		LayoutInflater layoutInflater = LayoutInflater.from(this);
+		final View popupWindow = layoutInflater.inflate(
+				R.layout.popup_lrc_playlist, null);
+
+		mPopupWindow = new PopupWindow(popupWindow, getWindowManager()
+				.getDefaultDisplay().getWidth() / 4 * 3, getWindowManager()
+				.getDefaultDisplay().getHeight() / 3 * 2 - 80, true);
+
+		// 实例化一个ColorDrawable颜色为半透明
+		ColorDrawable dw = new ColorDrawable(0xb0000000);
+		mPopupWindow.setBackgroundDrawable(dw);
+
+		// 设置popWindow的显示和消失动画
+		// mPopupWindow.setAnimationStyle(R.style.mypopwindow_anim_style);
+		// 设置popWindow弹出窗体可点击，这句话必须添加，并且是true
+		mPopupWindow.setFocusable(true);
+		// mPopupWindow.setOutsideTouchable(true);
+		popupWindow.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				// int bottomHeight = mMenu.getTop();
+				int topHeight = popupWindow.findViewById(R.id.pop_layout)
+						.getTop();
+				int y = (int) event.getY();
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					// y > bottomHeight ||
+					if (topHeight > y) {
+						mPopupWindow.dismiss();
+					}
+				}
+				return true;
+			}
+		});
+
+		// popWindow消失监听方法
+		mPopupWindow.setOnDismissListener(new OnDismissListener() {
+
+			@Override
+			public void onDismiss() {
+				mPopupWindow = null;
+			}
+		});
+
+		/**
+		 * 顺序播放
+		 */
+		final ImageView modeALLImageButton = (ImageView) popupWindow
+				.findViewById(R.id.mode_all_buttom);
+		/**
+		 * 随机播放
+		 */
+		final ImageView modeRandomImageButton = (ImageView) popupWindow
+				.findViewById(R.id.mode_random_buttom);
+		/**
+		 * 单曲循环
+		 */
+		final ImageView modeSingleImageButton = (ImageView) popupWindow
+				.findViewById(R.id.mode_single_buttom);
+
+		modeALLImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				modeALLImageButton.setVisibility(View.INVISIBLE);
+				modeRandomImageButton.setVisibility(View.VISIBLE);
+				modeSingleImageButton.setVisibility(View.INVISIBLE);
+				Toast.makeText(LrcViewActivity.this, "随机播放", Toast.LENGTH_SHORT)
+						.show();
+
+				Constants.PLAY_MODE = 2;
+				DataUtil.save(LrcViewActivity.this, Constants.PLAY_MODE_KEY,
+						Constants.PLAY_MODE);
+				
+				playmodeHandler.sendEmptyMessage(0);
+			}
+		});
+
+		modeRandomImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				modeALLImageButton.setVisibility(View.INVISIBLE);
+				modeRandomImageButton.setVisibility(View.INVISIBLE);
+				modeSingleImageButton.setVisibility(View.VISIBLE);
+				Toast.makeText(LrcViewActivity.this, "单曲循环", Toast.LENGTH_SHORT)
+						.show();
+
+				Constants.PLAY_MODE = 0;
+				DataUtil.save(LrcViewActivity.this, Constants.PLAY_MODE_KEY,
+						Constants.PLAY_MODE);
+				playmodeHandler.sendEmptyMessage(0);
+			}
+		});
+
+		modeSingleImageButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				modeALLImageButton.setVisibility(View.VISIBLE);
+				modeRandomImageButton.setVisibility(View.INVISIBLE);
+				modeSingleImageButton.setVisibility(View.INVISIBLE);
+
+				Toast.makeText(LrcViewActivity.this, "顺序播放", Toast.LENGTH_SHORT)
+						.show();
+
+				Constants.PLAY_MODE = 1;
+				DataUtil.save(LrcViewActivity.this, Constants.PLAY_MODE_KEY,
+						Constants.PLAY_MODE);
+				playmodeHandler.sendEmptyMessage(0);
+			}
+		});
+
+		// 默认是0单曲循环，1顺序播放，2随机播放
+		switch (Constants.PLAY_MODE) {
+		case 0:
+			modeALLImageButton.setVisibility(View.INVISIBLE);
+			modeRandomImageButton.setVisibility(View.INVISIBLE);
+			modeSingleImageButton.setVisibility(View.VISIBLE);
+			break;
+		case 1:
+			modeALLImageButton.setVisibility(View.VISIBLE);
+			modeRandomImageButton.setVisibility(View.INVISIBLE);
+			modeSingleImageButton.setVisibility(View.INVISIBLE);
+			break;
+		case 2:
+			modeALLImageButton.setVisibility(View.INVISIBLE);
+			modeRandomImageButton.setVisibility(View.VISIBLE);
+			modeSingleImageButton.setVisibility(View.INVISIBLE);
+			break;
+		}
+
+		popPlayListView = (ListView) popupWindow
+				.findViewById(R.id.playlistView);
+
+		popPlaysumTextTextView = (TextView) popupWindow
+				.findViewById(R.id.playsumText);
+	}
+
+	/**
+	 * 
+	 * @param playProgress
+	 *            根据当前歌曲播放进度，刷新歌词
+	 */
+	private void reshLrcView(int playProgress) {
+		// 判断当前的歌曲是否有歌词
+		boolean blLrc = kscTwoLineLyricsView.getBlLrc();
+		if (blLrc) {
+			kscTwoLineLyricsView.showLrc(playProgress);
+		}
 	}
 
 	public void back(View v) {

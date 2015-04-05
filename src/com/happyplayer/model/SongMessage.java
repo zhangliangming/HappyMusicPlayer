@@ -80,6 +80,7 @@ public class SongMessage {
 	 * 播放选中的歌曲
 	 */
 	public static final int SELECTPLAY = 12;
+	public static final int SELECTPLAYED = 20;
 
 	public static final int ERROR = 13;
 	/**
