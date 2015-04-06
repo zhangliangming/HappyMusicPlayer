@@ -82,6 +82,39 @@ public class Constants {
 			Color.rgb(191, 199, 112), Color.rgb(120, 213, 214),
 			Color.rgb(52, 145, 120) };
 	/**
+	 * 未读歌词颜色
+	 */
+	public static int DESLRCNOREADCOLOR[] = { Color.rgb(255, 255, 255),
+			Color.rgb(1, 143, 204), Color.rgb(93, 177, 240),
+			Color.rgb(60, 207, 211), Color.rgb(173, 73, 201),
+			Color.rgb(47, 147, 0) };
+	/**
+	 * 已读歌词颜色
+	 */
+	public static int DESLRCREADEDCOLOR[] = { Color.rgb(255, 255, 1),
+			Color.rgb(95, 240, 253), Color.rgb(1, 255, 255),
+			Color.rgb(255, 160, 0), Color.rgb(255, 83, 144),
+			Color.rgb(185, 255, 11) };
+	/***
+	 * 桌面歌词颜色
+	 */
+	public static String DEF_DES_COLOR_INDEX_KEY = "DEF_DES_COLOR_INDEX_KEY";
+	public static int DEF_DES_COLOR_INDEX = 0;
+
+	/**
+	 * 歌词颜色
+	 */
+	public static String LRC_COLOR_INDEX_KEY = "LRC_COLOR_INDEX_KEY";
+	public static int LRC_COLOR_INDEX = 0;
+	/**
+	 * 歌词颜色
+	 */
+	public static int LRCCOLORS[] = { Color.rgb(252, 255, 21),
+			Color.rgb(255, 101, 101), Color.rgb(110, 232, 77),
+			Color.rgb(236, 85, 203), Color.rgb(148, 83, 237),
+			Color.rgb(26, 89, 154) };
+
+	/**
 	 * 主题颜色面板索引
 	 */
 	public static String DEF_COLOR_INDEX_KEY = "COLOR_INDEX_KEY";
@@ -98,7 +131,7 @@ public class Constants {
 	 * 图片皮肤索引
 	 */
 	public static String DEF_PIC_INDEX_KEY = "DEF_PIC_INDEX_KEY";
-	public static int DEF_PIC_INDEX = 0;
+	public static int DEF_PIC_INDEX = 3;
 
 	/**
 	 * 记录上一次播放的歌曲sid
@@ -159,7 +192,7 @@ public class Constants {
 	 */
 	public static String LRCY_KEY = "LRCY_KEY";
 	public static int LRCY = 0;
-	
+
 	/**
 	 * app是否退出 0是否 1是 退出
 	 */

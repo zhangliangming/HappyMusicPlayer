@@ -425,9 +425,7 @@ public class Copy_4_of_MainActivity extends FragmentActivity implements Observer
 				seekBar.setProgress((int) songInfo.getPlayProgress());
 				timeTextView
 						.setText("-"
-								+ MediaUtils.formatTime((int) (songInfo
-										.getDuration() - songInfo
-										.getPlayProgress())));
+								+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				initKscLyrics(songInfo);
 
@@ -465,9 +463,7 @@ public class Copy_4_of_MainActivity extends FragmentActivity implements Observer
 
 					timeTextView
 							.setText("-"
-									+ MediaUtils.formatTime((int) (songInfo
-											.getDuration() - songInfo
-											.getPlayProgress())));
+									+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 				}
 
 				if (mMenu.isMenuShowing()) {
@@ -482,9 +478,7 @@ public class Copy_4_of_MainActivity extends FragmentActivity implements Observer
 				seekBar.setProgress((int) songInfo.getPlayProgress());
 				timeTextView
 						.setText("-"
-								+ MediaUtils.formatTime((int) (songInfo
-										.getDuration() - songInfo
-										.getPlayProgress())));
+								+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				reshLrcView((int) songInfo.getPlayProgress());
 				break;

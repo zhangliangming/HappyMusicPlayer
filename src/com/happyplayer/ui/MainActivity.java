@@ -423,9 +423,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 				seekBar.setProgress((int) songInfo.getPlayProgress());
 				timeTextView
 						.setText("-"
-								+ MediaUtils.formatTime((int) (songInfo
-										.getDuration() - songInfo
-										.getPlayProgress())));
+								+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				initKscLyrics(songInfo);
 
@@ -480,9 +478,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 				seekBar.setProgress((int) songInfo.getPlayProgress());
 				timeTextView
 						.setText("-"
-								+ MediaUtils.formatTime((int) (songInfo
-										.getDuration() - songInfo
-										.getPlayProgress())));
+								+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				reshLrcView((int) songInfo.getPlayProgress());
 				break;

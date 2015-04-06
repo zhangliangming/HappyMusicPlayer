@@ -38,7 +38,7 @@ public class KscTwoLineMLyricsView extends View implements Observer {
 	/**
 	 * 显示默认歌词文字的大小值
 	 */
-	private int SIZEWORDDEF = 30;
+	private int SIZEWORDDEF = 35;
 
 	/**
 	 * 歌词每行的间隔
@@ -131,8 +131,8 @@ public class KscTwoLineMLyricsView extends View implements Observer {
 			break;
 		}
 
-		// paintHL.setColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
-		paintHL.setColor(Color.rgb(250, 218, 131));
+		paintHL.setColor(Constants.LRCCOLORS[Constants.LRC_COLOR_INDEX]);
+		// paintHL.setColor(Color.rgb(250, 218, 131));
 		if (!blLrc) {
 			String tip = "乐乐音乐，传播好的音乐";
 			float tipTextWidth = paint.measureText(tip);

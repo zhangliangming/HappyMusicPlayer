@@ -5,14 +5,11 @@ import java.util.Observer;
 import java.util.TreeMap;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetrics;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.happyplayer.common.Constants;
@@ -105,7 +102,6 @@ public class FloatLyricsView extends View implements Observer {
 		this.context = context;
 
 		paint = new Paint();
-		paint.setColor(Color.rgb(119, 185, 242));
 		paint.setDither(true);
 		paint.setAntiAlias(true);
 		paint.setTextSize(SIZEWORDDEF);
@@ -121,13 +117,17 @@ public class FloatLyricsView extends View implements Observer {
 		paintHL.setDither(true);
 		paintHL.setAntiAlias(true);
 		paintHL.setTextSize(SIZEWORDDEF);
-		paintHL.setColor(Color.rgb(209, 107, 213));
 
 		ObserverManage.getObserver().addObserver(this);
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
+
+		int index = Constants.DEF_DES_COLOR_INDEX;
+
+		paint.setColor(Constants.DESLRCNOREADCOLOR[index]);
+		paintHL.setColor(Constants.DESLRCREADEDCOLOR[index]);
 
 		int status = MediaManage.getMediaManage(context).getPlayStatus();
 		switch (status) {

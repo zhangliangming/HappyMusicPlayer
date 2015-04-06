@@ -10,12 +10,14 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -117,6 +119,23 @@ public class LrcViewActivity extends Activity implements Observer {
 	private ListView popPlayListView;
 
 	private TextView popPlaysumTextTextView;
+
+	/**
+	 * 颜色面板
+	 */
+	private ImageView imageviews[];
+
+	/**
+	 * 游标
+	 */
+	private ImageView flagimageviews[];
+
+	private PopupWindow mPopupWindowDialog;
+
+	/**
+	 * 显示面板倒计时
+	 */
+	public int EndTime = -1;
 
 	private Handler playmodeHandler = new Handler() {
 
@@ -619,7 +638,7 @@ public class LrcViewActivity extends Activity implements Observer {
 				Constants.PLAY_MODE = 2;
 				DataUtil.save(LrcViewActivity.this, Constants.PLAY_MODE_KEY,
 						Constants.PLAY_MODE);
-				
+
 				playmodeHandler.sendEmptyMessage(0);
 			}
 		});
@@ -684,6 +703,155 @@ public class LrcViewActivity extends Activity implements Observer {
 
 		popPlaysumTextTextView = (TextView) popupWindow
 				.findViewById(R.id.playsumText);
+	}
+
+	public void showlrccolorDialog(View v) {
+		initPopupWindowInstance();
+	}
+
+	/*
+	 * 获取PopupWindow实例
+	 */
+	private void initPopupWindowInstance() {
+		if (mPopupWindowDialog != null && mPopupWindowDialog.isShowing()) {
+			mPopupWindowDialog.dismiss();
+		} else {
+			initDialogPopuptWindow();
+
+			if (EndTime < 0) {
+				EndTime = 3000;
+				mHandler.post(upDateVol);
+			} else {
+				EndTime = 3000;
+			}
+		}
+	}
+
+	Runnable upDateVol = new Runnable() {
+
+		@Override
+		public void run() {
+			if (EndTime >= 0) {
+				EndTime -= 200;
+				mHandler.postDelayed(upDateVol, 200);
+			} else {
+				if (mPopupWindowDialog != null
+						&& mPopupWindowDialog.isShowing()) {
+					mPopupWindowDialog.dismiss();
+				}
+			}
+
+		}
+	};
+
+	private void initDialogPopuptWindow() {
+
+		int length = Constants.LRCCOLORS.length;
+		imageviews = new ImageView[length];
+		flagimageviews = new ImageView[length];
+		LayoutInflater layoutInflater = LayoutInflater.from(this);
+		View popupWindow = layoutInflater.inflate(R.layout.lrc_color, null);
+		int i = 0;
+		imageviews[i] = (ImageView) popupWindow.findViewById(R.id.colorpanel0);
+		flagimageviews[i] = (ImageView) popupWindow
+				.findViewById(R.id.select_flag0);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) popupWindow.findViewById(R.id.colorpanel1);
+		flagimageviews[i] = (ImageView) popupWindow
+				.findViewById(R.id.select_flag1);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) popupWindow.findViewById(R.id.colorpanel2);
+		flagimageviews[i] = (ImageView) popupWindow
+				.findViewById(R.id.select_flag2);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) popupWindow.findViewById(R.id.colorpanel3);
+		flagimageviews[i] = (ImageView) popupWindow
+				.findViewById(R.id.select_flag3);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) popupWindow.findViewById(R.id.colorpanel4);
+		flagimageviews[i] = (ImageView) popupWindow
+				.findViewById(R.id.select_flag4);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) popupWindow.findViewById(R.id.colorpanel5);
+		flagimageviews[i] = (ImageView) popupWindow
+				.findViewById(R.id.select_flag5);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+
+		flagimageviews[Constants.LRC_COLOR_INDEX].setVisibility(View.VISIBLE);
+
+		// 初始化弹出窗口
+		DisplayMetrics dm = new DisplayMetrics();
+		dm = getResources().getDisplayMetrics();
+		int screenWidth = dm.widthPixels;
+
+		mPopupWindowDialog = new PopupWindow(popupWindow,
+				LayoutParams.FILL_PARENT, screenWidth / 6, true);
+		// 实例化一个ColorDrawable颜色为半透明
+		ColorDrawable dw = new ColorDrawable(0xb0000000);
+		// 设置SelectPicPopupWindow弹出窗体的背景
+		mPopupWindowDialog.setBackgroundDrawable(dw);
+		// mPopupWindowDialog.setFocusable(true);
+		mPopupWindowDialog.setOutsideTouchable(true);
+
+		int[] location = new int[2];
+		kscTwoLineLyricsView.getLocationOnScreen(location);
+
+		mPopupWindowDialog.showAtLocation(kscTwoLineLyricsView,
+				Gravity.NO_GRAVITY, location[0], location[1]
+						- mPopupWindowDialog.getHeight());
+	}
+
+	private class MyImageViewOnClickListener implements OnClickListener {
+
+		public void onClick(View arg0) {
+			EndTime = 3000;
+			int index = 0;
+			int id = arg0.getId();
+			switch (id) {
+			case R.id.colorpanel0:
+				index = 0;
+				break;
+			case R.id.colorpanel1:
+				index = 1;
+				break;
+			case R.id.colorpanel2:
+				index = 2;
+				break;
+			case R.id.colorpanel3:
+				index = 3;
+				break;
+			case R.id.colorpanel4:
+				index = 4;
+				break;
+			case R.id.colorpanel5:
+				index = 5;
+				break;
+			default:
+				break;
+			}
+			Constants.LRC_COLOR_INDEX = index;
+			for (int i = 0; i < imageviews.length; i++) {
+				if (i == index)
+					flagimageviews[i].setVisibility(View.VISIBLE);
+				else
+					flagimageviews[i].setVisibility(View.INVISIBLE);
+			}
+			kscTwoLineLyricsView.invalidate();
+			DataUtil.save(LrcViewActivity.this, Constants.LRC_COLOR_INDEX_KEY,
+					Constants.LRC_COLOR_INDEX);
+		}
 	}
 
 	/**

@@ -14,11 +14,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
@@ -27,16 +29,21 @@ import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.player.MediaManage;
+import com.happyplayer.ui.R;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.util.KscLyricsManamge;
 import com.happyplayer.util.KscLyricsParser;
+import com.happyplayer.widget.FloatLyricRelativeLayout;
 import com.happyplayer.widget.FloatLyricsView;
 
 public class FloatLrcService extends Service implements Observer {
 
 	private WindowManager wm = null;
-	private WindowManager.LayoutParams wmParams = null;
+	private WindowManager.LayoutParams floatViewParams = null;
+	private View floatView;
 	private Context context;
+
+	private FloatLyricRelativeLayout floatLyricRelativeLayout;
 
 	private FloatLyricsView floatLyricsView;
 	/**
@@ -51,6 +58,21 @@ public class FloatLrcService extends Service implements Observer {
 	private float mTouchStartY;
 	private float x;
 	private float y;
+
+	private float startRawX = 0, startRawY = 0;
+
+	private WindowManager.LayoutParams lrcColorViewParams = null;
+
+	private View lrcColorView = null;
+
+	/**
+	 * 显示面板倒计时
+	 */
+	public int EndTime = -1;
+
+	// 状态栏高度
+	private double stateHeight;
+
 	private Handler songHandler = new Handler() {
 
 		@Override
@@ -112,81 +134,327 @@ public class FloatLrcService extends Service implements Observer {
 	}
 
 	private void init() {
+
 		context = FloatLrcService.this.getBaseContext();
+
+		stateHeight = Math
+				.ceil(25 * context.getResources().getDisplayMetrics().density);
 
 		// 获取WindowManager
 		wm = (WindowManager) getApplicationContext().getSystemService("window");
 		// 设置LayoutParams(全局变量）相关参数
-		wmParams = new WindowManager.LayoutParams();
-		wmParams.type = 2002;
-		wmParams.format = 1;
+		floatViewParams = new WindowManager.LayoutParams();
+		floatViewParams.type = 2002;
+		floatViewParams.format = 1;
 
 		if (Constants.DESLRCMOVE) {
-			wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+			floatViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
 					| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 		} else {
-			wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+			floatViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
 					| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 					| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
 		}
 
-		wmParams.gravity = Gravity.LEFT | Gravity.TOP;// 调整悬浮窗口至左上角
+		floatViewParams.gravity = Gravity.LEFT | Gravity.TOP;// 调整悬浮窗口至左上角
 		// 以屏幕左上角为原点，设置x、y初始值
-		wmParams.x = Constants.LRCX;
-		wmParams.y = Constants.LRCY;
+		floatViewParams.x = Constants.LRCX;
+		floatViewParams.y = Constants.LRCY;
+
 		// 设置悬浮窗口长宽数据
-		wmParams.width = wm.getDefaultDisplay().getWidth();
+		floatViewParams.width = wm.getDefaultDisplay().getWidth();
 
-		floatLyricsView = new FloatLyricsView(context);
+		floatView = LayoutInflater.from(context).inflate(R.layout.des_view,
+				null);
 
-		wmParams.height = floatLyricsView.getSIZEWORDDEF() * 2
+		floatLyricRelativeLayout = (FloatLyricRelativeLayout) floatView
+				.findViewById(R.id.floatLyricRelativeLayout);
+
+		floatLyricRelativeLayout.getBackground().setAlpha(0);
+
+		floatLyricsView = (FloatLyricsView) floatView
+				.findViewById(R.id.floatLyricsView);
+
+		floatViewParams.height = floatLyricsView.getSIZEWORDDEF() * 2
 				+ floatLyricsView.getINTERVAL() * 3;
 
-		floatLyricsView.setLayoutParams(new LayoutParams(wmParams.width,
-				wmParams.height));
+		floatLyricsView.setOnTouchListener(mOnTouchListener);
 
-		floatLyricsView.setOnTouchListener(new OnTouchListener() {
+		initLrcColorView();
+	}
 
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
+	private OnClickListener mOnClickListener = new OnClickListener() {
 
-				if (!Constants.DESLRCMOVE)
+		@Override
+		public void onClick(View arg0) {
+			if (lrcColorView.getParent() != null) {
+				wm.removeView(lrcColorView);
+				floatLyricRelativeLayout.getBackground().setAlpha(0);
+			}
+			floatLyricsView.setOnTouchListener(mOnTouchListener);
+			floatLyricsView.setOnClickListener(null);
+		}
+	};
+
+	private OnTouchListener mOnTouchListener = new OnTouchListener() {
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+
+			if (!Constants.DESLRCMOVE)
+				return false;
+
+			// 获取相对屏幕的坐标，即以屏幕左上角为原点
+			x = event.getRawX();
+			y = (float) (event.getRawY() - stateHeight);
+
+			int sumX = (int) (event.getRawX() - startRawX);
+			int sumY = (int) (event.getRawY() - startRawY);
+
+			switch (event.getAction()) {
+			// 手指按下时
+			case MotionEvent.ACTION_DOWN:
+				// 获取相对View的坐标，即以此View左上角为原点
+				mTouchStartX = event.getX();
+				mTouchStartY = event.getY();
+
+				startRawX = event.getRawX();
+				startRawY = event.getRawY();
+
+				break;
+			// 手指移动时
+			case MotionEvent.ACTION_MOVE:
+				if (sumX > -10 && sumX < 10 && sumY > -10 && sumY < 10) {
+					if (lrcColorView.getParent() != null) {
+						wm.removeView(lrcColorView);
+						floatLyricRelativeLayout.getBackground().setAlpha(0);
+					}
 					return false;
-
-				// 获取相对屏幕的坐标，即以屏幕左上角为原点
-				x = event.getRawX();
-				y = event.getRawY() - 25; // 25是系统状态栏的高度
-				switch (event.getAction()) {
-				// 手指按下时
-				case MotionEvent.ACTION_DOWN:
-					// 获取相对View的坐标，即以此View左上角为原点
-					mTouchStartX = event.getX();
-					mTouchStartY = event.getY();
-
-					break;
-				// 手指移动时
-				case MotionEvent.ACTION_MOVE:
+				} else {
 					// 更新视图
 					updateViewPosition();
-					break;
-				// 手指松开时
-				case MotionEvent.ACTION_UP:
-
-					updateViewPosition();
-					mTouchStartX = mTouchStartY = 0;
-					break;
 				}
-				return true;
+
+				break;
+			// 手指松开时
+			case MotionEvent.ACTION_UP:
+				if (sumX > -5 && sumX < 5 && sumY > -5 && sumY < 5) {
+					addDesLrcColorView();
+					return false;
+
+				}
+				mTouchStartX = mTouchStartY = 0;
+
+				startRawX = 0;
+				startRawY = 0;
+				break;
 			}
-		});
+			return true;
+		}
+	};
+
+	/**
+	 * 颜色面板
+	 */
+	private ImageView imageviews[];
+
+	/**
+	 * 游标
+	 */
+	private ImageView flagimageviews[];
+
+	private void initLrcColorView() {
+		lrcColorViewParams = new WindowManager.LayoutParams();
+		lrcColorViewParams.type = 2002;
+		lrcColorViewParams.format = 1;
+		lrcColorViewParams.alpha = 1f;
+		lrcColorViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+				| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+		lrcColorViewParams.gravity = Gravity.LEFT | Gravity.TOP;// 调整悬浮窗口至左上角
+
+		lrcColorViewParams.x = 0;
+		lrcColorViewParams.y = 0;
+
+		lrcColorViewParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+		lrcColorViewParams.height = floatViewParams.height;
+
+		lrcColorView = LayoutInflater.from(context).inflate(
+				R.layout.des_lrc_view, null);
+
+		// lrcColorView.setOnTouchListener(new OnTouchListener() {
+		//
+		// @Override
+		// public boolean onTouch(View v, MotionEvent event) {
+		// System.out.println("11111111");
+		// int topHeight = lrcColorView.findViewById(R.id.lrcparent)
+		// .getTop();
+		// int bottomHeight = lrcColorView.findViewById(R.id.lrcparent)
+		// .getBottom();
+		// int y = (int) event.getY();
+		// if (event.getAction() == MotionEvent.ACTION_UP) {
+		// if (topHeight > y || y > bottomHeight) {
+		// if (lrcColorView.getParent() != null) {
+		// wm.removeView(lrcColorView);
+		// }
+		// }
+		// }
+		// return true;
+		// }
+		// });
+
+		int length = Constants.DESLRCNOREADCOLOR.length;
+
+		imageviews = new ImageView[length];
+		flagimageviews = new ImageView[length];
+
+		int i = 0;
+		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel0);
+		flagimageviews[i] = (ImageView) lrcColorView
+				.findViewById(R.id.select_flag0);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel1);
+		flagimageviews[i] = (ImageView) lrcColorView
+				.findViewById(R.id.select_flag1);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel2);
+		flagimageviews[i] = (ImageView) lrcColorView
+				.findViewById(R.id.select_flag2);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel3);
+		flagimageviews[i] = (ImageView) lrcColorView
+				.findViewById(R.id.select_flag3);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel4);
+		flagimageviews[i] = (ImageView) lrcColorView
+				.findViewById(R.id.select_flag4);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel5);
+		flagimageviews[i] = (ImageView) lrcColorView
+				.findViewById(R.id.select_flag5);
+		flagimageviews[i].setVisibility(View.INVISIBLE);
+		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+
+		flagimageviews[Constants.DEF_DES_COLOR_INDEX]
+				.setVisibility(View.VISIBLE);
+
 	}
+
+	private class MyImageViewOnClickListener implements OnClickListener {
+
+		public void onClick(View arg0) {
+			EndTime = 3000;
+			int index = 0;
+			int id = arg0.getId();
+			switch (id) {
+			case R.id.colorpanel0:
+				index = 0;
+				break;
+			case R.id.colorpanel1:
+				index = 1;
+				break;
+			case R.id.colorpanel2:
+				index = 2;
+				break;
+			case R.id.colorpanel3:
+				index = 3;
+				break;
+			case R.id.colorpanel4:
+				index = 4;
+				break;
+			case R.id.colorpanel5:
+				index = 5;
+				break;
+			default:
+				break;
+			}
+			Constants.DEF_DES_COLOR_INDEX = index;
+			for (int i = 0; i < imageviews.length; i++) {
+				if (i == index)
+					flagimageviews[i].setVisibility(View.VISIBLE);
+				else
+					flagimageviews[i].setVisibility(View.INVISIBLE);
+			}
+
+			floatLyricsView.invalidate();
+
+			DataUtil.save(context, Constants.DEF_DES_COLOR_INDEX_KEY,
+					Constants.DEF_DES_COLOR_INDEX);
+		}
+	}
+
+	/**
+	 * 改变歌词颜色
+	 */
+	protected void addDesLrcColorView() {
+
+		floatLyricsView.setOnTouchListener(null);
+		floatLyricsView.setOnClickListener(mOnClickListener);
+
+		if (lrcColorView.getParent() == null) {
+
+			int[] location = new int[2];
+			floatLyricsView.getLocationOnScreen(location);
+
+			lrcColorViewParams.x = location[0];
+
+			int heigth = (int) (wm.getDefaultDisplay().getHeight()
+					- location[1] - floatViewParams.height);
+			// System.out.println("heigth:------->"+heigth);
+			// System.out.println("lrcColorViewParams.height:------->"+lrcColorViewParams.height);
+			if (heigth >= lrcColorViewParams.height) {
+				lrcColorViewParams.y = (int) (location[1]
+						+ floatViewParams.height - stateHeight);
+			} else {
+				lrcColorViewParams.y = (int) (location[1]
+						- floatViewParams.height - stateHeight);
+			}
+			floatLyricRelativeLayout.getBackground().setAlpha(100);
+			wm.addView(lrcColorView, lrcColorViewParams);
+			if (EndTime < 0) {
+				EndTime = 3000;
+				handler.post(upDateVol);
+			} else {
+				EndTime = 3000;
+			}
+		}
+	}
+
+	Runnable upDateVol = new Runnable() {
+
+		@Override
+		public void run() {
+			if (EndTime >= 0) {
+				EndTime -= 200;
+				handler.postDelayed(upDateVol, 200);
+			} else {
+				if (lrcColorView.getParent() != null) {
+					wm.removeView(lrcColorView);
+					floatLyricRelativeLayout.getBackground().setAlpha(0);
+					floatLyricsView.setOnTouchListener(mOnTouchListener);
+					floatLyricsView.setOnClickListener(null);
+				}
+			}
+
+		}
+	};
 
 	private void updateViewPosition() {
 
 		// 更新浮动窗口位置参数
-		wmParams.x = (int) (x - mTouchStartX);
-		wmParams.y = (int) (y - mTouchStartY);
-		wm.updateViewLayout(floatLyricsView, wmParams);
+		floatViewParams.x = (int) (x - mTouchStartX);
+		floatViewParams.y = (int) (y - mTouchStartY);
+		wm.updateViewLayout(floatView, floatViewParams);
 
 		new AsyncTaskHandler() {
 
@@ -196,8 +464,8 @@ public class FloatLrcService extends Service implements Observer {
 			}
 
 			protected Object doInBackground() throws Exception {
-				Constants.LRCX = wmParams.x;
-				Constants.LRCY = wmParams.y;
+				Constants.LRCX = floatViewParams.x;
+				Constants.LRCY = floatViewParams.y;
 
 				DataUtil.save(context, Constants.LRCX_KEY, Constants.LRCX);
 				DataUtil.save(context, Constants.LRCY_KEY, Constants.LRCY);
@@ -215,8 +483,9 @@ public class FloatLrcService extends Service implements Observer {
 			switch (msg.what) {
 			// 程序后台运行
 			case 0:
-				if (floatLyricsView.getParent() == null) {
-					wm.addView(floatLyricsView, wmParams);
+				if (floatView.getParent() == null) {
+					wm.addView(floatView, floatViewParams);
+
 					SongInfo songInfo = MediaManage.getMediaManage(context)
 							.getPlaySongInfo();
 					if (songInfo != null) {
@@ -225,8 +494,14 @@ public class FloatLrcService extends Service implements Observer {
 				}
 				break;
 			case 1:
-				if (floatLyricsView.getParent() != null) {
-					wm.removeView(floatLyricsView);
+				if (floatView.getParent() != null) {
+					wm.removeView(floatView);
+				}
+				if (lrcColorView.getParent() != null) {
+					wm.removeView(lrcColorView);
+					floatLyricRelativeLayout.getBackground().setAlpha(0);
+					floatLyricsView.setOnTouchListener(mOnTouchListener);
+					floatLyricsView.setOnClickListener(null);
 				}
 				break;
 			}
@@ -355,16 +630,16 @@ public class FloatLrcService extends Service implements Observer {
 				songHandler.sendMessage(msg);
 			} else if (songMessage.getType() == SongMessage.DESLRCMOVE) {
 				if (Constants.DESLRCMOVE) {
-					wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+					floatViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
 							| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 				} else {
-					wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+					floatViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
 							| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 							| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-				}
-
-				if (floatLyricsView.getParent() != null) {
-					wm.updateViewLayout(floatLyricsView, wmParams);
+					if (lrcColorView.getParent() != null) {
+						wm.removeView(lrcColorView);
+						floatLyricRelativeLayout.getBackground().setAlpha(0);
+					}
 				}
 			}
 		}

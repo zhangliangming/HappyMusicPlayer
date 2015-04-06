@@ -10,6 +10,7 @@ import java.util.Random;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.os.PowerManager;
 
 import com.happyplayer.common.Constants;
 import com.happyplayer.db.SongDB;
@@ -25,7 +26,7 @@ public class MediaManage implements Observer {
 	private int playIndex = -1;
 	private String playSID = "";
 
-	private MediaPlayer player = null;
+	private static MediaPlayer player = null;
 	private Thread playerThread = null;
 	private SongMessage songMessage;
 
@@ -138,11 +139,28 @@ public class MediaManage implements Observer {
 		}
 		if (player == null) {
 			player = new MediaPlayer();
+			// 设定CUP锁定
+			player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
 			player.setOnCompletionListener(new OnCompletionListener() {
 
 				@Override
 				public void onCompletion(MediaPlayer mp) {
 					nextPlay(true);
+				}
+			});
+
+			// 播放音乐时发生错误的事件处理
+			player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+
+				public boolean onError(MediaPlayer mp, int what, int extra) {
+					// 释放资源
+					try {
+						mp.release();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					return false;
 				}
 			});
 
@@ -390,11 +408,27 @@ public class MediaManage implements Observer {
 
 		if (player == null) {
 			player = new MediaPlayer();
+			player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
 			player.setOnCompletionListener(new OnCompletionListener() {
 
 				@Override
 				public void onCompletion(MediaPlayer mp) {
 					nextPlay(true);
+				}
+			});
+
+			// 播放音乐时发生错误的事件处理
+			player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+
+				public boolean onError(MediaPlayer mp, int what, int extra) {
+					// 释放资源
+					try {
+						mp.release();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					return false;
 				}
 			});
 

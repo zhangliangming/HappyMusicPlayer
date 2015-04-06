@@ -4,6 +4,7 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.GET_TASKS" />
@@ -64,7 +65,8 @@
         <service android:name="com.happyplayer.service.LockService" >
         </service>
 
-        <!-- <receiver android:name="com.happyplayer.receiver.LockSreenReceiver" >
+        <!--
+        <receiver android:name="com.happyplayer.receiver.LockSreenReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 
@@ -76,7 +78,8 @@
             android:name="ShowLockActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
-        </activity> -->
+        </activity>
+        -->
     </application>
 
 </manifest>

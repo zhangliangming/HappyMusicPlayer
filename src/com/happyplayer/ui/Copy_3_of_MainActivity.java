@@ -219,7 +219,8 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements
 					// } else {
 					// // 网上下载歌曲
 					// }
-					ImageUtil.loadAlbum(Copy_3_of_MainActivity.this,singerPicImageView,
+					ImageUtil.loadAlbum(Copy_3_of_MainActivity.this,
+							singerPicImageView,
 							R.drawable.playing_bar_default_avatar,
 							songInfo.getPath(), songInfo.getSid(),
 							songInfo.getDownUrl());
@@ -314,7 +315,8 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements
 				// } else {
 				// // 网上下载歌曲
 				// }
-				ImageUtil.loadAlbum(Copy_3_of_MainActivity.this,singerPicImageView,
+				ImageUtil.loadAlbum(Copy_3_of_MainActivity.this,
+						singerPicImageView,
 						R.drawable.playing_bar_default_avatar,
 						songInfo.getPath(), songInfo.getSid(),
 						songInfo.getDownUrl());
@@ -327,11 +329,8 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements
 				seekBar.setEnabled(true);
 				seekBar.setProgress((int) songInfo.getPlayProgress());
 				seekBar.setMax((int) songInfo.getDuration());
-				timeTextView
-						.setText("-"
-								+ MediaUtils.formatTime((int) (songInfo
-										.getDuration() - songInfo
-										.getPlayProgress())));
+				timeTextView.setText("-"
+						+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				initKscLyrics(songInfo);
 
@@ -367,11 +366,9 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements
 				if (!isStartTrackingTouch) {
 					seekBar.setProgress((int) songInfo.getPlayProgress());
 
-					timeTextView
-							.setText("-"
-									+ MediaUtils.formatTime((int) (songInfo
-											.getDuration() - songInfo
-											.getPlayProgress())));
+					timeTextView.setText("-"
+							+ MediaUtils.formatTime(songInfo
+									.getSurplusProgress()));
 				}
 
 				if (mMenu.isMenuShowing()) {
@@ -384,11 +381,8 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements
 				playImageButton.setVisibility(View.VISIBLE);
 
 				seekBar.setProgress((int) songInfo.getPlayProgress());
-				timeTextView
-						.setText("-"
-								+ MediaUtils.formatTime((int) (songInfo
-										.getDuration() - songInfo
-										.getPlayProgress())));
+				timeTextView.setText("-"
+						+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				break;
 			case SongMessage.ERROR:
@@ -590,14 +584,17 @@ public class Copy_3_of_MainActivity extends FragmentActivity implements
 				// // 拖动条进度改变的时候调用
 				if (isStartTrackingTouch) {
 					// 往弹出窗口传输相关的进度
-					seekBar.popupWindowShow(seekBar.getProgress(),mMenu,kscTwoLineLyricsView.getTimeLrc(seekBar.getProgress()));
+					seekBar.popupWindowShow(seekBar.getProgress(), mMenu,
+							kscTwoLineLyricsView.getTimeLrc(seekBar
+									.getProgress()));
 				}
 			}
 
 			@Override
 			public void onStartTrackingTouch(SeekBar arg0) {
 				// 拖动条开始拖动的时候调用
-				seekBar.popupWindowShow(seekBar.getProgress(),mMenu,kscTwoLineLyricsView.getTimeLrc(seekBar.getProgress()));
+				seekBar.popupWindowShow(seekBar.getProgress(), mMenu,
+						kscTwoLineLyricsView.getTimeLrc(seekBar.getProgress()));
 				isStartTrackingTouch = true;
 			}
 

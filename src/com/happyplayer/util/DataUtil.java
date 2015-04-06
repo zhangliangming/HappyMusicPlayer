@@ -89,9 +89,19 @@ public class DataUtil {
 
 		Constants.ICON_VIEWY = preferences.getInt(Constants.ICON_VIEWY_KEY,
 				Constants.ICON_VIEWY);
-		
+
 		// Constants.SHOWLOCK = preferences.getBoolean(
 		// Constants.SHOWLOCK_KEY, Constants.SHOWLOCK);
+
+		// 桌面歌词颜色
+		Constants.DEF_DES_COLOR_INDEX = preferences.getInt(
+				Constants.DEF_DES_COLOR_INDEX_KEY,
+				Constants.DEF_DES_COLOR_INDEX);
+		/**
+		 * 歌词颜色
+		 */
+		Constants.LRC_COLOR_INDEX = preferences.getInt(
+				Constants.LRC_COLOR_INDEX_KEY, Constants.LRC_COLOR_INDEX);
 
 	}
 

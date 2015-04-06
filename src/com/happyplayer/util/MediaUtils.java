@@ -144,7 +144,7 @@ public class MediaUtils {
 	 */
 	public static Mp3Info getMp3InfoByCursor(Cursor cursor) {
 		cursor.moveToNext();
-		
+
 		int isMusic = cursor.getInt(cursor
 				.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
 		if (isMusic == 0)
@@ -159,7 +159,7 @@ public class MediaUtils {
 		String artist = "";
 		String title = "";
 		Mp3Info mp3Info = new Mp3Info();
-	
+
 		long id = cursor.getLong(cursor
 				.getColumnIndex(MediaStore.Audio.Media._ID));
 		String tmpTitle = cursor.getString(cursor

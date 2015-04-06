@@ -230,7 +230,7 @@ public class EasytouchService extends Service implements Observer {
 		mainParams.y = 0;
 		mainParams.width = WindowManager.LayoutParams.MATCH_PARENT;
 		mainParams.height = WindowManager.LayoutParams.MATCH_PARENT;
-		mainParams.gravity = mainParams.gravity = Gravity.LEFT | Gravity.TOP;
+		mainParams.gravity = Gravity.LEFT | Gravity.TOP;
 
 		mainView = LayoutInflater.from(context).inflate(R.layout.magic_menu,
 				null);
@@ -679,11 +679,9 @@ public class EasytouchService extends Service implements Observer {
 					if (playingStatus.getVisibility() != View.INVISIBLE) {
 						playingStatus.setVisibility(View.INVISIBLE);
 					}
-					timeTextView
-							.setText("-"
-									+ MediaUtils.formatTime((int) (songInfo
-											.getDuration() - songInfo
-											.getPlayProgress())));
+					timeTextView.setText("-"
+							+ MediaUtils.formatTime(songInfo
+									.getSurplusProgress()));
 				}
 
 				if (mainViewShow) {
