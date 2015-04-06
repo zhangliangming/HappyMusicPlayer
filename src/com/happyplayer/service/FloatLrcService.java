@@ -228,6 +228,8 @@ public class FloatLrcService extends Service implements Observer {
 					if (lrcColorView.getParent() != null) {
 						wm.removeView(lrcColorView);
 						floatLyricRelativeLayout.getBackground().setAlpha(0);
+						floatLyricsView.setOnTouchListener(mOnTouchListener);
+						floatLyricsView.setOnClickListener(null);
 					}
 					return false;
 				} else {
@@ -485,7 +487,9 @@ public class FloatLrcService extends Service implements Observer {
 			case 0:
 				if (floatView.getParent() == null) {
 					wm.addView(floatView, floatViewParams);
-
+					floatLyricRelativeLayout.getBackground().setAlpha(0);
+					floatLyricsView.setOnTouchListener(mOnTouchListener);
+					floatLyricsView.setOnClickListener(null);
 					SongInfo songInfo = MediaManage.getMediaManage(context)
 							.getPlaySongInfo();
 					if (songInfo != null) {
@@ -639,6 +643,8 @@ public class FloatLrcService extends Service implements Observer {
 					if (lrcColorView.getParent() != null) {
 						wm.removeView(lrcColorView);
 						floatLyricRelativeLayout.getBackground().setAlpha(0);
+						floatLyricsView.setOnTouchListener(mOnTouchListener);
+						floatLyricsView.setOnClickListener(null);
 					}
 				}
 			}
