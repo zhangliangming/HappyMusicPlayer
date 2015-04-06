@@ -315,37 +315,37 @@ public class FloatLrcService extends Service implements Observer {
 				.findViewById(R.id.select_flag0);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel1);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag1);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel2);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag2);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel3);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag3);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel4);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag4);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel5);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag5);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.LRCCOLORS[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
 
 		flagimageviews[Constants.DEF_DES_COLOR_INDEX]
 				.setVisibility(View.VISIBLE);

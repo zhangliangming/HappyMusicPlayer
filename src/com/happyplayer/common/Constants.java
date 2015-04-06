@@ -85,14 +85,14 @@ public class Constants {
 	 * 未读歌词颜色
 	 */
 	public static int DESLRCNOREADCOLOR[] = { Color.rgb(255, 255, 255),
-			Color.rgb(1, 143, 204), Color.rgb(93, 177, 240),
+			Color.rgb(1, 143, 204), Color.rgb(119, 185, 242),
 			Color.rgb(60, 207, 211), Color.rgb(173, 73, 201),
 			Color.rgb(47, 147, 0) };
 	/**
 	 * 已读歌词颜色
 	 */
 	public static int DESLRCREADEDCOLOR[] = { Color.rgb(255, 255, 1),
-			Color.rgb(95, 240, 253), Color.rgb(1, 255, 255),
+			Color.rgb(95, 240, 253), Color.rgb(209, 107, 213),
 			Color.rgb(255, 160, 0), Color.rgb(255, 83, 144),
 			Color.rgb(185, 255, 11) };
 	/***
