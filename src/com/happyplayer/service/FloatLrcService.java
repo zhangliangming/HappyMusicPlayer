@@ -633,6 +633,8 @@ public class FloatLrcService extends Service implements Observer {
 				msg.obj = songMessage;
 				songHandler.sendMessage(msg);
 			} else if (songMessage.getType() == SongMessage.DESLRCMOVE) {
+				System.out.println("Constants.DESLRCMOVE:--->"
+						+ Constants.DESLRCMOVE);
 				if (Constants.DESLRCMOVE) {
 					floatViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
 							| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
@@ -640,12 +642,15 @@ public class FloatLrcService extends Service implements Observer {
 					floatViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
 							| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 							| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-					if (lrcColorView.getParent() != null) {
-						wm.removeView(lrcColorView);
-						floatLyricRelativeLayout.getBackground().setAlpha(0);
-						floatLyricsView.setOnTouchListener(mOnTouchListener);
-						floatLyricsView.setOnClickListener(null);
-					}
+				}
+				if (lrcColorView.getParent() != null) {
+					wm.removeView(lrcColorView);
+					floatLyricRelativeLayout.getBackground().setAlpha(0);
+					floatLyricsView.setOnTouchListener(mOnTouchListener);
+					floatLyricsView.setOnClickListener(null);
+				}
+				if (floatView.getParent() != null) {
+					wm.updateViewLayout(floatView, floatViewParams);
 				}
 			}
 		}
