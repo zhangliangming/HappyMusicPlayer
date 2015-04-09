@@ -5,7 +5,6 @@ import java.io.InputStream;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,16 +13,16 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
+import com.happyplayer.logger.MyLogger;
 import com.happyplayer.model.SkinMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.ui.R;
-import com.happyplayer.ui.SkinPicActivity;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.util.ImageUtil;
 
 public class GridViewAdapter extends BaseAdapter {
+	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 	private Context context;
 	private int picIDS[] = Constants.PICIDS;
 	private int picIndex = Constants.DEF_PIC_INDEX;
@@ -139,6 +138,13 @@ public class GridViewAdapter extends BaseAdapter {
 		opt.inInputShareable = true;
 		opt.inPurgeable = true;// 设置图片可以被回收
 		InputStream is = context.getResources().openRawResource(id);
-		return BitmapFactory.decodeStream(is, null, opt);
+		Bitmap bitmap = null;
+		try {
+			bitmap = BitmapFactory.decodeStream(is, null, opt);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.e(e.toString());
+		}
+		return bitmap;
 	}
 }

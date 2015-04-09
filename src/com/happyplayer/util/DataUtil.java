@@ -39,6 +39,14 @@ public class DataUtil {
 		if (!file.exists()) {
 			file.mkdirs();
 		}
+		file = new File(Constants.PATH_LOGCAT);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		file = new File(Constants.PATH_CRASH);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
 
 		/***
 		 * // 1.进入页面后，判断用户是不是第一次使用该应用，如果是则跳转到应用的导航页面 //

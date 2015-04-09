@@ -35,23 +35,12 @@ public class SongMessage {
 	 * 上一首
 	 */
 	public static final int PREVMUSIC = 5;
-	/**
-	 * 上一首完成
-	 */
-	public static final int PREVMUSICED = 15;
+
 	/**
 	 * 下一首
 	 */
 	public static final int NEXTMUSIC = 6;
-	/**
-	 * 最后一首播放完成
-	 */
-	public static final int LASTPLAYFINISH = 16;
 
-	/**
-	 * 下一首完成
-	 */
-	public static final int NEXTMUSICED = 14;
 	/**
 	 * 播放或者暂停
 	 */
@@ -80,9 +69,20 @@ public class SongMessage {
 	 * 播放选中的歌曲
 	 */
 	public static final int SELECTPLAY = 12;
-	public static final int SELECTPLAYED = 20;
 
 	public static final int ERROR = 13;
+	/**
+	 * 下一首
+	 */
+	public static final int NEXTMUSICED = 14;
+	/**
+	 * 上一首完成
+	 */
+	public static final int PREVMUSICED = 15;
+	/**
+	 * 最后一首播放完成
+	 */
+	public static final int LASTPLAYFINISH = 16;
 	/**
 	 * 退出
 	 */
@@ -95,6 +95,16 @@ public class SongMessage {
 	 * 桌面歌词是否可移动
 	 */
 	public static final int DESLRCMOVE = 19;
+
+	public static final int SELECTPLAYED = 20;
+	/**
+	 * 播放完成跳转下一首
+	 */
+	public static final int FINISHNEXTMUSICED = 21;
+	/**
+	 * 播放
+	 */
+	public static final int PLAY = 22;
 	// 0是扫描完成后提醒 1是添加歌曲 2是歌曲插队 3是删除歌曲 4是删除歌曲和本地文件
 	// 5 是上一首 6是下一首 7是播放或者暂停 8是快进 9是正在播放 10是播放暂停 11初始化 12播放选中的歌曲
 	private int type;

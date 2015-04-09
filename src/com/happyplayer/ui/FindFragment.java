@@ -9,6 +9,10 @@ import android.view.ViewGroup;
 
 public class FindFragment extends Fragment{
 	private View mMainView;
+	
+	public FindFragment(){
+		
+	}
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

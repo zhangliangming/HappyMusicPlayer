@@ -233,10 +233,7 @@ public class ScanMusicActivity extends Activity {
 			for (int i = 0; i < files.length; i++) {
 				File f = files[i];
 				if (f.isFile()) {
-					if (f.getPath()
-							.substring(
-									f.getPath().length() - Extension.length())
-							.equals(Extension)) // 判断扩展名
+					if (f.getPath().endsWith(Extension)) // 判断扩展名
 					{
 						if (cancelScan)
 							return;
@@ -247,8 +244,8 @@ public class ScanMusicActivity extends Activity {
 
 						// 文件名
 						String displayName = f.getName();
-						if (displayName.contains(".mp3")) {
-							String[] displayNameArr = displayName.split(".mp3");
+						if (displayName.endsWith(Extension)) {
+							String[] displayNameArr = displayName.split(Extension);
 							displayName = displayNameArr[0].trim();
 						}
 

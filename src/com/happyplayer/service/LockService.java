@@ -56,7 +56,8 @@ public class LockService extends Service implements Observer {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		return Service.START_STICKY;
+		flags = START_STICKY;
+		return super.onStartCommand(intent, flags, startId);
 	}
 
 	public void onDestroy() {

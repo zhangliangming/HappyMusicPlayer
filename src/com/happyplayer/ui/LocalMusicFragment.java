@@ -111,6 +111,10 @@ public class LocalMusicFragment extends Fragment implements Observer,
 		}
 
 	};
+	
+	public LocalMusicFragment(){
+		
+	}
 
 	public LocalMusicFragment(PageAction action) {
 		this.action = action;

@@ -133,6 +133,12 @@ public class FloatLrcService extends Service implements Observer {
 		ObserverManage.getObserver().addObserver(this);
 	}
 
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		flags = START_STICKY;
+		return super.onStartCommand(intent, flags, startId);
+	}
+
 	private void init() {
 
 		context = FloatLrcService.this.getBaseContext();
@@ -144,7 +150,8 @@ public class FloatLrcService extends Service implements Observer {
 		wm = (WindowManager) getApplicationContext().getSystemService("window");
 		// 设置LayoutParams(全局变量）相关参数
 		floatViewParams = new WindowManager.LayoutParams();
-		floatViewParams.type = 2002;
+		floatViewParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+				| WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
 		floatViewParams.format = 1;
 
 		if (Constants.DESLRCMOVE) {
@@ -267,7 +274,8 @@ public class FloatLrcService extends Service implements Observer {
 
 	private void initLrcColorView() {
 		lrcColorViewParams = new WindowManager.LayoutParams();
-		lrcColorViewParams.type = 2002;
+		lrcColorViewParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+				| WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
 		lrcColorViewParams.format = 1;
 		lrcColorViewParams.alpha = 1f;
 		lrcColorViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
@@ -531,6 +539,17 @@ public class FloatLrcService extends Service implements Observer {
 	public void onDestroy() {
 		handler.removeCallbacks(myRunnable);
 		super.onDestroy();
+
+		if (floatView.getParent() != null) {
+			wm.removeView(floatView);
+		}
+		if (lrcColorView.getParent() != null) {
+			wm.removeView(lrcColorView);
+			floatLyricRelativeLayout.getBackground().setAlpha(0);
+			floatLyricsView.setOnTouchListener(mOnTouchListener);
+			floatLyricsView.setOnClickListener(null);
+		}
+
 		if (!Constants.APPCLOSE) {
 			// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
 			startService(new Intent(this, FloatLrcService.class));

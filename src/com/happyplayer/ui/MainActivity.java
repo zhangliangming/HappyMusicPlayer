@@ -148,7 +148,9 @@ public class MainActivity extends FragmentActivity implements Observer {
 
 	private NotificationManager notificationManager;
 	private Notification mNotification;
+	private RemoteViews mRemoteViews;
 	private Notification mLrcNotification;
+	private RemoteViews notifyLrcView;
 	BroadcastReceiver onClickReceiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals("play")) {
@@ -209,8 +211,10 @@ public class MainActivity extends FragmentActivity implements Observer {
 			switch (msg.what) {
 			case 0:
 				// 自定义界面
-				final RemoteViews mRemoteViews = new RemoteViews(
-						getPackageName(), R.layout.notify_view);
+				if (mRemoteViews == null) {
+					mRemoteViews = new RemoteViews(getPackageName(),
+							R.layout.notify_view);
+				}
 
 				Intent buttoncloseIntent = new Intent("close");
 				PendingIntent pendcloseButtonIntent = PendingIntent
@@ -295,7 +299,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 								pendplayButtonIntent);
 
 						break;
-					case SongMessage.PLAYING:
+					case SongMessage.PLAY:
 
 						mRemoteViews.setImageViewResource(R.id.play,
 								R.drawable.statusbar_btn_pause);
@@ -333,11 +337,11 @@ public class MainActivity extends FragmentActivity implements Observer {
 				notificationManager.notify(0, mNotification);
 				break;
 			case 1:
-
-				// 自定义界面
-				final RemoteViews notifyLrcView = new RemoteViews(
-						getPackageName(), R.layout.notify_lrc_view);
-
+				if (notifyLrcView == null) {
+					// 自定义界面
+					notifyLrcView = new RemoteViews(getPackageName(),
+							R.layout.notify_lrc_view);
+				}
 				Intent lrcMoveIntent = new Intent("lrcMove");
 				PendingIntent pendlrcMoveIntent = PendingIntent.getBroadcast(
 						MainActivity.this, 0, lrcMoveIntent, 0);
@@ -421,9 +425,8 @@ public class MainActivity extends FragmentActivity implements Observer {
 				seekBar.setEnabled(true);
 				seekBar.setMax((int) songInfo.getDuration());
 				seekBar.setProgress((int) songInfo.getPlayProgress());
-				timeTextView
-						.setText("-"
-								+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
+				timeTextView.setText("-"
+						+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				initKscLyrics(songInfo);
 
@@ -476,9 +479,8 @@ public class MainActivity extends FragmentActivity implements Observer {
 				playImageButton.setVisibility(View.VISIBLE);
 
 				seekBar.setProgress((int) songInfo.getPlayProgress());
-				timeTextView
-						.setText("-"
-								+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
+				timeTextView.setText("-"
+						+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				reshLrcView((int) songInfo.getPlayProgress());
 				break;
@@ -585,17 +587,17 @@ public class MainActivity extends FragmentActivity implements Observer {
 		if (Constants.SHOWDESLRC)
 			createNotifiLrcView();
 
-		if (Constants.SHOWEASYTOUCH) {
-			Intent easytouchServiceIntent = new Intent(this,
-					EasytouchService.class);
-			startService(easytouchServiceIntent);
-		}
-
-		if (Constants.SHOWDESLRC) {
-			Intent floatLrcServiceIntent = new Intent(this,
-					FloatLrcService.class);
-			startService(floatLrcServiceIntent);
-		}
+//		if (Constants.SHOWEASYTOUCH) {
+//			Intent easytouchServiceIntent = new Intent(this,
+//					EasytouchService.class);
+//			startService(easytouchServiceIntent);
+//		}
+//
+//		if (Constants.SHOWDESLRC) {
+//			Intent floatLrcServiceIntent = new Intent(this,
+//					FloatLrcService.class);
+//			startService(floatLrcServiceIntent);
+//		}
 
 		ObserverManage.getObserver().addObserver(this);
 		ActivityManager.getInstance().addActivity(this);
@@ -1142,6 +1144,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 		} else if (data instanceof SongMessage) {
 			SongMessage songMessage = (SongMessage) data;
 			if (songMessage.getType() == SongMessage.INIT
+					|| songMessage.getType() == SongMessage.PLAY
 					|| songMessage.getType() == SongMessage.PLAYING
 					|| songMessage.getType() == SongMessage.STOPING
 					|| songMessage.getType() == SongMessage.ERROR
@@ -1149,10 +1152,16 @@ public class MainActivity extends FragmentActivity implements Observer {
 				Message msg = new Message();
 				msg.obj = songMessage;
 				songHandler.sendMessage(msg);
+				if (songMessage.getType() == SongMessage.INIT
+						|| songMessage.getType() == SongMessage.PLAY
+						|| songMessage.getType() == SongMessage.STOPING
+						|| songMessage.getType() == SongMessage.LASTPLAYFINISH) {
+					Message msg2 = new Message();
+					msg2.what = 0;
+					msg2.obj = songMessage;
+					notifyHandler.sendMessage(msg2);
+				}
 
-				Message msg2 = new Message();
-				msg2.obj = songMessage;
-				notifyHandler.sendMessage(msg2);
 			} else if (songMessage.getType() == SongMessage.EXIT) {
 				close();
 			} else if (songMessage.getType() == SongMessage.DES_LRC) {

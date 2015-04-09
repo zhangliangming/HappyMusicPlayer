@@ -121,11 +121,18 @@ public class ImageUtil {
 
 			@Override
 			protected void onPostExecute(Object result) {
-				Bitmap bm = (Bitmap) result;
+				final Bitmap bm = (Bitmap) result;
 				if (bm == null) {
 					imageview.setBackgroundResource(defResourceID);
 				} else {
-					saveImage(bm, fileName);
+					new Thread() {
+
+						@Override
+						public void run() {
+							saveImage(bm, fileName);
+						}
+					}.start();
+
 					imageview.setBackgroundDrawable(new BitmapDrawable(bm));
 				}
 			}
@@ -225,7 +232,7 @@ public class ImageUtil {
 			// 你要存放的文件
 			File file = new File(fileName);
 			// file文件的上一层文件夹
-			File parentFile = new File(Constants.PATH_ALBUM);
+			File parentFile = new File(Constants.PATH_ALBUM + File.separator);
 			if (!parentFile.exists()) {
 				parentFile.mkdirs();
 			}

@@ -14,6 +14,14 @@ import android.os.Environment;
  * 
  */
 public class Constants {
+	/**
+	 * 用户名1
+	 */
+	public static final String USERNAME = "zhangliangming";
+	/**
+	 * app应用名
+	 */
+	public final static String APPNAME = "HappyMusicPlayer";
 	/***
 	 * ------------------------------------应用基本配置-----------------------------
 	 **/
@@ -27,6 +35,17 @@ public class Constants {
 	 */
 	public final static String PATH_TEMP = Environment
 			.getExternalStorageDirectory() + File.separator + "haplayer";
+
+	/**
+	 * Logcat日志目录
+	 */
+	public final static String PATH_LOGCAT = PATH_TEMP + File.separator
+			+ "logcat";
+	/**
+	 * 异常崩溃的捕捉目录
+	 */
+	public final static String PATH_CRASH = PATH_TEMP + File.separator
+			+ "crash";
 
 	/**
 	 * 歌曲目录

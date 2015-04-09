@@ -93,6 +93,12 @@ public class EasytouchService extends Service implements Observer {
 	}
 
 	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		flags = START_STICKY;
+		return super.onStartCommand(intent, flags, startId);
+	}
+
+	@Override
 	public void onCreate() {
 		super.onCreate();
 		init();
@@ -115,7 +121,7 @@ public class EasytouchService extends Service implements Observer {
 
 		// 设置LayoutParams(全局变量）相关参数
 		iconParams = new WindowManager.LayoutParams();
-		iconParams.type = 2002;
+		iconParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
 		iconParams.format = 1;
 		iconParams.flags |= 8;
 		iconParams.gravity = Gravity.LEFT | Gravity.TOP;// 调整悬浮窗口至左上角
@@ -221,7 +227,7 @@ public class EasytouchService extends Service implements Observer {
 
 		// 设置LayoutParams(全局变量）相关参数
 		mainParams = new WindowManager.LayoutParams();
-		mainParams.type = 2002;
+		mainParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
 		mainParams.format = 1;
 		mainParams.flags |= 8;
 
@@ -246,6 +252,16 @@ public class EasytouchService extends Service implements Observer {
 
 		final RelativeLayout wmMainLayout = (RelativeLayout) mainView
 				.findViewById(R.id.wm_main_layout);
+		wmMainLayout.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (isBackground(context)) {
+					addIconView();
+				}
+			}
+		});
+
 		wmItemExit.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -712,6 +728,15 @@ public class EasytouchService extends Service implements Observer {
 	public void onDestroy() {
 		handler.removeCallbacks(myRunnable);
 		super.onDestroy();
+
+		if (iconViewShow && iconView.getParent() != null) {
+			wm.removeView(iconView);
+			iconViewShow = false;
+		} else if (mainView.getParent() != null) {
+			wm.removeView(mainView);
+			iconViewShow = false;
+			mainViewShow = false;
+		}
 
 		// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
 		if (!Constants.APPCLOSE) {

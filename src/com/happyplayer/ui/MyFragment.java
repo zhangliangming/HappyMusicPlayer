@@ -89,6 +89,10 @@ public class MyFragment extends Fragment implements Observer {
 
 	private PageAction action;
 
+	public MyFragment() {
+
+	}
+
 	public MyFragment(PageAction action) {
 		this.action = action;
 	}
