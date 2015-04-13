@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/listitemBG"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:descendantFocusability="blocksDescendants" >
+
+        <TextView
+            android:id="@+id/songno"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:text=""
+            android:textColor="#969696"
+            android:textSize="12dp" />
+
+        <ImageView
+            android:id="@+id/pic"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:id="@+id/song_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_toRightOf="@+id/pic"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:text="歌名 "
+            android:textColor="#ffffff"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/singer_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/song_name"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="2dp"
+            android:layout_toRightOf="@+id/pic"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:text="歌手 "
+            android:textColor="#ffffff"
+            android:textSize="11dp" />
+
+        <ImageView
+            android:id="@+id/dele_list"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/buttombg"
+            android:src="@drawable/kg_skin_src_image_btn_down_delete_default" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/fx_information_bg" />
+
+</LinearLayout>

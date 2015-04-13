@@ -13,11 +13,11 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.happyplayer.common.Constants;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.util.KscLyricsParser;
 
 public class KscManyLineLyricsView extends View implements Observer {

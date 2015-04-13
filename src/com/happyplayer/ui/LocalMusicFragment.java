@@ -6,6 +6,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,11 +29,11 @@ import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
 import com.happyplayer.db.SongDB;
 import com.happyplayer.iface.PageAction;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.Category;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.widget.BladeView;
 import com.happyplayer.widget.BladeView.OnItemClickListener;
 import com.happyplayer.widget.LoadRelativeLayout;
@@ -48,7 +49,7 @@ public class LocalMusicFragment extends Fragment implements Observer,
 	private LoadRelativeLayout loadRelativeLayout;
 
 	private ListView playlistView;
-	private static final String ALL_CHARACTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
+	private String ALL_CHARACTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
 	private MySectionIndexer mIndexer;
 	private BladeView mLetterListView;
 	private List<String> categoryList;
@@ -74,6 +75,8 @@ public class LocalMusicFragment extends Fragment implements Observer,
 
 	private int playIndexPosition = -1;
 
+	private Context context;
+
 	private Handler handler = new Handler() {
 
 		@Override
@@ -89,7 +92,7 @@ public class LocalMusicFragment extends Fragment implements Observer,
 						.setText("共有" + count + "首歌曲");
 				loadRelativeLayout.showSuccessView();
 
-				//设置playlistView的位置
+				// 设置playlistView的位置
 				if (adapter == null)
 					return;
 				int playIndexPosition = adapter.getPlayIndexPosition();
@@ -111,9 +114,9 @@ public class LocalMusicFragment extends Fragment implements Observer,
 		}
 
 	};
-	
-	public LocalMusicFragment(){
-		
+
+	public LocalMusicFragment() {
+
 	}
 
 	public LocalMusicFragment(PageAction action) {
@@ -141,6 +144,7 @@ public class LocalMusicFragment extends Fragment implements Observer,
 	}
 
 	private void initComponent() {
+		context = getActivity();
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		mMainView = inflater.inflate(R.layout.activity_localmusic, null, false);
 
@@ -221,8 +225,11 @@ public class LocalMusicFragment extends Fragment implements Observer,
 			@Override
 			protected void onPostExecute(Object result) {
 				mIndexer = new MySectionIndexer(sections, counts);
-				adapter = new PlayListAdapter(getActivity(), categorys,
-						playlistView);
+				//不能把一个对象重复放到观察者队列里面
+				if (adapter != null) {
+					ObserverManage.getObserver().deleteObserver(adapter);
+				}
+				adapter = new PlayListAdapter(context, categorys, playlistView);
 
 				adapter.setPlayIndexPosition(playIndexPosition);
 
@@ -244,6 +251,7 @@ public class LocalMusicFragment extends Fragment implements Observer,
 	 * 加载本地歌曲，以类型分类
 	 */
 	private void loadLocalMusic() {
+		playIndexPosition = -1;
 		categorys = new ArrayList<Category>();
 		categoryList = SongDB.getSongInfoDB(getActivity()).getAllCategory();
 		int count = 0;
@@ -304,6 +312,8 @@ public class LocalMusicFragment extends Fragment implements Observer,
 			SongMessage songMessage = (SongMessage) data;
 			if (songMessage.getType() == SongMessage.SCAN_NUM) {
 				isFirst = true;
+			} else if (songMessage.getType() == SongMessage.DELALLMUSICED) {
+				loadData();
 			}
 		}
 	}

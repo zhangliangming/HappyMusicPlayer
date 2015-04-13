@@ -16,10 +16,10 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.happyplayer.common.Constants;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.ui.R;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.util.ImageUtil;
@@ -84,7 +84,7 @@ public class PopupPlayListAdapter extends BaseAdapter implements Observer {
 			songNoTextView.setVisibility(View.INVISIBLE);
 			singerImageView.setVisibility(View.VISIBLE);
 
-			ImageUtil.loadAlbum(context,singerImageView,
+			ImageUtil.loadAlbum(context, singerImageView,
 					R.drawable.fx_icon_user_default, songInfo.getPath(),
 					songInfo.getSid(), songInfo.getDownUrl());
 
@@ -93,6 +93,18 @@ public class PopupPlayListAdapter extends BaseAdapter implements Observer {
 			songNoTextView.setVisibility(View.VISIBLE);
 			singerImageView.setVisibility(View.INVISIBLE);
 		}
+
+		holder.getDeleImageView().setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.DELMUSIC);
+				songMessage.setSongInfo(songInfo);
+				ObserverManage.getObserver().setMessage(songMessage);
+			}
+		});
 
 		listitemBG.setOnClickListener(new OnClickListener() {
 
@@ -107,7 +119,7 @@ public class PopupPlayListAdapter extends BaseAdapter implements Observer {
 				listitemBG.setSelect(true);
 				songNoTextView.setVisibility(View.INVISIBLE);
 				singerImageView.setVisibility(View.VISIBLE);
-				ImageUtil.loadAlbum(context,singerImageView,
+				ImageUtil.loadAlbum(context, singerImageView,
 						R.drawable.fx_icon_user_default, songInfo.getPath(),
 						songInfo.getSid(), songInfo.getDownUrl());
 				if (playIndexPosition != -1) {
@@ -153,7 +165,7 @@ public class PopupPlayListAdapter extends BaseAdapter implements Observer {
 			holder.getListitemBG().setSelect(true);
 			holder.getSongNoTextView().setVisibility(View.INVISIBLE);
 			holder.getSingerImageView().setVisibility(View.VISIBLE);
-			ImageUtil.loadAlbum(context,holder.getSingerImageView(),
+			ImageUtil.loadAlbum(context, holder.getSingerImageView(),
 					R.drawable.fx_icon_user_default, songInfo.getPath(),
 					songInfo.getSid(), songInfo.getDownUrl());
 		} else {
@@ -171,6 +183,8 @@ public class PopupPlayListAdapter extends BaseAdapter implements Observer {
 			if (songMessage.getType() == SongMessage.INIT
 					|| songMessage.getType() == SongMessage.LASTPLAYFINISH) {
 				reshNextPlayStatusUI(songMessage.getSongInfo());
+			} else if (songMessage.getType() == SongMessage.DEL_NUM) {
+				notifyDataSetChanged();
 			}
 		}
 	}
@@ -200,7 +214,7 @@ public class PopupPlayListAdapter extends BaseAdapter implements Observer {
 		private TextView singerNameTextView;
 		private TextView songNoTextView;
 		private ImageView singerImageView;
-
+		private ImageView deleImageView;
 		private PlayListItemRelativeLayout listitemBG;
 
 		ViewHolder(View v) {
@@ -234,6 +248,13 @@ public class PopupPlayListAdapter extends BaseAdapter implements Observer {
 				singerImageView = (ImageView) view.findViewById(R.id.pic);
 			}
 			return singerImageView;
+		}
+
+		ImageView getDeleImageView() {
+			if (deleImageView == null) {
+				deleImageView = (ImageView) view.findViewById(R.id.dele_list);
+			}
+			return deleImageView;
 		}
 
 		PlayListItemRelativeLayout getListitemBG() {

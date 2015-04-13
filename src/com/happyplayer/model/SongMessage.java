@@ -105,6 +105,28 @@ public class SongMessage {
 	 * 播放
 	 */
 	public static final int PLAY = 22;
+
+	/**
+	 * 暂停
+	 */
+	public static final int STOP = 23;
+	/**
+	 * 去播放
+	 */
+	public static final int TOPLAY = 24;
+	/**
+	 * 删除所有歌曲
+	 */
+	public static final int DELALLMUSIC = 25;
+
+	/**
+	 * 删除所有歌曲和本地文件
+	 */
+	public static final int DELALLMUSICANDFILE = 26;
+	/**
+	 * 删除所有歌曲完成
+	 */
+	public static final int DELALLMUSICED = 27;
 	// 0是扫描完成后提醒 1是添加歌曲 2是歌曲插队 3是删除歌曲 4是删除歌曲和本地文件
 	// 5 是上一首 6是下一首 7是播放或者暂停 8是快进 9是正在播放 10是播放暂停 11初始化 12播放选中的歌曲
 	private int type;

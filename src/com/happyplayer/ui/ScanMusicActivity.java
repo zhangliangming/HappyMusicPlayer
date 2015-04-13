@@ -232,6 +232,7 @@ public class ScanMusicActivity extends Activity {
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {
 				File f = files[i];
+
 				if (f.isFile()) {
 					if (f.getPath().endsWith(Extension)) // 判断扩展名
 					{
@@ -245,7 +246,8 @@ public class ScanMusicActivity extends Activity {
 						// 文件名
 						String displayName = f.getName();
 						if (displayName.endsWith(Extension)) {
-							String[] displayNameArr = displayName.split(Extension);
+							String[] displayNameArr = displayName
+									.split(Extension);
 							displayName = displayNameArr[0].trim();
 						}
 
@@ -260,12 +262,12 @@ public class ScanMusicActivity extends Activity {
 						if (mp3Info != null) {
 							addMusicList(mp3Info);
 							size++;
-							
-							Message msg = new Message();
-							msg.what = 0;
-							msg.obj = f.getPath();
-							handler.sendMessage(msg);
-							
+							//
+							// Message msg = new Message();
+							// msg.what = 0;
+							// msg.obj = f.getPath();
+							// handler.sendMessage(msg);
+
 						} else {
 							continue;
 						}
@@ -274,7 +276,14 @@ public class ScanMusicActivity extends Activity {
 					if (!IsIterative)
 						break;
 				} else if (f.isDirectory() && f.getPath().indexOf("/.") == -1) // 忽略点文件（隐藏文件/文件夹）
+				{
+					Message msg = new Message();
+					msg.what = 0;
+					msg.obj = f.getPath();
+					handler.sendMessage(msg);
+
 					scannerLocalMP3File(f.getPath(), Extension, IsIterative);
+				}
 			}
 		}
 	}

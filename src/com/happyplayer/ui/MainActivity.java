@@ -48,14 +48,16 @@ import com.happyplayer.adapter.PopupPlayListAdapter;
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
 import com.happyplayer.iface.PageAction;
+import com.happyplayer.logger.MyLogger;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.service.EasytouchService;
 import com.happyplayer.service.FloatLrcService;
+import com.happyplayer.service.MediaPlayerService;
 import com.happyplayer.slidingmenu.SlidingMenu;
 import com.happyplayer.slidingmenu.SlidingMenu.OnClosedListener;
 import com.happyplayer.slidingmenu.SlidingMenu.OnOpenedListener;
@@ -69,6 +71,8 @@ import com.happyplayer.widget.BaseSeekBar;
 import com.happyplayer.widget.KscTwoLineLyricsView;
 
 public class MainActivity extends FragmentActivity implements Observer {
+	public static boolean SCREEN_OFF = false;
+	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 	private ViewPager viewPager;
 	/**
 	 * 页面列表
@@ -145,6 +149,8 @@ public class MainActivity extends FragmentActivity implements Observer {
 	 * 歌词视图
 	 */
 	private KscTwoLineLyricsView kscTwoLineLyricsView;
+
+	private PopupPlayListAdapter adapter;
 
 	private NotificationManager notificationManager;
 	private Notification mNotification;
@@ -450,14 +456,15 @@ public class MainActivity extends FragmentActivity implements Observer {
 				initKscLyrics(songInfo);
 
 				break;
-			case SongMessage.PLAYING:
-
+			case SongMessage.PLAY:
 				if (pauseImageButton.getVisibility() != View.VISIBLE) {
 					pauseImageButton.setVisibility(View.VISIBLE);
 				}
 				if (playImageButton.getVisibility() != View.INVISIBLE) {
 					playImageButton.setVisibility(View.INVISIBLE);
 				}
+				break;
+			case SongMessage.PLAYING:
 
 				if (!isStartTrackingTouch) {
 					seekBar.setProgress((int) songInfo.getPlayProgress());
@@ -549,7 +556,13 @@ public class MainActivity extends FragmentActivity implements Observer {
 			stopService(floatLrcServiceIntent);
 		}
 
-		unregisterReceiver(onClickReceiver);
+		// 如果服务正在运行，则是正在播放
+		if (MediaPlayerService.isServiceRunning) {
+			stopService(new Intent(MainActivity.this, MediaPlayerService.class));
+		}
+
+		this.unregisterReceiver(onClickReceiver);
+		this.unregisterReceiver(mScreenOnOrOffReceiver);
 		notificationManager.cancel(0);
 		notificationManager.cancel(1);
 		ActivityManager.getInstance().exit();
@@ -587,20 +600,28 @@ public class MainActivity extends FragmentActivity implements Observer {
 		if (Constants.SHOWDESLRC)
 			createNotifiLrcView();
 
-//		if (Constants.SHOWEASYTOUCH) {
-//			Intent easytouchServiceIntent = new Intent(this,
-//					EasytouchService.class);
-//			startService(easytouchServiceIntent);
-//		}
-//
-//		if (Constants.SHOWDESLRC) {
-//			Intent floatLrcServiceIntent = new Intent(this,
-//					FloatLrcService.class);
-//			startService(floatLrcServiceIntent);
-//		}
+		if (Constants.SHOWEASYTOUCH) {
+			Intent easytouchServiceIntent = new Intent(this,
+					EasytouchService.class);
+			startService(easytouchServiceIntent);
+		}
+
+		if (Constants.SHOWDESLRC) {
+			Intent floatLrcServiceIntent = new Intent(this,
+					FloatLrcService.class);
+			startService(floatLrcServiceIntent);
+		}
+
+		startService(new Intent(MainActivity.this, MediaPlayerService.class));
 
 		ObserverManage.getObserver().addObserver(this);
 		ActivityManager.getInstance().addActivity(this);
+
+		/* 注册广播 */
+		IntentFilter mScreenOnOrOffFilter = new IntentFilter();
+		mScreenOnOrOffFilter.addAction("android.intent.action.SCREEN_ON");
+		mScreenOnOrOffFilter.addAction("android.intent.action.SCREEN_OFF");
+		this.registerReceiver(mScreenOnOrOffReceiver, mScreenOnOrOffFilter);
 	}
 
 	private void init() {
@@ -797,9 +818,10 @@ public class MainActivity extends FragmentActivity implements Observer {
 
 			popPlaysumTextTextView.setText("播放列表(" + playlist.size() + ")");
 
-			popPlayListView
-					.setAdapter(new PopupPlayListAdapter(MainActivity.this,
-							playlist, popPlayListView, mPopupWindow));
+			adapter = new PopupPlayListAdapter(MainActivity.this, playlist,
+					popPlayListView, mPopupWindow);
+
+			popPlayListView.setAdapter(adapter);
 
 			int playIndex = MediaManage.getMediaManage(MainActivity.this)
 					.getPlayIndex();
@@ -943,6 +965,18 @@ public class MainActivity extends FragmentActivity implements Observer {
 			break;
 		}
 
+		ImageView deleList = (ImageView) popupWindow
+				.findViewById(R.id.dele_list);
+		deleList.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.DELALLMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+			}
+		});
+
 		popPlayListView = (ListView) popupWindow
 				.findViewById(R.id.playlistView);
 
@@ -998,6 +1032,43 @@ public class MainActivity extends FragmentActivity implements Observer {
 		msg.obj = songMessage;
 		notifyHandler.sendMessage(msg);
 	}
+
+	// 屏幕变暗/变亮的广播 ， 我们要调用KeyguardManager类相应方法去解除屏幕锁定
+	private BroadcastReceiver mScreenOnOrOffReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+
+			/**
+			 * ACTION_SCREEN_OFF表示按下电源键，屏幕黑屏 ACTION_SCREEN_ON 屏幕黑屏情况下，按下电源键
+			 */
+
+			if (action.equals("android.intent.action.SCREEN_OFF")) {
+				logger.i("SCREEN_OFF");
+				SCREEN_OFF = true;
+				if (FloatLrcService.isServiceRunning) {
+					stopService(new Intent(MainActivity.this,
+							FloatLrcService.class));
+				}
+
+				if (EasytouchService.isServiceRunning) {
+					stopService(new Intent(MainActivity.this,
+							EasytouchService.class));
+				}
+			} else if (action.equals("android.intent.action.SCREEN_ON")) {
+				logger.i("SCREEN_ON");
+				SCREEN_OFF = false;
+				if (!FloatLrcService.isServiceRunning) {
+					startService(new Intent(MainActivity.this,
+							FloatLrcService.class));
+				}
+				if (!EasytouchService.isServiceRunning) {
+					startService(new Intent(MainActivity.this,
+							EasytouchService.class));
+				}
+			}
+		}
+	};
 
 	private void createNotifiLrcView() {
 		IntentFilter filter = new IntentFilter();
@@ -1058,7 +1129,9 @@ public class MainActivity extends FragmentActivity implements Observer {
 		public void onPageSelected(int arg0) {
 			TAB_INDEX = arg0;
 			if (TAB_INDEX == 0 && fragmentList.size() == 2) {
+				// tabFragmentPagerAdapter.removeFragment(fragmentList.get(1));
 				fragmentList.remove(1);
+				// tabFragmentPagerAdapter.notifyDataSetChanged();
 				tabFragmentPagerAdapter = new TabFragmentPagerAdapter(
 						getSupportFragmentManager());
 				viewPager.setAdapter(tabFragmentPagerAdapter);
@@ -1124,6 +1197,10 @@ public class MainActivity extends FragmentActivity implements Observer {
 				}
 				fragmentList.add(fragment);
 				tabFragmentPagerAdapter.notifyDataSetChanged();
+				// tabFragmentPagerAdapter.setFragments(fragmentList);
+				// tabFragmentPagerAdapter = new TabFragmentPagerAdapter(
+				// getSupportFragmentManager());
+				// viewPager.setAdapter(tabFragmentPagerAdapter);
 			}
 			viewPager.setCurrentItem(fragmentList.size());
 		}
@@ -1169,7 +1246,40 @@ public class MainActivity extends FragmentActivity implements Observer {
 				if (Constants.SHOWDESLRC) {
 					createNotifiLrcView();
 				}
+			} else if (songMessage.getType() == SongMessage.DEL_NUM) {
+				popHandler.sendEmptyMessage(0);
+			} else if (songMessage.getType() == SongMessage.DELALLMUSICED) {
+				popHandler.sendEmptyMessage(1);
 			}
 		}
 	}
+
+	//
+	private Handler popHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			if (null != mPopupWindow) {
+				List<SongInfo> playlist = MediaManage.getMediaManage(
+						MainActivity.this).getPlaylist();
+				popPlaysumTextTextView.setText("播放列表(" + playlist.size() + ")");
+
+				if (msg.what == 1) {
+					if (adapter != null) {
+						ObserverManage.getObserver().deleteObserver(adapter);
+					}
+					adapter = new PopupPlayListAdapter(MainActivity.this,
+							playlist, popPlayListView, mPopupWindow);
+
+					popPlayListView.setAdapter(adapter);
+
+					int playIndex = MediaManage.getMediaManage(
+							MainActivity.this).getPlayIndex();
+					if (playIndex != -1) {
+						popPlayListView.setSelection(playIndex);
+					}
+				}
+			}
+		}
+	};
 }

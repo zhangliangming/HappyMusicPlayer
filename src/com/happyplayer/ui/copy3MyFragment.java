@@ -15,9 +15,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.happyplayer.async.AsyncTaskHandler;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.widget.ListViewRelativeLayout;
 import com.happyplayer.widget.NavPlayImageButton;
 

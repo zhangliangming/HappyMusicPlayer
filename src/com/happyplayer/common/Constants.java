@@ -150,7 +150,7 @@ public class Constants {
 	 * 图片皮肤索引
 	 */
 	public static String DEF_PIC_INDEX_KEY = "DEF_PIC_INDEX_KEY";
-	public static int DEF_PIC_INDEX = 3;
+	public static int DEF_PIC_INDEX = 0;
 
 	/**
 	 * 记录上一次播放的歌曲sid

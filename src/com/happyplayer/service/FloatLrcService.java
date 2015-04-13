@@ -24,11 +24,13 @@ import android.widget.ImageView;
 
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
+import com.happyplayer.logger.MyLogger;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
+import com.happyplayer.ui.MainActivity;
 import com.happyplayer.ui.R;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.util.KscLyricsManamge;
@@ -37,7 +39,8 @@ import com.happyplayer.widget.FloatLyricRelativeLayout;
 import com.happyplayer.widget.FloatLyricsView;
 
 public class FloatLrcService extends Service implements Observer {
-
+	public static Boolean isServiceRunning = false;
+	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 	private WindowManager wm = null;
 	private WindowManager.LayoutParams floatViewParams = null;
 	private View floatView;
@@ -127,17 +130,19 @@ public class FloatLrcService extends Service implements Observer {
 
 	@Override
 	public void onCreate() {
-		super.onCreate();
 		init();
+	}
+
+	@Override
+	@Deprecated
+	public void onStart(Intent intent, int startId) {
+		isServiceRunning = true;
+		logger.i("FloatLrcService被创建");
 		handler.post(myRunnable);
 		ObserverManage.getObserver().addObserver(this);
 	}
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		flags = START_STICKY;
-		return super.onStartCommand(intent, flags, startId);
-	}
+	
 
 	private void init() {
 
@@ -537,6 +542,8 @@ public class FloatLrcService extends Service implements Observer {
 
 	@Override
 	public void onDestroy() {
+		isServiceRunning = false;
+		logger.i("----FloatLrcService被回收了----");
 		handler.removeCallbacks(myRunnable);
 		super.onDestroy();
 
@@ -550,9 +557,10 @@ public class FloatLrcService extends Service implements Observer {
 			floatLyricsView.setOnClickListener(null);
 		}
 
-		if (!Constants.APPCLOSE) {
+		if (!Constants.APPCLOSE && !MainActivity.SCREEN_OFF) {
 			// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
 			startService(new Intent(this, FloatLrcService.class));
+		
 		}
 	}
 

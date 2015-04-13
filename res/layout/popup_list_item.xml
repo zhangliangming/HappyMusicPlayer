@@ -9,7 +9,8 @@
         android:id="@+id/listitemBG"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
-        android:clickable="true" >
+        android:clickable="true"
+        android:descendantFocusability="blocksDescendants" >
 
         <TextView
             android:id="@+id/songno"
@@ -55,6 +56,16 @@
             android:text="歌手 "
             android:textColor="#969696"
             android:textSize="11dp" />
+
+        <ImageView
+            android:id="@+id/dele_list"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/buttombg"
+            android:src="@drawable/kg_skin_src_image_btn_down_delete_default" />
     </com.happyplayer.widget.PlayListItemRelativeLayout>
 
     <View

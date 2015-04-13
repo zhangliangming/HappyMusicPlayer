@@ -61,9 +61,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_above="@+id/butom"
-            android:layout_below="@+id/header"
-            android:clickable="true"
-            android:onClick="showlrccolorDialog" >
+            android:layout_below="@+id/header" >
 
             <RelativeLayout
                 android:layout_width="fill_parent"

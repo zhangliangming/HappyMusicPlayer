@@ -28,10 +28,11 @@ import android.widget.TextView;
 
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
+import com.happyplayer.logger.MyLogger;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.ui.MainActivity;
 import com.happyplayer.ui.R;
 import com.happyplayer.util.DataUtil;
@@ -39,14 +40,14 @@ import com.happyplayer.util.ImageUtil;
 import com.happyplayer.util.MediaUtils;
 import com.happyplayer.widget.StopImageView;
 
-//import android.util.Log;
-
 /**
  * 
  * 桌面后台窗口
  * 
  */
 public class EasytouchService extends Service implements Observer {
+	public static Boolean isServiceRunning = false;
+	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 	private Context context;
 	private WindowManager wm = null;
 	private WindowManager.LayoutParams iconParams = null;
@@ -93,18 +94,17 @@ public class EasytouchService extends Service implements Observer {
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		flags = START_STICKY;
-		return super.onStartCommand(intent, flags, startId);
+	@Deprecated
+	public void onStart(Intent intent, int startId) {
+		isServiceRunning = true;
+		logger.i("EasytouchService被创建");
+		handler.post(myRunnable);
+		ObserverManage.getObserver().addObserver(this);
 	}
 
 	@Override
 	public void onCreate() {
-		super.onCreate();
 		init();
-		handler.post(myRunnable);
-
-		ObserverManage.getObserver().addObserver(this);
 	}
 
 	private void init() {
@@ -146,7 +146,7 @@ public class EasytouchService extends Service implements Observer {
 		iconParams.width = 140;
 		iconParams.height = 140;
 
-		iconParams.alpha = 0.9f;
+		iconParams.alpha = 0.6f;
 		iconView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
 				LayoutParams.FILL_PARENT));
 
@@ -394,6 +394,7 @@ public class EasytouchService extends Service implements Observer {
 			} else {
 				if (mainViewShow) {
 					if (isBackground(context)) {
+						handler.removeCallbacks(upDateVol);
 						addIconView();
 					}
 				}
@@ -699,7 +700,8 @@ public class EasytouchService extends Service implements Observer {
 							+ MediaUtils.formatTime(songInfo
 									.getSurplusProgress()));
 				}
-
+				break;
+			case SongMessage.PLAY:
 				if (mainViewShow) {
 					if (wmItemPlay.getVisibility() != View.INVISIBLE) {
 						wmItemPlay.setVisibility(View.INVISIBLE);
@@ -710,6 +712,7 @@ public class EasytouchService extends Service implements Observer {
 				}
 
 				break;
+
 			case SongMessage.STOPING:
 				timeTextView.setVisibility(View.INVISIBLE);
 				playingStatus.setVisibility(View.VISIBLE);
@@ -726,7 +729,10 @@ public class EasytouchService extends Service implements Observer {
 
 	@Override
 	public void onDestroy() {
+		isServiceRunning = false;
+		logger.i("----EasytouchService被回收了----");
 		handler.removeCallbacks(myRunnable);
+		handler.removeCallbacks(upDateVol);
 		super.onDestroy();
 
 		if (iconViewShow && iconView.getParent() != null) {
@@ -739,7 +745,7 @@ public class EasytouchService extends Service implements Observer {
 		}
 
 		// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
-		if (!Constants.APPCLOSE) {
+		if (!Constants.APPCLOSE && !MainActivity.SCREEN_OFF) {
 			startService(new Intent(this, EasytouchService.class));
 		}
 
@@ -803,7 +809,8 @@ public class EasytouchService extends Service implements Observer {
 					|| songMessage.getType() == SongMessage.PLAYING
 					|| songMessage.getType() == SongMessage.STOPING
 					|| songMessage.getType() == SongMessage.ERROR
-					|| songMessage.getType() == SongMessage.LASTPLAYFINISH) {
+					|| songMessage.getType() == SongMessage.LASTPLAYFINISH
+					|| songMessage.getType() == SongMessage.PLAY) {
 				Message msg = new Message();
 				msg.obj = songMessage;
 				songHandler.sendMessage(msg);

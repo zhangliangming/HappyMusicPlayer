@@ -1,4 +1,4 @@
-package com.happyplayer.player;
+package com.happyplayer.manage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,7 +8,6 @@ import java.util.Observer;
 import java.util.Random;
 
 import android.content.Context;
-import android.content.Intent;
 
 import com.happyplayer.common.Constants;
 import com.happyplayer.db.SongDB;
@@ -34,7 +33,7 @@ public class MediaManage implements Observer {
 
 	private Context context;
 
-	private Intent playerService;
+	// private Intent playerService;
 
 	public MediaManage(Context context) {
 		this.context = context;
@@ -50,7 +49,7 @@ public class MediaManage implements Observer {
 
 	private void init(Context context) {
 
-		playerService = new Intent(context, MediaPlayerService.class);
+		// playerService = new Intent(context, MediaPlayerService.class);
 
 		playlist = SongDB.getSongInfoDB(context).getAllSong();
 		playSID = Constants.PLAY_SID;
@@ -90,6 +89,8 @@ public class MediaManage implements Observer {
 			if (songMessage.getType() == SongMessage.DELMUSIC) {
 				SongInfo songInfo = songMessage.getSongInfo();
 				refresh(songInfo.getSid());
+			} else if (songMessage.getType() == SongMessage.DELALLMUSIC) {
+				delAllMusic();
 			} else if (songMessage.getType() == SongMessage.ADDMUSIC) {
 				SongInfo songInfo = songMessage.getSongInfo();
 				add(songInfo);
@@ -114,7 +115,7 @@ public class MediaManage implements Observer {
 			} else if (songMessage.getType() == SongMessage.SEEKTO) {
 				int progress = songMessage.getProgress();
 				seekTo(progress);
-			} else if (songMessage.getType() == SongMessage.INIT) {
+			} else if (songMessage.getType() == SongMessage.PLAY) {
 				status = PLAYING;
 			} else if (songMessage.getType() == SongMessage.PLAYING) {
 				if (playSongInfo != null) {
@@ -135,7 +136,7 @@ public class MediaManage implements Observer {
 	 */
 	private void seekTo(int progress) {
 		// // 如果服务正在运行，则是正在播放
-		// if (MediaPlayerService.isServiceRunning) {
+		// if (MediaPlayerService.isPlaying) {
 		// status = STOP;
 		// context.stopService(playerService);
 		// }
@@ -159,9 +160,14 @@ public class MediaManage implements Observer {
 			ObserverManage.getObserver().setMessage(songMessage);
 		} else {
 			// 如果服务正在运行，则是正在播放
-			if (MediaPlayerService.isServiceRunning) {
+			if (MediaPlayerService.isPlaying) {
 				status = STOP;
-				context.stopService(playerService);
+				// context.stopService(playerService);
+
+				songMessage = new SongMessage();
+				songMessage.setType(SongMessage.STOP);
+				ObserverManage.getObserver().setMessage(songMessage);
+
 				return;
 			}
 			play(playlist.get(playIndex));
@@ -218,7 +224,7 @@ public class MediaManage implements Observer {
 		ObserverManage.getObserver().setMessage(songMessage);
 
 		// // 如果服务正在运行，则是正在播放
-		// if (MediaPlayerService.isServiceRunning) {
+		// if (MediaPlayerService.isPlaying) {
 		// status = STOP;
 		// context.stopService(playerService);
 		// }
@@ -274,9 +280,12 @@ public class MediaManage implements Observer {
 					ObserverManage.getObserver().setMessage(songMessage);
 
 					// 如果服务正在运行，则是正在播放
-					if (MediaPlayerService.isServiceRunning) {
+					if (MediaPlayerService.isPlaying) {
 						status = STOP;
-						context.stopService(playerService);
+						// context.stopService(playerService);
+						songMessage = new SongMessage();
+						songMessage.setType(SongMessage.STOP);
+						ObserverManage.getObserver().setMessage(songMessage);
 					}
 
 					DataUtil.save(context, Constants.PLAY_SID_KEY,
@@ -307,7 +316,7 @@ public class MediaManage implements Observer {
 		ObserverManage.getObserver().setMessage(songMessage);
 
 		// // 如果服务正在运行，则是正在播放
-		// if (MediaPlayerService.isServiceRunning) {
+		// if (MediaPlayerService.isPlaying) {
 		// status = STOP;
 		// context.stopService(playerService);
 		// }
@@ -325,7 +334,7 @@ public class MediaManage implements Observer {
 	 */
 	private void selectPlay(SongInfo songInfo) {
 		// // 如果服务正在运行，则是正在播放
-		// if (MediaPlayerService.isServiceRunning) {
+		// if (MediaPlayerService.isPlaying) {
 		// status = STOP;
 		// context.stopService(playerService);
 		// }
@@ -362,8 +371,11 @@ public class MediaManage implements Observer {
 			songMessage.setErrorMessage(errorMessage);
 			ObserverManage.getObserver().setMessage(songMessage);
 
-			if (MediaPlayerService.isServiceRunning) {
-				context.stopService(playerService);
+			if (MediaPlayerService.isPlaying) {
+				// context.stopService(playerService);
+				songMessage = new SongMessage();
+				songMessage.setType(SongMessage.STOP);
+				ObserverManage.getObserver().setMessage(songMessage);
 			}
 			try {
 				Thread.sleep(1000);
@@ -376,7 +388,10 @@ public class MediaManage implements Observer {
 		}
 
 		// 启动播放服务
-		context.startService(playerService);
+		// context.startService(playerService);
+		songMessage = new SongMessage();
+		songMessage.setType(SongMessage.TOPLAY);
+		ObserverManage.getObserver().setMessage(songMessage);
 
 	}
 
@@ -432,16 +447,92 @@ public class MediaManage implements Observer {
 	}
 
 	/**
+	 * 删除所有的歌曲列表
+	 */
+	private void delAllMusic() {
+		if (playlist == null || playlist.size() == 0)
+			return;
+		int size = 0 - playlist.size();
+		for (int i = 0; i < playlist.size(); i++) {
+			if (playSongInfo != null) {
+				if (playlist.get(i).getSid().equals(playSongInfo.getSid())) {
+					stopMusic();
+				}
+			}
+		}
+		playlist = new ArrayList<SongInfo>();
+		SongDB.getSongInfoDB(context).delete();
+		SongMessage songMessage = new SongMessage();
+		songMessage.setNum(size);
+		songMessage.setType(SongMessage.DELALLMUSICED);
+		ObserverManage.getObserver().setMessage(songMessage);
+
+	}
+
+	/**
+	 * stop停止正在播放的歌曲
+	 */
+	private void stopMusic() {
+
+		// 如果正在播放
+		if (MediaPlayerService.isPlaying) {
+			status = STOP;
+			songMessage = new SongMessage();
+			songMessage.setType(SongMessage.STOP);
+			ObserverManage.getObserver().setMessage(songMessage);
+		}
+
+		playSongInfo = null;
+		playIndex = -1;
+		Constants.PLAY_SID = "";
+		songMessage = new SongMessage();
+		songMessage.setType(SongMessage.LASTPLAYFINISH);
+
+		SongInfo tempSongInfo = new SongInfo();
+		tempSongInfo.setSid("");
+		tempSongInfo.setPlayProgress(0);
+		tempSongInfo.setDuration(100);
+		tempSongInfo.setArtist("歌手");
+		tempSongInfo.setDisplayName("歌名");
+		songMessage.setSongInfo(tempSongInfo);
+
+		ObserverManage.getObserver().setMessage(songMessage);
+
+		new Thread() {
+
+			@Override
+			public void run() {
+				DataUtil.save(context, Constants.PLAY_SID_KEY,
+						Constants.PLAY_SID);
+			}
+
+		}.start();
+
+	}
+
+	/**
 	 * 通过sid来删除 playlist 中的数据
 	 * 
 	 * @param sid
 	 */
-	private void refresh(String sid) {
+	private void refresh(final String sid) {
 		if (playlist == null || playlist.size() == 0)
 			return;
+		new Thread() {
 
+			@Override
+			public void run() {
+				SongDB.getSongInfoDB(context).delete(sid);
+			}
+
+		}.start();
 		for (int i = 0; i < playlist.size(); i++) {
 			if (playlist.get(i).getSid().equals(sid)) {
+				if (playSongInfo != null) {
+					if (playlist.get(i).getSid().equals(playSongInfo.getSid())) {
+						stopMusic();
+					}
+				}
 				SongMessage songMessage = new SongMessage();
 				songMessage.setNum(-1);
 				songMessage.setType(SongMessage.DEL_NUM);

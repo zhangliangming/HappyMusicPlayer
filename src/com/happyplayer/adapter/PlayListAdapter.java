@@ -1,5 +1,6 @@
 package com.happyplayer.adapter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -336,7 +337,19 @@ public class PlayListAdapter extends BaseAdapter implements Observer {
 					|| songMessage.getType() == SongMessage.PREVMUSICED
 					|| songMessage.getType() == SongMessage.LASTPLAYFINISH
 					|| songMessage.getType() == SongMessage.SELECTPLAYED) {
+				System.out.println("zhangliangming------------------>"
+						+ songMessage.getType());
 				reshNextPlayStatusUI(songMessage.getSongInfo());
+			} else if (songMessage.getType() == SongMessage.DEL_NUM) {
+				Category category = categorys.get(0);
+				List<SongInfo> mCategoryItem = new ArrayList<SongInfo>();
+				category.setmCategoryItem(mCategoryItem);
+				categorys.remove(0);
+				categorys.add(0, category);
+				// for (Category iterable_element : categorys) {
+				// categorys.remove(iterable_element);
+				// }
+				notifyDataSetChanged();
 			}
 		}
 	}
@@ -347,6 +360,9 @@ public class PlayListAdapter extends BaseAdapter implements Observer {
 	 * @param songInfo
 	 */
 	private void reshNextPlayStatusUI(SongInfo songInfo) {
+		System.out
+				.println("zhangliangming oldPlayIndexPosition------------------>"
+						+ playIndexPosition);
 		int oldPlayIndexPosition = playIndexPosition;
 		int count = 0;
 		if (null != categorys) {
@@ -357,6 +373,9 @@ public class PlayListAdapter extends BaseAdapter implements Observer {
 					if (songInfos.get(j).getSid().equals(songInfo.getSid())) {
 						playIndexPosition = count + j + 1;
 						reshPlayStatusUI(playIndexPosition, true);
+						System.out
+								.println("zhangliangming playIndexPosition------------------>"
+										+ playIndexPosition);
 						break;
 					}
 				}
@@ -364,9 +383,11 @@ public class PlayListAdapter extends BaseAdapter implements Observer {
 			}
 			if (songInfo.getSid().equals("")) {
 				playIndexPosition = -1;
+				System.out
+						.println("zhangliangming playIndexPosition2------------------>"
+								+ playIndexPosition);
 			}
 			reshPlayStatusUI(oldPlayIndexPosition, false);
 		}
 	}
-
 }

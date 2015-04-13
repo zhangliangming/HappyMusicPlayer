@@ -13,10 +13,10 @@ import android.os.IBinder;
 
 import com.happyplayer.common.Constants;
 import com.happyplayer.logger.MyLogger;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 
 /**
  * 
@@ -26,12 +26,15 @@ import com.happyplayer.player.MediaManage;
 public class MediaPlayerService extends Service implements Observer {
 	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 	public static Boolean isServiceRunning = false;
+	public static Boolean isPlaying = false;
 	private Thread playerThread = null;
 	private SongMessage songMessage;
 	private MediaPlayer player;
 	private Context context;
 
 	private SongInfo songInfo;
+
+	private Boolean isFirstStart = true;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -48,17 +51,20 @@ public class MediaPlayerService extends Service implements Observer {
 	@Deprecated
 	public void onStart(Intent intent, int startId) {
 		isServiceRunning = false;
-		if (player == null) {
-			player = new MediaPlayer();
+		if (!isFirstStart) {
+			isFirstStart = false;
+			play();
 		}
-
-		play();
+		logger.i("------MediaPlayerService被创建了------");
 	}
 
 	/**
 	 * 播放
 	 */
 	private void play() {
+		if (player == null) {
+			player = new MediaPlayer();
+		}
 		songInfo = MediaManage.getMediaManage(context).getPlaySongInfo();
 		if (songInfo == null) {
 			return;
@@ -71,14 +77,14 @@ public class MediaPlayerService extends Service implements Observer {
 				player.seekTo((int) songInfo.getPlayProgress());
 			}
 			player.start();
-			
+			isPlaying = true;
 			if (playerThread == null) {
 				playerThread = new Thread(new PlayerRunable());
 				playerThread.start();
 			}
 
 			isServiceRunning = true;
-			
+
 			SongMessage songMessage = new SongMessage();
 			songMessage.setType(SongMessage.PLAY);
 			songMessage.setSongInfo(songInfo);
@@ -171,6 +177,7 @@ public class MediaPlayerService extends Service implements Observer {
 		if (player != null) {
 			if (player.isPlaying()) {
 				player.stop();
+				isPlaying = false;
 				if (songInfo != null) {
 					songMessage = new SongMessage();
 					songMessage.setSongInfo(songInfo);
@@ -204,10 +211,30 @@ public class MediaPlayerService extends Service implements Observer {
 				if (player != null) {
 					if (player.isPlaying())
 						player.stop();
+					isPlaying = false;
 					player.reset();
 					player.release();
 					player = null;
 				}
+			} else if (songMessage.getType() == SongMessage.STOP) {
+				if (player != null) {
+					if (player.isPlaying()) {
+						player.stop();
+						isPlaying = false;
+						if (songInfo != null) {
+							songMessage = new SongMessage();
+							songMessage.setSongInfo(songInfo);
+							songMessage.setType(SongMessage.STOPING);
+							ObserverManage.getObserver()
+									.setMessage(songMessage);
+						}
+					}
+					player.reset();
+					player.release();
+					player = null;
+				}
+			} else if (songMessage.getType() == SongMessage.TOPLAY) {
+				play();
 			}
 		}
 	}

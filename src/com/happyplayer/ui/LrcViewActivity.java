@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,15 +29,15 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.happyplayer.adapter.PopupPlayListAdapter;
+import com.happyplayer.adapter.PopupLrcPlayListAdapter;
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.util.ActivityManager;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.util.KscLyricsManamge;
@@ -137,6 +138,8 @@ public class LrcViewActivity extends Activity implements Observer {
 	 */
 	public int EndTime = -1;
 
+	private PopupLrcPlayListAdapter adapter;
+
 	private Handler playmodeHandler = new Handler() {
 
 		@Override
@@ -201,15 +204,16 @@ public class LrcViewActivity extends Activity implements Observer {
 
 				initKscLyrics(songInfo);
 				break;
-
-			case SongMessage.PLAYING:
-
+			case SongMessage.PLAY:
 				if (pauseImageButton.getVisibility() != View.VISIBLE) {
 					pauseImageButton.setVisibility(View.VISIBLE);
 				}
 				if (playImageButton.getVisibility() != View.INVISIBLE) {
 					playImageButton.setVisibility(View.INVISIBLE);
 				}
+				break;
+			case SongMessage.PLAYING:
+
 				if (!isStartTrackingTouch) {
 					seekBar.setProgress((int) songInfo.getPlayProgress());
 					songProgressTextView.setText(MediaUtils
@@ -243,9 +247,15 @@ public class LrcViewActivity extends Activity implements Observer {
 
 			songNameTextView.setText(songInfo.getDisplayName());
 			songerTextView.setText(songInfo.getArtist());
-
-			pauseImageButton.setVisibility(View.INVISIBLE);
-			playImageButton.setVisibility(View.VISIBLE);
+			int status = MediaManage.getMediaManage(LrcViewActivity.this)
+					.getPlayStatus();
+			if (status == MediaManage.STOP) {
+				pauseImageButton.setVisibility(View.INVISIBLE);
+				playImageButton.setVisibility(View.VISIBLE);
+			} else {
+				pauseImageButton.setVisibility(View.VISIBLE);
+				playImageButton.setVisibility(View.INVISIBLE);
+			}
 
 			seekBar.setEnabled(true);
 			seekBar.setMax((int) songInfo.getDuration());
@@ -548,9 +558,9 @@ public class LrcViewActivity extends Activity implements Observer {
 
 			popPlaysumTextTextView.setText("播放列表(" + playlist.size() + ")");
 
-			popPlayListView.setAdapter(new PopupPlayListAdapter(
-					LrcViewActivity.this, playlist, popPlayListView,
-					mPopupWindow));
+			adapter = new PopupLrcPlayListAdapter(LrcViewActivity.this,
+					playlist, popPlayListView, mPopupWindow);
+			popPlayListView.setAdapter(adapter);
 
 			int playIndex = MediaManage.getMediaManage(LrcViewActivity.this)
 					.getPlayIndex();
@@ -698,6 +708,18 @@ public class LrcViewActivity extends Activity implements Observer {
 			break;
 		}
 
+		ImageView deleList = (ImageView) popupWindow
+				.findViewById(R.id.dele_list);
+		deleList.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.DELALLMUSIC);
+				ObserverManage.getObserver().setMessage(songMessage);
+			}
+		});
+
 		popPlayListView = (ListView) popupWindow
 				.findViewById(R.id.playlistView);
 
@@ -705,8 +727,14 @@ public class LrcViewActivity extends Activity implements Observer {
 				.findViewById(R.id.playsumText);
 	}
 
-	public void showlrccolorDialog(View v) {
-		initPopupWindowInstance();
+	/**
+	 * 返回键退出程序
+	 */
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			initPopupWindowInstance();
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 	/*
@@ -887,11 +915,44 @@ public class LrcViewActivity extends Activity implements Observer {
 			if (songMessage.getType() == SongMessage.INIT
 					|| songMessage.getType() == SongMessage.PLAYING
 					|| songMessage.getType() == SongMessage.STOPING
-					|| songMessage.getType() == SongMessage.LASTPLAYFINISH) {
+					|| songMessage.getType() == SongMessage.LASTPLAYFINISH
+					|| songMessage.getType() == SongMessage.PLAY) {
 				Message msg = new Message();
 				msg.obj = songMessage;
 				songHandler.sendMessage(msg);
+			} else if (songMessage.getType() == SongMessage.DEL_NUM) {
+				popHandler.sendEmptyMessage(0);
+			} else if (songMessage.getType() == SongMessage.DELALLMUSICED) {
+				popHandler.sendEmptyMessage(1);
 			}
 		}
 	}
+
+	private Handler popHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			if (null != mPopupWindow) {
+				List<SongInfo> playlist = MediaManage.getMediaManage(
+						LrcViewActivity.this).getPlaylist();
+				popPlaysumTextTextView.setText("播放列表(" + playlist.size() + ")");
+				if (msg.what == 1) {
+					if (adapter != null) {
+						ObserverManage.getObserver().deleteObserver(adapter);
+					}
+					adapter = new PopupLrcPlayListAdapter(LrcViewActivity.this,
+							playlist, popPlayListView, mPopupWindow);
+
+					popPlayListView.setAdapter(adapter);
+
+					int playIndex = MediaManage.getMediaManage(
+							LrcViewActivity.this).getPlayIndex();
+					if (playIndex != -1) {
+						popPlayListView.setSelection(playIndex);
+					}
+				}
+			}
+		}
+
+	};
 }

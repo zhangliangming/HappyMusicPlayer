@@ -19,9 +19,9 @@ import android.widget.TextView;
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
 import com.happyplayer.iface.PageAction;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.service.EasytouchService;
 import com.happyplayer.service.FloatLrcService;
 import com.happyplayer.util.DataUtil;
@@ -298,6 +298,7 @@ public class MyFragment extends Fragment implements Observer {
 			Intent floatLrcServiceIntent = new Intent(getActivity(),
 					FloatLrcService.class);
 			getActivity().stopService(floatLrcServiceIntent);
+
 		} else {
 			Constants.SHOWDESLRC = true;
 			showcheckboxCheckBox.setChecked(true);
@@ -389,7 +390,8 @@ public class MyFragment extends Fragment implements Observer {
 				msg.obj = songMessage.getNum();
 
 				handler.sendMessage(msg);
-			} else if (songMessage.getType() == SongMessage.DEL_NUM) {
+			} else if (songMessage.getType() == SongMessage.DEL_NUM
+					|| songMessage.getType() == SongMessage.DELALLMUSICED) {
 				Message msg = new Message();
 				msg.what = UPDATE;
 				msg.obj = songMessage.getNum();

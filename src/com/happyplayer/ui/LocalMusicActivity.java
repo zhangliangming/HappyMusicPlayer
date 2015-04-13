@@ -12,9 +12,9 @@ import android.widget.TextView;
 import com.happyplayer.adapter.PlayListAdapter;
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.db.SongDB;
+import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.Category;
 import com.happyplayer.model.SongInfo;
-import com.happyplayer.player.MediaManage;
 import com.happyplayer.util.ActivityManager;
 
 public class LocalMusicActivity extends Activity {

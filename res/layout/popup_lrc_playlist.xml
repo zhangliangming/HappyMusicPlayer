@@ -25,6 +25,36 @@
                 android:text="播放列表(0)"
                 android:textColor="#ffffff" />
 
+            <ImageView
+                android:id="@+id/mode_all_buttom"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@+id/line"
+                android:background="@drawable/bar_buttombg"
+                android:src="@drawable/ic_player_mode_all_default" />
+
+            <ImageView
+                android:id="@+id/mode_single_buttom"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@+id/line"
+                android:background="@drawable/bar_buttombg"
+                android:src="@drawable/ic_player_mode_single_default" />
+
+            <ImageView
+                android:id="@+id/mode_random_buttom"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@+id/line"
+                android:background="@drawable/bar_buttombg"
+                android:src="@drawable/ic_player_mode_random_default" />
+
             <View
                 android:id="@+id/line"
                 android:layout_width="1dp"
@@ -33,38 +63,18 @@
                 android:layout_marginBottom="5dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="5dp"
-                android:layout_toLeftOf="@+id/mode_random_buttom"
+                android:layout_toLeftOf="@+id/dele_list"
                 android:background="#ffffff" />
 
             <ImageView
-                android:id="@+id/mode_all_buttom"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:id="@+id/dele_list"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/bar_buttombg"
-                android:src="@drawable/ic_player_mode_all_default" />
-
-            <ImageView
-                android:id="@+id/mode_single_buttom"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/bar_buttombg"
-                android:src="@drawable/ic_player_mode_single_default" />
-
-            <ImageView
-                android:id="@+id/mode_random_buttom"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/bar_buttombg"
-                android:src="@drawable/ic_player_mode_random_default" />
+                android:background="@drawable/buttombg"
+                android:src="@drawable/kg_skin_src_image_btn_down_delete_default" />
         </RelativeLayout>
 
         <View
