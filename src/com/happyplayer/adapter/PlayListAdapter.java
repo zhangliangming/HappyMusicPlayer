@@ -1,6 +1,5 @@
 package com.happyplayer.adapter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -341,16 +340,63 @@ public class PlayListAdapter extends BaseAdapter implements Observer {
 						+ songMessage.getType());
 				reshNextPlayStatusUI(songMessage.getSongInfo());
 			} else if (songMessage.getType() == SongMessage.DEL_NUM) {
-				Category category = categorys.get(0);
-				List<SongInfo> mCategoryItem = new ArrayList<SongInfo>();
-				category.setmCategoryItem(mCategoryItem);
-				categorys.remove(0);
-				categorys.add(0, category);
-				// for (Category iterable_element : categorys) {
-				// categorys.remove(iterable_element);
-				// }
-				notifyDataSetChanged();
+				SongInfo songInfo = songMessage.getSongInfo();
+				removeItem(songInfo);
+				// Category category = categorys.get(0);
+				// List<SongInfo> mCategoryItem = new ArrayList<SongInfo>();
+				// category.setmCategoryItem(mCategoryItem);
+				// categorys.remove(0);
+				// categorys.add(0, category);
+				// // for (Category iterable_element : categorys) {
+				// // categorys.remove(iterable_element);
+				// // }
+				// notifyDataSetChanged();
 			}
+		}
+	}
+
+	/**
+	 * 根据songInfo来移除相关的数据
+	 * 
+	 * @param songInfo
+	 */
+	private void removeItem(SongInfo songInfo) {
+		// 异常情况处理
+		if (null == categorys) {
+			return;
+		}
+		int count = 0;
+		for (int i = 0; i < categorys.size(); i++) {
+			Category category = categorys.get(i);
+			List<SongInfo> songInfos = category.getCategoryItem();
+			boolean isRemove = false;
+			for (int j = 0; j < songInfos.size(); j++) {
+				if (songInfos.get(j).getSid().equals(songInfo.getSid())) {
+					if (songInfos.get(j).getSid().equals(Constants.PLAY_SID)) {
+						playIndexPosition = -1;
+						Constants.PLAY_SID = "";
+						reshPlayStatusUI(count + j + 1, false);
+					}
+					songInfos.remove(j);
+					isRemove = true;
+					break;
+				}
+			}
+			if (isRemove) {
+				if (songInfos.size() == 0) {
+					categorys.remove(category);
+					notifyDataSetChanged();
+					return;
+				} else {
+					categorys.remove(i);
+					category.setmCategoryItem(songInfos);
+					categorys.add(i, category);
+					notifyDataSetChanged();
+					return;
+				}
+
+			}
+			count += category.getItemCount();
 		}
 	}
 

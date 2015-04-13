@@ -535,6 +535,7 @@ public class MediaManage implements Observer {
 				}
 				SongMessage songMessage = new SongMessage();
 				songMessage.setNum(-1);
+				songMessage.setSongInfo(playlist.get(i));
 				songMessage.setType(SongMessage.DEL_NUM);
 				ObserverManage.getObserver().setMessage(songMessage);
 				playlist.remove(i);
