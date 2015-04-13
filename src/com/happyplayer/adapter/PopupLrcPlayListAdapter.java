@@ -14,7 +14,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.happyplayer.common.Constants;
@@ -25,6 +24,7 @@ import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.ui.R;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.util.ImageUtil;
+import com.happyplayer.widget.PopPlayListItemRelativeLayout;
 
 public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 	private List<SongInfo> playlist;
@@ -75,18 +75,15 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 		singerNameTextView.setText(songInfo.getArtist());
 
 		final ImageView singerImageView = holder.getSingerImageView();
-		final RelativeLayout listitemBG = holder.getListitemBG();
+		final PopPlayListItemRelativeLayout listitemBG = holder.getListitemBG();
 		final TextView songNoTextView = holder.getSongNoTextView();
 		songNoTextView.setText((position + 1) + "");
 		if (songInfo.getSid().equals(Constants.PLAY_SID)) {
 			playIndexPosition = position;
 		}
 		if (playIndexPosition == position) {
-			// listitemBG.setSelect(true);
-			songNameTextView
-					.setTextColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
-			singerNameTextView
-					.setTextColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
+			listitemBG.setSelect(true);
+			songNameTextView.setTextColor(Color.WHITE);
 			songNoTextView.setVisibility(View.INVISIBLE);
 			singerImageView.setVisibility(View.VISIBLE);
 
@@ -95,9 +92,8 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 					songInfo.getSid(), songInfo.getDownUrl());
 
 		} else {
-			// listitemBG.setSelect(false);
-			holder.getSongNameTextView().setTextColor(Color.WHITE);
-			holder.getSingerNameTextView().setTextColor(Color.WHITE);
+			listitemBG.setSelect(false);
+			holder.getSongNameTextView().setTextColor(Color.rgb(193, 193, 193));
 			songNoTextView.setVisibility(View.VISIBLE);
 			singerImageView.setVisibility(View.INVISIBLE);
 		}
@@ -124,11 +120,8 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 					ObserverManage.getObserver().setMessage(songMessage);
 					return;
 				}
-				// listitemBG.setSelect(true);
-				songNameTextView
-						.setTextColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
-				singerNameTextView
-						.setTextColor(Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
+				listitemBG.setSelect(true);
+				songNameTextView.setTextColor(Color.WHITE);
 
 				songNoTextView.setVisibility(View.INVISIBLE);
 				singerImageView.setVisibility(View.VISIBLE);
@@ -175,20 +168,16 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 		if (holder == null)
 			return;
 		if (status) {
-			// holder.getListitemBG().setSelect(true);
-			holder.getSongNameTextView().setTextColor(
-					Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
-			holder.getSingerNameTextView().setTextColor(
-					Constants.BLACK_GROUND[Constants.DEF_COLOR_INDEX]);
+			holder.getListitemBG().setSelect(true);
+			holder.getSongNameTextView().setTextColor(Color.rgb(193, 193, 193));
 			holder.getSongNoTextView().setVisibility(View.INVISIBLE);
 			holder.getSingerImageView().setVisibility(View.VISIBLE);
 			ImageUtil.loadAlbum(context, holder.getSingerImageView(),
 					R.drawable.fx_icon_user_default, songInfo.getPath(),
 					songInfo.getSid(), songInfo.getDownUrl());
 		} else {
-			// holder.getListitemBG().setSelect(false);
+			holder.getListitemBG().setSelect(false);
 			holder.getSongNameTextView().setTextColor(Color.WHITE);
-			holder.getSingerNameTextView().setTextColor(Color.WHITE);
 			holder.getSongNoTextView().setVisibility(View.VISIBLE);
 			holder.getSingerImageView().setVisibility(View.INVISIBLE);
 		}
@@ -234,7 +223,7 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 		private TextView songNoTextView;
 		private ImageView singerImageView;
 		private ImageView deleImageView;
-		private RelativeLayout listitemBG;
+		private PopPlayListItemRelativeLayout listitemBG;
 
 		ViewHolder(View v) {
 			view = v;
@@ -276,9 +265,9 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 			return deleImageView;
 		}
 
-		RelativeLayout getListitemBG() {
+		PopPlayListItemRelativeLayout getListitemBG() {
 			if (listitemBG == null) {
-				listitemBG = (RelativeLayout) view
+				listitemBG = (PopPlayListItemRelativeLayout) view
 						.findViewById(R.id.listitemBG);
 			}
 			return listitemBG;

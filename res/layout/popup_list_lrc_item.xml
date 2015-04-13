@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <RelativeLayout
+    <com.happyplayer.widget.PopPlayListItemRelativeLayout
         android:id="@+id/listitemBG"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
@@ -54,7 +54,7 @@
             android:ellipsize="middle"
             android:singleLine="true"
             android:text="歌手 "
-            android:textColor="#ffffff"
+            android:textColor="#969696"
             android:textSize="11dp" />
 
         <ImageView
@@ -66,7 +66,7 @@
             android:layout_marginRight="10dp"
             android:background="@drawable/buttombg"
             android:src="@drawable/kg_skin_src_image_btn_down_delete_default" />
-    </RelativeLayout>
+    </com.happyplayer.widget.PopPlayListItemRelativeLayout>
 
     <View
         android:layout_width="fill_parent"
