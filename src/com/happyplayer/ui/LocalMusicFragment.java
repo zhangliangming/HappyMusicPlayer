@@ -110,6 +110,12 @@ public class LocalMusicFragment extends Fragment implements Observer,
 					}
 				}
 				break;
+			case 2:
+				int newcount = MediaManage.getMediaManage(getActivity())
+						.getCount();
+				((TextView) footView.findViewById(R.id.list_size_text))
+						.setText("共有" + newcount + "首歌曲");
+				break;
 			}
 		}
 
@@ -225,7 +231,7 @@ public class LocalMusicFragment extends Fragment implements Observer,
 			@Override
 			protected void onPostExecute(Object result) {
 				mIndexer = new MySectionIndexer(sections, counts);
-				//不能把一个对象重复放到观察者队列里面
+				// 不能把一个对象重复放到观察者队列里面
 				if (adapter != null) {
 					ObserverManage.getObserver().deleteObserver(adapter);
 				}
@@ -314,6 +320,8 @@ public class LocalMusicFragment extends Fragment implements Observer,
 				isFirst = true;
 			} else if (songMessage.getType() == SongMessage.DELALLMUSICED) {
 				loadData();
+			} else if (songMessage.getType() == SongMessage.DEL_NUM) {
+				handler.sendEmptyMessage(2);
 			}
 		}
 	}

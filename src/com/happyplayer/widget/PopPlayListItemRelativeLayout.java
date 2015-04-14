@@ -37,7 +37,7 @@ public class PopPlayListItemRelativeLayout extends RelativeLayout {
 	private void init(Context context) {
 		defColor = Color.argb(0, 255, 255, 255);
 		selectedColor = Color.argb(50, 255, 255, 255);
-		pressColor = Color.argb(50, 255, 255, 255);
+		pressColor = Color.argb(80, 255, 255, 255);
 
 		paint = new Paint();
 		paint.setDither(true);
