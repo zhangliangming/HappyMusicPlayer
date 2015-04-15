@@ -24,6 +24,7 @@ import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.ui.R;
 import com.happyplayer.util.DataUtil;
 import com.happyplayer.util.ImageUtil;
+import com.happyplayer.widget.CircleImageView;
 import com.happyplayer.widget.PopPlayListItemRelativeLayout;
 
 public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
@@ -74,7 +75,7 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 		songNameTextView.setText(songInfo.getTitle());
 		singerNameTextView.setText(songInfo.getArtist());
 
-		final ImageView singerImageView = holder.getSingerImageView();
+		final CircleImageView singerImageView = holder.getSingerImageView();
 		final PopPlayListItemRelativeLayout listitemBG = holder.getListitemBG();
 		final TextView songNoTextView = holder.getSongNoTextView();
 		songNoTextView.setText((position + 1) + "");
@@ -87,7 +88,7 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 			songNoTextView.setVisibility(View.INVISIBLE);
 			singerImageView.setVisibility(View.VISIBLE);
 
-			ImageUtil.loadAlbum(context, singerImageView,
+			ImageUtil.loadCircleAlbum(context, singerImageView,
 					R.drawable.fx_icon_user_default, songInfo.getPath(),
 					songInfo.getSid(), songInfo.getDownUrl());
 
@@ -125,7 +126,7 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 
 				songNoTextView.setVisibility(View.INVISIBLE);
 				singerImageView.setVisibility(View.VISIBLE);
-				ImageUtil.loadAlbum(context, singerImageView,
+				ImageUtil.loadCircleAlbum(context, singerImageView,
 						R.drawable.fx_icon_user_default, songInfo.getPath(),
 						songInfo.getSid(), songInfo.getDownUrl());
 				if (playIndexPosition != -1) {
@@ -172,7 +173,7 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 			holder.getSongNameTextView().setTextColor(Color.rgb(193, 193, 193));
 			holder.getSongNoTextView().setVisibility(View.INVISIBLE);
 			holder.getSingerImageView().setVisibility(View.VISIBLE);
-			ImageUtil.loadAlbum(context, holder.getSingerImageView(),
+			ImageUtil.loadCircleAlbum(context, holder.getSingerImageView(),
 					R.drawable.fx_icon_user_default, songInfo.getPath(),
 					songInfo.getSid(), songInfo.getDownUrl());
 		} else {
@@ -221,7 +222,7 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 		private TextView songNameTextView;
 		private TextView singerNameTextView;
 		private TextView songNoTextView;
-		private ImageView singerImageView;
+		private CircleImageView singerImageView;
 		private ImageView deleImageView;
 		private PopPlayListItemRelativeLayout listitemBG;
 
@@ -251,9 +252,9 @@ public class PopupLrcPlayListAdapter extends BaseAdapter implements Observer {
 			return songNoTextView;
 		}
 
-		ImageView getSingerImageView() {
+		CircleImageView getSingerImageView() {
 			if (singerImageView == null) {
-				singerImageView = (ImageView) view.findViewById(R.id.pic);
+				singerImageView = (CircleImageView) view.findViewById(R.id.pic);
 			}
 			return singerImageView;
 		}

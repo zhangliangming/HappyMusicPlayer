@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
@@ -22,12 +23,15 @@
             android:textColor="#969696"
             android:textSize="12dp" />
 
-        <ImageView
+        <com.happyplayer.widget.CircleImageView
             android:id="@+id/pic"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            app:border_color="#ffffff"
+            app:border_width="2dp" >
+        </com.happyplayer.widget.CircleImageView>
 
         <TextView
             android:id="@+id/song_name"

@@ -31,6 +31,7 @@ import android.widget.ImageView;
 
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
+import com.happyplayer.widget.CircleImageView;
 
 public class ImageUtil {
 	// 软引用内存缓存
@@ -100,6 +101,49 @@ public class ImageUtil {
 			sImageCache.put(id + "", new SoftReference<Bitmap>(bm));
 		}
 		return bm;
+	}
+
+	/**
+	 * 加载圆形专辑图片
+	 * 
+	 * @param context
+	 * @param imageview
+	 * @param defResourceID
+	 * @param filePath
+	 * @param fileSid
+	 * @param url
+	 */
+	public static void loadCircleAlbum(final Context context,
+			final CircleImageView imageview, final int defResourceID,
+			final String filePath, final String fileSid, final String url) {
+		final String fileName = Constants.PATH_ALBUM + File.separator + fileSid
+				+ ".jpg";
+		imageview.setImageResource(defResourceID);
+		new AsyncTaskHandler() {
+
+			@Override
+			protected void onPostExecute(Object result) {
+				final Bitmap bm = (Bitmap) result;
+				if (bm == null) {
+					imageview.setImageResource(defResourceID);
+				} else {
+					new Thread() {
+
+						@Override
+						public void run() {
+							saveImage(bm, fileName);
+						}
+					}.start();
+
+					imageview.setImageDrawable(new BitmapDrawable(bm));
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				return getAlbum(context, filePath, fileSid, url, fileName);
+			}
+		}.execute();
 	}
 
 	/**

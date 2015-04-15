@@ -48,6 +48,25 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int behindWidth=0x7f010004;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int border_color=0x7f01000f;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int border_width=0x7f01000e;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -560,6 +579,52 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int mypopwindow_anim_style=0x7f090004;
     }
     public static final class styleable {
+        /** Attributes that can be used with a CircleImageView.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #CircleImageView_border_color com.happyplayer.ui:border_color}</code></td><td></td></tr>
+           <tr><td><code>{@link #CircleImageView_border_width com.happyplayer.ui:border_width}</code></td><td></td></tr>
+           </table>
+           @see #CircleImageView_border_color
+           @see #CircleImageView_border_width
+         */
+        public static final int[] CircleImageView = {
+            0x7f01000e, 0x7f01000f
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.happyplayer.ui.R.attr#border_color}
+          attribute's value can be found in the {@link #CircleImageView} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:border_color
+        */
+        public static final int CircleImageView_border_color = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.happyplayer.ui.R.attr#border_width}
+          attribute's value can be found in the {@link #CircleImageView} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:border_width
+        */
+        public static final int CircleImageView_border_width = 0;
         /** Attributes that can be used with a SlidingMenu.
            <p>Includes the following attributes:</p>
            <table>

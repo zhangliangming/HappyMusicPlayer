@@ -142,8 +142,6 @@ public class FloatLrcService extends Service implements Observer {
 		ObserverManage.getObserver().addObserver(this);
 	}
 
-	
-
 	private void init() {
 
 		context = FloatLrcService.this.getBaseContext();
@@ -201,6 +199,7 @@ public class FloatLrcService extends Service implements Observer {
 		public void onClick(View arg0) {
 			if (lrcColorView.getParent() != null) {
 				wm.removeView(lrcColorView);
+				logger.i("移除lrcColorView------>");
 				floatLyricRelativeLayout.getBackground().setAlpha(0);
 			}
 			floatLyricsView.setOnTouchListener(mOnTouchListener);
@@ -239,6 +238,7 @@ public class FloatLrcService extends Service implements Observer {
 				if (sumX > -10 && sumX < 10 && sumY > -10 && sumY < 10) {
 					if (lrcColorView.getParent() != null) {
 						wm.removeView(lrcColorView);
+						logger.i("移除lrcColorView------>");
 						floatLyricRelativeLayout.getBackground().setAlpha(0);
 						floatLyricsView.setOnTouchListener(mOnTouchListener);
 						floatLyricsView.setOnClickListener(null);
@@ -436,6 +436,7 @@ public class FloatLrcService extends Service implements Observer {
 			}
 			floatLyricRelativeLayout.getBackground().setAlpha(100);
 			wm.addView(lrcColorView, lrcColorViewParams);
+			logger.i("添加lrcColorView------>");
 			if (EndTime < 0) {
 				EndTime = 3000;
 				handler.post(upDateVol);
@@ -455,6 +456,7 @@ public class FloatLrcService extends Service implements Observer {
 			} else {
 				if (lrcColorView.getParent() != null) {
 					wm.removeView(lrcColorView);
+					logger.i("移除lrcColorView------>");
 					floatLyricRelativeLayout.getBackground().setAlpha(0);
 					floatLyricsView.setOnTouchListener(mOnTouchListener);
 					floatLyricsView.setOnClickListener(null);
@@ -493,13 +495,14 @@ public class FloatLrcService extends Service implements Observer {
 
 		@Override
 		public void handleMessage(Message msg) {
-			if (!Constants.SHOWDESLRC)
+			if (!Constants.SHOWDESLRC || !isServiceRunning)
 				return;
 			switch (msg.what) {
 			// 程序后台运行
 			case 0:
 				if (floatView.getParent() == null) {
 					wm.addView(floatView, floatViewParams);
+					logger.i("添加floatView------>");
 					floatLyricRelativeLayout.getBackground().setAlpha(0);
 					floatLyricsView.setOnTouchListener(mOnTouchListener);
 					floatLyricsView.setOnClickListener(null);
@@ -513,9 +516,11 @@ public class FloatLrcService extends Service implements Observer {
 			case 1:
 				if (floatView.getParent() != null) {
 					wm.removeView(floatView);
+					logger.i("移除floatView------>");
 				}
 				if (lrcColorView.getParent() != null) {
 					wm.removeView(lrcColorView);
+					logger.i("移除lrcColorView------>");
 					floatLyricRelativeLayout.getBackground().setAlpha(0);
 					floatLyricsView.setOnTouchListener(mOnTouchListener);
 					floatLyricsView.setOnClickListener(null);
@@ -529,14 +534,16 @@ public class FloatLrcService extends Service implements Observer {
 	private Handler handler = new Handler();
 	private Runnable myRunnable = new Runnable() {
 		public void run() {
-			Message msg = new Message();
-			if (!isBackground(context)) {
-				msg.what = 1;
-			} else {
-				msg.what = 0;
+			if (isServiceRunning) {
+				Message msg = new Message();
+				if (!isBackground(context)) {
+					msg.what = 1;
+				} else {
+					msg.what = 0;
+				}
+				floatViewHandler.sendMessage(msg);
+				handler.postDelayed(this, 10);
 			}
-			floatViewHandler.sendMessage(msg);
-			handler.postDelayed(this, 10);
 		}
 	};
 
@@ -548,19 +555,23 @@ public class FloatLrcService extends Service implements Observer {
 		super.onDestroy();
 
 		if (floatView.getParent() != null) {
+			logger.i("onDestroy 移除floatView------>");
 			wm.removeView(floatView);
 		}
 		if (lrcColorView.getParent() != null) {
+			logger.i("onDestroy 移除lrcColorView------>");
 			wm.removeView(lrcColorView);
 			floatLyricRelativeLayout.getBackground().setAlpha(0);
 			floatLyricsView.setOnTouchListener(mOnTouchListener);
 			floatLyricsView.setOnClickListener(null);
 		}
 
+		ObserverManage.getObserver().deleteObserver(this);
+
 		if (!Constants.APPCLOSE && !MainActivity.SCREEN_OFF) {
 			// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
 			startService(new Intent(this, FloatLrcService.class));
-		
+			logger.i("----FloatLrcService被tgus----");
 		}
 	}
 

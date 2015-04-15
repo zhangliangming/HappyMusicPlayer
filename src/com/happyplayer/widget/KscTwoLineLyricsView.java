@@ -280,9 +280,10 @@ public class KscTwoLineLyricsView extends View implements Observer {
 					FontMetrics fm = paint.getFontMetrics();
 					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
 					canvas.clipRect(getWidth() - lyricsRightWidth - 10,
-							(SIZEWORDDEF + INTERVAL) * 2 + height,
+							SIZEWORDDEF + INTERVAL * 2,
 							getWidth() - lyricsRightWidth - 10
-									+ lineLyricsHLWidth, height);
+									+ lineLyricsHLWidth, SIZEWORDDEF + INTERVAL
+									* 2 + height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
 					canvas.drawText(lineLyrics, getWidth() - lyricsRightWidth

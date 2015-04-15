@@ -44,12 +44,12 @@ public class MediaPlayerService extends Service implements Observer {
 	@Override
 	public void onCreate() {
 		context = MediaPlayerService.this.getBaseContext();
-		ObserverManage.getObserver().addObserver(this);
 	}
 
 	@Override
 	@Deprecated
 	public void onStart(Intent intent, int startId) {
+		ObserverManage.getObserver().addObserver(this);
 		isServiceRunning = false;
 		if (!isFirstStart) {
 			isFirstStart = false;
@@ -189,6 +189,7 @@ public class MediaPlayerService extends Service implements Observer {
 			player.release();
 			player = null;
 		}
+		ObserverManage.getObserver().deleteObserver(this);
 		super.onDestroy();
 		int status = MediaManage.getMediaManage(context).getPlayStatus();
 		// 如果当前的状态不是暂停，如果播放服务被回收了，要重新启动服务

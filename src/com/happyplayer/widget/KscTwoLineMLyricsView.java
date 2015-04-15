@@ -15,7 +15,6 @@ import android.view.View;
 import com.happyplayer.common.Constants;
 import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
-import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.util.KscLyricsParser;
@@ -281,9 +280,10 @@ public class KscTwoLineMLyricsView extends View implements Observer {
 					FontMetrics fm = paint.getFontMetrics();
 					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
 					canvas.clipRect(getWidth() - lyricsRightWidth - 10,
-							(SIZEWORDDEF + INTERVAL) * 2 + height,
+							SIZEWORDDEF + INTERVAL * 2,
 							getWidth() - lyricsRightWidth - 10
-									+ lineLyricsHLWidth, height);
+									+ lineLyricsHLWidth, SIZEWORDDEF + INTERVAL
+									* 2 + height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
 					canvas.drawText(lineLyrics, getWidth() - lyricsRightWidth

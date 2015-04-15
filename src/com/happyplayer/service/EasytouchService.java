@@ -369,10 +369,12 @@ public class EasytouchService extends Service implements Observer {
 	protected void addMainView() {
 		if (iconView != null && iconView.getParent() != null) {
 			wm.removeView(iconView);
+			logger.i("----iconView被移除了----");
 		}
 		if (mainView != null && mainView.getParent() == null) {
 			mainViewShow = true;
 			wm.addView(mainView, mainParams);
+			logger.i("----mainView被添加了----");
 			loadMainViewData();
 
 			if (EndTime < 0) {
@@ -512,9 +514,11 @@ public class EasytouchService extends Service implements Observer {
 	protected void addIconView() {
 		if (mainView != null && mainView.getParent() != null) {
 			wm.removeView(mainView);
+			logger.i("----mainView被移除了----");
 		}
 		if (iconView != null && iconView.getParent() == null) {
 			mainViewShow = false;
+			logger.i("----iconView被添加了----");
 			wm.addView(iconView, iconParams);
 			loadIconViewData();
 		}
@@ -581,13 +585,14 @@ public class EasytouchService extends Service implements Observer {
 
 		@Override
 		public void handleMessage(Message msg) {
-			if (!Constants.SHOWEASYTOUCH)
+			if (!Constants.SHOWEASYTOUCH || !isServiceRunning)
 				return;
 			switch (msg.what) {
 			// 程序后台运行
 			case 0:
 				if (!iconViewShow && iconView.getParent() == null) {
 					wm.addView(iconView, iconParams);
+					logger.i("----iconView被添加了----");
 					iconViewShow = true;
 					loadIconViewData();
 				}
@@ -595,9 +600,11 @@ public class EasytouchService extends Service implements Observer {
 			case 1:
 				if (iconViewShow && iconView.getParent() != null) {
 					wm.removeView(iconView);
+					logger.i("----iconView被移除了----");
 					iconViewShow = false;
 				} else if (mainView.getParent() != null) {
 					wm.removeView(mainView);
+					logger.i("----mainView被移除了----");
 					iconViewShow = false;
 					mainViewShow = false;
 				}
@@ -610,14 +617,16 @@ public class EasytouchService extends Service implements Observer {
 	private Handler handler = new Handler();
 	private Runnable myRunnable = new Runnable() {
 		public void run() {
-			Message msg = new Message();
-			if (!isBackground(context)) {
-				msg.what = 1;
-			} else {
-				msg.what = 0;
+			if (isServiceRunning) {
+				Message msg = new Message();
+				if (!isBackground(context)) {
+					msg.what = 1;
+				} else {
+					msg.what = 0;
+				}
+				floatViewHandler.sendMessage(msg);
+				handler.postDelayed(this, 10);
 			}
-			floatViewHandler.sendMessage(msg);
-			handler.postDelayed(this, 10);
 		}
 	};
 
@@ -735,18 +744,23 @@ public class EasytouchService extends Service implements Observer {
 		handler.removeCallbacks(upDateVol);
 		super.onDestroy();
 
-		if (iconViewShow && iconView.getParent() != null) {
+		if (iconView.getParent() != null) {
 			wm.removeView(iconView);
+			logger.i("----iconView被移除了----");
 			iconViewShow = false;
-		} else if (mainView.getParent() != null) {
+		}
+		if (mainView.getParent() != null) {
 			wm.removeView(mainView);
-			iconViewShow = false;
+			logger.i("----mainView被移除了----");
 			mainViewShow = false;
 		}
+
+		ObserverManage.getObserver().deleteObserver(this);
 
 		// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
 		if (!Constants.APPCLOSE && !MainActivity.SCREEN_OFF) {
 			startService(new Intent(this, EasytouchService.class));
+			logger.i("----EasytouchService被重新启动了----");
 		}
 
 	}
