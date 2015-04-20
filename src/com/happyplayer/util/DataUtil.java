@@ -110,6 +110,11 @@ public class DataUtil {
 		 */
 		Constants.LRC_COLOR_INDEX = preferences.getInt(
 				Constants.LRC_COLOR_INDEX_KEY, Constants.LRC_COLOR_INDEX);
+		/**
+		 * 双行歌词或者多行歌词
+		 */
+		Constants.LRCTWOORMANY = preferences.getInt(Constants.LRCTWOORMANY_KEY,
+				Constants.LRCTWOORMANY);
 
 	}
 

@@ -10,8 +10,7 @@
     <RelativeLayout
         android:id="@+id/parent"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@drawable/skin_def" >
+        android:layout_height="fill_parent" >
 
         <RelativeLayout
             android:id="@+id/header"
@@ -61,7 +60,6 @@
 
             <CheckBox
                 android:id="@+id/like"
-                android:paddingLeft="0dp"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_alignParentRight="true"
@@ -70,7 +68,8 @@
                 android:background="@drawable/bar_buttombg"
                 android:button="@null"
                 android:drawableRight="@drawable/like_bar_buttombg"
-                android:onClick="like" />
+                android:onClick="like"
+                android:paddingLeft="0dp" />
         </RelativeLayout>
 
         <RelativeLayout

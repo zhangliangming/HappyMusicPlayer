@@ -89,11 +89,16 @@ public class CopyOfConstants {
 	/**
 	 * 图片皮肤id
 	 */
-	public static int PICIDS[] = { R.drawable.skin_def, R.drawable.skin_def1,
-			R.drawable.skin_def2, R.drawable.skin_def3, R.drawable.skin_def4,
-			R.drawable.skin_def5, R.drawable.skin_def6, R.drawable.skin_def7,
-			R.drawable.skin_def8, R.drawable.skin_def9, R.drawable.skin_def10,
-			R.drawable.skin_def11 };
+	public static int PICIDS[] = { R.drawable.bg_skin_default_thumb,
+			R.drawable.bg_skin_thumb1, R.drawable.bg_skin_thumb2,
+			R.drawable.bg_skin_thumb3, R.drawable.bg_skin_thumb4,
+			R.drawable.bg_skin_thumb5, R.drawable.bg_skin_thumb6,
+			R.drawable.bg_skin_thumb7, R.drawable.bg_skin_thumb8,
+			R.drawable.bg_skin_thumb9, R.drawable.bg_skin_thumb10,
+			R.drawable.bg_skin_thumb11, R.drawable.bg_skin_thumb12,
+			R.drawable.bg_skin_thumb13, R.drawable.bg_skin_thumb14,
+			R.drawable.bg_skin_thumb15, R.drawable.bg_skin_thumb16,
+			R.drawable.bg_skin_thumb17 };
 	/**
 	 * 图片皮肤索引
 	 */
@@ -164,7 +169,7 @@ public class CopyOfConstants {
 	 */
 	public static String LRCY_KEY = "LRCY_KEY";
 	public static int LRCY = 0;
-	
+
 	/**
 	 * app是否退出 0是否 1是 退出
 	 */

@@ -81,9 +81,10 @@
             android:name="ShowLockActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
-        </activity>
+        </activity>
         -->
-        <service android:name="com.happyplayer.service.MediaPlayerService"></service>
+        <service android:name="com.happyplayer.service.MediaPlayerService" >
+        </service>
     </application>
 
 </manifest>

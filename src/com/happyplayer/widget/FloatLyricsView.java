@@ -15,7 +15,6 @@ import android.view.View;
 import com.happyplayer.common.Constants;
 import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
-import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.util.KscLyricsParser;
@@ -145,11 +144,25 @@ public class FloatLyricsView extends View implements Observer {
 		if (!blLrc) {
 
 			String tip = "乐乐音乐，传播好的音乐";
-			float lineLyricsWidth = paint.measureText(tip);
-			drawBackground(canvas, tip, getWidth() / 2 - (int) lineLyricsWidth
-					/ 2, getHeight() / 2);
-			canvas.drawText(tip, getWidth() / 2 - (int) lineLyricsWidth / 2,
-					getHeight() / 2, paint);
+			float tipTextWidth = paint.measureText(tip);
+			FontMetrics fm = paintHL.getFontMetrics();
+			int height = (int) Math.ceil(fm.descent - fm.top) + 2;
+
+			drawBackground(canvas, tip, (getWidth() - tipTextWidth) / 2,
+					(getHeight() + height) / 2);
+
+			canvas.drawText(tip, (getWidth() - tipTextWidth) / 2,
+					(getHeight() + height) / 2, paint);
+
+			canvas.clipRect((getWidth() - tipTextWidth) / 2,
+					(getHeight() + height) / 2 - height,
+					(getWidth() - tipTextWidth) / 2 + tipTextWidth / 2 + 5,
+					(getHeight() + height) / 2 + height);
+
+			drawBackground(canvas, tip, (getWidth() - tipTextWidth) / 2,
+					(getHeight() + height) / 2);
+			canvas.drawText(tip, (getWidth() - tipTextWidth) / 2,
+					(getHeight() + height) / 2, paintHL);
 
 		} else {
 
@@ -339,12 +352,12 @@ public class FloatLyricsView extends View implements Observer {
 
 	@Override
 	public void update(Observable arg0, Object data) {
-		if (data instanceof SkinMessage) {
-			SkinMessage msg = (SkinMessage) data;
-			if (msg.type == SkinMessage.COLOR) {
-				invalidate();
-			}
-		}
+		// if (data instanceof SkinMessage) {
+		// SkinMessage msg = (SkinMessage) data;
+		// if (msg.type == SkinMessage.COLOR) {
+		// invalidate();
+		// }
+		// }
 	}
 
 	public void setKscLyricsParser(KscLyricsParser kscLyricsParser) {

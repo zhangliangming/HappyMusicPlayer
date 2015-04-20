@@ -6,6 +6,7 @@ import java.util.Observer;
 import java.util.TreeMap;
 
 import android.app.Activity;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -32,6 +34,7 @@ import android.widget.Toast;
 import com.happyplayer.adapter.PopupLrcPlayListAdapter;
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
+import com.happyplayer.logger.MyLogger;
 import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SkinMessage;
@@ -44,6 +47,7 @@ import com.happyplayer.util.KscLyricsManamge;
 import com.happyplayer.util.KscLyricsParser;
 import com.happyplayer.util.MediaUtils;
 import com.happyplayer.widget.HBaseSeekBar;
+import com.happyplayer.widget.KscManyLineLyricsView;
 import com.happyplayer.widget.KscTwoLineMLyricsView;
 
 public class LrcViewActivity extends Activity implements Observer {
@@ -139,6 +143,22 @@ public class LrcViewActivity extends Activity implements Observer {
 	public int EndTime = -1;
 
 	private PopupLrcPlayListAdapter adapter;
+
+	/**
+	 * 双行歌词
+	 */
+	private ImageButton lyricCollapse;
+	/**
+	 * 多行歌词
+	 */
+	private ImageButton lyricExpand;
+
+	private RelativeLayout kscTwoLineLyricsViewParent;
+
+	private KscManyLineLyricsView KscManyLineLyricsView;
+	private RelativeLayout kscManyLineLyricsViewParent;
+
+	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 
 	private Handler playmodeHandler = new Handler() {
 
@@ -317,6 +337,7 @@ public class LrcViewActivity extends Activity implements Observer {
 			protected void onPostExecute(Object result) {
 				kscLyricsParser = (KscLyricsParser) result;
 				lyricsLineTreeMap = kscLyricsParser.getLyricsLineTreeMap();
+				KscManyLineLyricsView.init();
 				kscTwoLineLyricsView.init();
 				if (lyricsLineTreeMap.size() != 0) {
 					kscTwoLineLyricsView.setKscLyricsParser(kscLyricsParser);
@@ -324,9 +345,18 @@ public class LrcViewActivity extends Activity implements Observer {
 							.setLyricsLineTreeMap(lyricsLineTreeMap);
 					kscTwoLineLyricsView.setBlLrc(true);
 					kscTwoLineLyricsView.invalidate();
+
+					KscManyLineLyricsView.setKscLyricsParser(kscLyricsParser);
+					KscManyLineLyricsView
+							.setLyricsLineTreeMap(lyricsLineTreeMap);
+					KscManyLineLyricsView.setBlLrc(true);
+					KscManyLineLyricsView.invalidate();
 				} else {
 					kscTwoLineLyricsView.setBlLrc(false);
 					kscTwoLineLyricsView.invalidate();
+
+					KscManyLineLyricsView.setBlLrc(false);
+					KscManyLineLyricsView.invalidate();
 				}
 			}
 
@@ -340,6 +370,7 @@ public class LrcViewActivity extends Activity implements Observer {
 	}
 
 	private void init() {
+
 		songProgressTextView = (TextView) findViewById(R.id.songProgress);
 		songSizeTextView = (TextView) findViewById(R.id.songSize);
 
@@ -524,6 +555,7 @@ public class LrcViewActivity extends Activity implements Observer {
 		});
 
 		kscTwoLineLyricsView = (KscTwoLineMLyricsView) findViewById(R.id.kscTwoLineLyricsView);
+		KscManyLineLyricsView = (KscManyLineLyricsView) findViewById(R.id.kscManyLineLyricsView);
 
 		listImageButton = (ImageView) findViewById(R.id.playlist_buttom);
 		listImageButton.setOnClickListener(new OnClickListener() {
@@ -541,6 +573,79 @@ public class LrcViewActivity extends Activity implements Observer {
 								- mPopupWindow.getHeight());
 			}
 		});
+
+		kscTwoLineLyricsViewParent = (RelativeLayout) findViewById(R.id.kscTwoLineLyricsViewParent);
+
+		kscManyLineLyricsViewParent = (RelativeLayout) findViewById(R.id.kscManyLineLyricsViewParent);
+
+		lyricCollapse = (ImageButton) findViewById(R.id.lyricCollapse);
+
+		lyricCollapse.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				lyricCollapse.setVisibility(View.INVISIBLE);
+				lyricExpand.setVisibility(View.VISIBLE);
+
+				KscManyLineLyricsView.setVisibility(View.INVISIBLE);
+				kscTwoLineLyricsView.setVisibility(View.VISIBLE);
+
+				kscTwoLineLyricsViewParent
+						.setBackgroundResource(R.drawable.full_screen_cover_mini_lyric);
+				kscManyLineLyricsViewParent
+						.setBackgroundDrawable(new BitmapDrawable());
+
+				Constants.LRCTWOORMANY = 1;
+				DataUtil.save(LrcViewActivity.this, Constants.LRCTWOORMANY_KEY,
+						Constants.LRCTWOORMANY);
+			}
+		});
+
+		lyricExpand = (ImageButton) findViewById(R.id.lyricExpand);
+		lyricExpand.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				lyricCollapse.setVisibility(View.VISIBLE);
+				lyricExpand.setVisibility(View.INVISIBLE);
+
+				KscManyLineLyricsView.setVisibility(View.VISIBLE);
+				kscTwoLineLyricsView.setVisibility(View.INVISIBLE);
+
+				kscManyLineLyricsViewParent
+						.setBackgroundResource(R.drawable.full_screen_cover_mini_lyric);
+				kscTwoLineLyricsViewParent
+						.setBackgroundDrawable(new BitmapDrawable());
+
+				Constants.LRCTWOORMANY = 0;
+				DataUtil.save(LrcViewActivity.this, Constants.LRCTWOORMANY_KEY,
+						Constants.LRCTWOORMANY);
+			}
+		});
+
+		if (Constants.LRCTWOORMANY == 0) {
+			lyricCollapse.setVisibility(View.VISIBLE);
+			lyricExpand.setVisibility(View.INVISIBLE);
+
+			KscManyLineLyricsView.setVisibility(View.VISIBLE);
+			kscTwoLineLyricsView.setVisibility(View.INVISIBLE);
+
+			kscManyLineLyricsViewParent
+					.setBackgroundResource(R.drawable.full_screen_cover_mini_lyric);
+			kscTwoLineLyricsViewParent
+					.setBackgroundDrawable(new BitmapDrawable());
+		} else {
+			lyricCollapse.setVisibility(View.INVISIBLE);
+			lyricExpand.setVisibility(View.VISIBLE);
+
+			KscManyLineLyricsView.setVisibility(View.INVISIBLE);
+			kscTwoLineLyricsView.setVisibility(View.VISIBLE);
+
+			kscTwoLineLyricsViewParent
+					.setBackgroundResource(R.drawable.full_screen_cover_mini_lyric);
+			kscManyLineLyricsViewParent
+					.setBackgroundDrawable(new BitmapDrawable());
+		}
 	}
 
 	/**
@@ -727,14 +832,18 @@ public class LrcViewActivity extends Activity implements Observer {
 				.findViewById(R.id.playsumText);
 	}
 
-	/**
-	 * 返回键退出程序
-	 */
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			initPopupWindowInstance();
-		}
-		return super.onKeyDown(keyCode, event);
+	// /**
+	// * 返回键退出程序
+	// */
+	// public boolean onKeyDown(int keyCode, KeyEvent event) {
+	// if (keyCode == KeyEvent.KEYCODE_MENU) {
+	// initPopupWindowInstance();
+	// }
+	// return super.onKeyDown(keyCode, event);
+	// }
+
+	public void showMenu(View v) {
+		initPopupWindowInstance();
 	}
 
 	/*
@@ -844,6 +953,9 @@ public class LrcViewActivity extends Activity implements Observer {
 	private class MyImageViewOnClickListener implements OnClickListener {
 
 		public void onClick(View arg0) {
+
+			// logger.i("颜色面板点击了");
+
 			EndTime = 3000;
 			int index = 0;
 			int id = arg0.getId();
@@ -877,6 +989,7 @@ public class LrcViewActivity extends Activity implements Observer {
 					flagimageviews[i].setVisibility(View.INVISIBLE);
 			}
 			kscTwoLineLyricsView.invalidate();
+			KscManyLineLyricsView.invalidate();
 			DataUtil.save(LrcViewActivity.this, Constants.LRC_COLOR_INDEX_KEY,
 					Constants.LRC_COLOR_INDEX);
 		}
@@ -888,11 +1001,23 @@ public class LrcViewActivity extends Activity implements Observer {
 	 *            根据当前歌曲播放进度，刷新歌词
 	 */
 	private void reshLrcView(int playProgress) {
-		// 判断当前的歌曲是否有歌词
-		boolean blLrc = kscTwoLineLyricsView.getBlLrc();
-		if (blLrc) {
-			kscTwoLineLyricsView.showLrc(playProgress);
+
+		if (kscTwoLineLyricsView.getVisibility() == View.VISIBLE) {
+			// 判断当前的歌曲是否有歌词
+			boolean blLrc = kscTwoLineLyricsView.getBlLrc();
+			if (blLrc) {
+				kscTwoLineLyricsView.showLrc(playProgress);
+			}
 		}
+
+		if (KscManyLineLyricsView.getVisibility() == View.VISIBLE) {
+			// 判断当前的歌曲是否有歌词
+			boolean blLrc = KscManyLineLyricsView.getBlLrc();
+			if (blLrc) {
+				KscManyLineLyricsView.showLrc(playProgress);
+			}
+		}
+
 	}
 
 	public void back(View v) {

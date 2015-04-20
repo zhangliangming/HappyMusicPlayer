@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <item name="selected_view" type="id"/>
-    
+    <item name="md__drawer" type="id"/>
+    <item name="md__content" type="id"/>
+
 </resources>

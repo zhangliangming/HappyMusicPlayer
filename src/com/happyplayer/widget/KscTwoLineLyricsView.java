@@ -76,6 +76,11 @@ public class KscTwoLineLyricsView extends View implements Observer {
 	private float lineLyricsHLWidth = 0;
 
 	private Context context;
+	
+	/**
+	 * 轮廓画笔
+	 */
+	private Paint paintBackgruond;
 
 	public KscTwoLineLyricsView(Context context, AttributeSet attrs,
 			int defStyle) {
@@ -107,6 +112,13 @@ public class KscTwoLineLyricsView extends View implements Observer {
 		paintHL.setDither(true);
 		paintHL.setAntiAlias(true);
 		paintHL.setTextSize(SIZEWORDDEF);
+		
+		paintBackgruond = new Paint();
+		paintBackgruond.setAlpha(180);
+		paintBackgruond.setColor(Color.rgb(234, 235, 234));
+		paintBackgruond.setDither(true);
+		paintBackgruond.setAntiAlias(true);
+		paintBackgruond.setTextSize(SIZEWORDDEF);
 
 		ObserverManage.getObserver().addObserver(this);
 	}
@@ -137,14 +149,20 @@ public class KscTwoLineLyricsView extends View implements Observer {
 			float tipTextWidth = paint.measureText(tip);
 			FontMetrics fm = paintHL.getFontMetrics();
 			int height = (int) Math.ceil(fm.descent - fm.top) + 2;
+			
+			drawBackground(canvas, tip, (getWidth() - tipTextWidth) / 2,
+					(getHeight() + height) / 2);
 
 			canvas.drawText(tip, (getWidth() - tipTextWidth) / 2,
 					(getHeight() + height) / 2, paint);
 
 			canvas.clipRect((getWidth() - tipTextWidth) / 2,
-					(getHeight() + height) / 2 + height,
+					(getHeight() + height) / 2  -  height,
 					(getWidth() - tipTextWidth) / 2 + tipTextWidth / 2 + 5,
-					height);
+					(getHeight() + height) / 2 + height);
+			
+			drawBackground(canvas, tip, (getWidth() - tipTextWidth) / 2,
+					(getHeight() + height) / 2);
 
 			canvas.drawText(tip, (getWidth() - tipTextWidth) / 2,
 					(getHeight() + height) / 2, paintHL);
@@ -153,12 +171,19 @@ public class KscTwoLineLyricsView extends View implements Observer {
 			// 画之前的歌词
 			if (lyricsLineNum == -1) {
 				String lyricsLeft = lyricsLineTreeMap.get(0).getLineLyrics();
+				
+				drawBackground(canvas, lyricsLeft, 10, SIZEWORDDEF + INTERVAL);
+				
 				canvas.drawText(lyricsLeft, 10, SIZEWORDDEF + INTERVAL, paint);
 				if (lyricsLineNum + 2 < lyricsLineTreeMap.size()) {
 					String lyricsRight = lyricsLineTreeMap.get(
 							lyricsLineNum + 2).getLineLyrics();
 
 					float lyricsRightWidth = paint.measureText(lyricsRight);
+					
+					
+					drawBackground(canvas, lyricsRight, getWidth() - lyricsRightWidth
+							- 10, (SIZEWORDDEF + INTERVAL) * 2);
 
 					canvas.drawText(lyricsRight, getWidth() - lyricsRightWidth
 							- 10, (SIZEWORDDEF + INTERVAL) * 2, paint);
@@ -170,6 +195,13 @@ public class KscTwoLineLyricsView extends View implements Observer {
 								lyricsLineNum + 1).getLineLyrics();
 
 						float lyricsRightWidth = paint.measureText(lyricsRight);
+						
+						
+						drawBackground(canvas,lyricsRight, getWidth()
+								- lyricsRightWidth - 10,
+								(SIZEWORDDEF + INTERVAL) * 2);
+						
+						
 						canvas.drawText(lyricsRight, getWidth()
 								- lyricsRightWidth - 10,
 								(SIZEWORDDEF + INTERVAL) * 2, paint);
@@ -180,6 +212,9 @@ public class KscTwoLineLyricsView extends View implements Observer {
 
 					// 整行歌词
 					String lineLyrics = kscLyricsLineInfo.getLineLyrics();
+					
+					
+					drawBackground(canvas,lineLyrics, 10, SIZEWORDDEF + INTERVAL);
 
 					// 画当前歌词
 					canvas.drawText(lineLyrics, 10, SIZEWORDDEF + INTERVAL,
@@ -223,6 +258,9 @@ public class KscTwoLineLyricsView extends View implements Observer {
 							SIZEWORDDEF + INTERVAL + height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
+					
+					drawBackground(canvas,lineLyrics, 10, SIZEWORDDEF + INTERVAL);
+					
 					canvas.drawText(lineLyrics, 10, SIZEWORDDEF + INTERVAL,
 							paintHL);
 
@@ -232,6 +270,9 @@ public class KscTwoLineLyricsView extends View implements Observer {
 					if (lyricsLineNum + 1 != lyricsLineTreeMap.size()) {
 						String lyricsLeft = lyricsLineTreeMap.get(
 								lyricsLineNum + 1).getLineLyrics();
+						
+						drawBackground(canvas,lyricsLeft, 10, SIZEWORDDEF + INTERVAL);
+						
 						canvas.drawText(lyricsLeft, 10, SIZEWORDDEF + INTERVAL,
 								paint);
 					}
@@ -242,6 +283,9 @@ public class KscTwoLineLyricsView extends View implements Observer {
 					String lineLyrics = kscLyricsLineInfo.getLineLyrics();
 					float lyricsRightWidth = paint.measureText(lineLyrics);
 
+					
+					drawBackground(canvas,lineLyrics, getWidth() - lyricsRightWidth
+							- 10, (SIZEWORDDEF + INTERVAL) * 2);
 					// 画当前歌词
 					canvas.drawText(lineLyrics, getWidth() - lyricsRightWidth
 							- 10, (SIZEWORDDEF + INTERVAL) * 2, paint);
@@ -286,12 +330,30 @@ public class KscTwoLineLyricsView extends View implements Observer {
 									* 2 + height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
+					drawBackground(canvas,lineLyrics, getWidth() - lyricsRightWidth
+							- 10, (SIZEWORDDEF + INTERVAL) * 2);
+					
 					canvas.drawText(lineLyrics, getWidth() - lyricsRightWidth
 							- 10, (SIZEWORDDEF + INTERVAL) * 2, paintHL);
 				}
 			}
 		}
 		super.draw(canvas);
+	}
+	
+	/**
+	 * 描绘轮廓
+	 * 
+	 * @param canvas
+	 * @param string
+	 * @param x
+	 * @param y
+	 */
+	private void drawBackground(Canvas canvas, String string, float x, float y) {
+		canvas.drawText(string, x - 1, y, paintBackgruond);
+		canvas.drawText(string, x + 1, y, paintBackgruond);
+		canvas.drawText(string, x, y + 1, paintBackgruond);
+		canvas.drawText(string, x, y - 1, paintBackgruond);
 	}
 
 	@Override

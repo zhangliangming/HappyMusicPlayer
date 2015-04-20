@@ -131,7 +131,7 @@ public class Constants {
 	public static int LRCCOLORS[] = { Color.rgb(252, 255, 21),
 			Color.rgb(255, 101, 101), Color.rgb(110, 232, 77),
 			Color.rgb(236, 85, 203), Color.rgb(148, 83, 237),
-			Color.rgb(26, 89, 154) };
+			Color.rgb(255, 127, 39) };
 
 	/**
 	 * 主题颜色面板索引
@@ -141,11 +141,16 @@ public class Constants {
 	/**
 	 * 图片皮肤id
 	 */
-	public static int PICIDS[] = { R.drawable.skin_def, R.drawable.skin_def1,
-			R.drawable.skin_def2, R.drawable.skin_def3, R.drawable.skin_def4,
-			R.drawable.skin_def5, R.drawable.skin_def6, R.drawable.skin_def7,
-			R.drawable.skin_def8, R.drawable.skin_def9, R.drawable.skin_def10,
-			R.drawable.skin_def11 };
+	public static int PICIDS[] = { R.drawable.bg_skin_default_thumb,
+			R.drawable.bg_skin_thumb1, R.drawable.bg_skin_thumb2,
+			R.drawable.bg_skin_thumb3, R.drawable.bg_skin_thumb4,
+			R.drawable.bg_skin_thumb5, R.drawable.bg_skin_thumb6,
+			R.drawable.bg_skin_thumb7, R.drawable.bg_skin_thumb8,
+			R.drawable.bg_skin_thumb9, R.drawable.bg_skin_thumb10,
+			R.drawable.bg_skin_thumb11, R.drawable.bg_skin_thumb12,
+			R.drawable.bg_skin_thumb13, R.drawable.bg_skin_thumb14,
+			R.drawable.bg_skin_thumb15, R.drawable.bg_skin_thumb16,
+			R.drawable.bg_skin_thumb17 };
 	/**
 	 * 图片皮肤索引
 	 */
@@ -216,4 +221,9 @@ public class Constants {
 	 * app是否退出 0是否 1是 退出
 	 */
 	public static boolean APPCLOSE = false;
+	/**
+	 * 双行歌词或者多行歌词
+	 */
+	public static String LRCTWOORMANY_KEY = "LRCTWOORMANY_KEY";
+	public static int LRCTWOORMANY = 0;
 }

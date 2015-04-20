@@ -89,7 +89,7 @@ public class Copy_2_of_MainActivity extends FragmentActivity {
 		viewPager.setOffscreenPageLimit(fragmentList.size());
 		viewPager.setOnPageChangeListener(new TabOnPageChangeListener());
 
-		viewPager.setBackgroundResource(R.drawable.skin_def);
+		// viewPager.setBackgroundResource(R.drawable.skin_def);
 
 		mMenu = (SlidingMenu) findViewById(R.id.player_bar_bg);
 		mMenu.setMode(SlidingMenu.LEFT);
@@ -115,7 +115,8 @@ public class Copy_2_of_MainActivity extends FragmentActivity {
 						.setBackgroundResource(R.drawable.kg_ic_playing_bar_drag_opened);
 				timeTextView.setVisibility(View.VISIBLE);
 				Constants.BAR_LRC_IS_OPEN = true;
-				DataUtil.save(Copy_2_of_MainActivity.this, Constants.BAR_LRC_IS_OPEN_KEY,
+				DataUtil.save(Copy_2_of_MainActivity.this,
+						Constants.BAR_LRC_IS_OPEN_KEY,
 						Constants.BAR_LRC_IS_OPEN);
 			}
 		});
@@ -129,7 +130,8 @@ public class Copy_2_of_MainActivity extends FragmentActivity {
 				timeTextView.setVisibility(View.INVISIBLE);
 
 				Constants.BAR_LRC_IS_OPEN = false;
-				DataUtil.save(Copy_2_of_MainActivity.this, Constants.BAR_LRC_IS_OPEN_KEY,
+				DataUtil.save(Copy_2_of_MainActivity.this,
+						Constants.BAR_LRC_IS_OPEN_KEY,
 						Constants.BAR_LRC_IS_OPEN);
 			}
 		});

@@ -318,7 +318,7 @@ public class KscLyricsParser {
 				.getEndTime()) {
 			return lyricsLineTreeMap.size() - 1;
 		}
-		return -1;
+		return 0;
 	}
 
 	/**
@@ -363,6 +363,47 @@ public class KscLyricsParser {
 			}
 		}
 		return 0;
+	}
+
+	/**
+	 * 
+	 * @param lyricsLineNum
+	 * @param msec
+	 * @param height
+	 *            上下移动的总长度
+	 * @return 需要移动的距离
+	 */
+	public float getoffsetYFromCurPlayingTime(int lyricsLineNum, int msec,
+			float height) {
+		if (lyricsLineNum == -1)
+			return 0;
+		KscLyricsLineInfo lyrLine = lyricsLineTreeMap.get(lyricsLineNum);
+		int elapseTime = lyrLine.getStartTime();
+		int startTime = lyrLine.getStartTime();
+		int endTime = lyrLine.getEndTime();
+		for (int i = 0; i < lyrLine.getLyricsWords().length; i++) {
+			elapseTime += lyrLine.wordsDisInterval[i];
+			if (msec < elapseTime) {
+				int time = lyrLine.wordsDisInterval[i] - (elapseTime - msec);
+				return height / (endTime - startTime) * time;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取当前所在行歌词的间隔时间长度
+	 * 
+	 * @param lyricsLineNum
+	 * @return
+	 */
+	public int getOffsetYTimeFromCurPlayingTime(int lyricsLineNum) {
+		if (lyricsLineNum == -1)
+			return 0;
+		KscLyricsLineInfo lyrLine = lyricsLineTreeMap.get(lyricsLineNum);
+		int startTime = lyrLine.getStartTime();
+		int endTime = lyrLine.getEndTime();
+		return (endTime - startTime);
 	}
 
 	public TreeMap<Integer, KscLyricsLineInfo> getLyricsLineTreeMap() {
