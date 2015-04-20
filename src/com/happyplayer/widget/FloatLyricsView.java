@@ -42,7 +42,7 @@ public class FloatLyricsView extends View implements Observer {
 	/**
 	 * 显示默认歌词文字的大小值
 	 */
-	private int SIZEWORDDEF = 40;
+	private int SIZEWORDDEF = 35;
 
 	/**
 	 * 歌词每行的间隔
@@ -80,6 +80,9 @@ public class FloatLyricsView extends View implements Observer {
 	private float lineLyricsHLWidth = 0;
 
 	private Context context;
+
+	/** 高亮歌词当前的其实x轴绘制坐标 **/
+	private float highLightLrcMoveX;
 
 	public FloatLyricsView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -123,6 +126,8 @@ public class FloatLyricsView extends View implements Observer {
 	@Override
 	public void draw(Canvas canvas) {
 
+		// 打开该页面时，当前播放器是否是正在暂停
+		// 如果是暂停则要重新设置该页面的歌词
 		int index = Constants.DEF_DES_COLOR_INDEX;
 
 		paint.setColor(Constants.DESLRCNOREADCOLOR[index]);
@@ -177,13 +182,14 @@ public class FloatLyricsView extends View implements Observer {
 							lyricsLineNum + 2).getLineLyrics();
 
 					float lyricsRightWidth = paint.measureText(lyricsRight);
-
-					drawBackground(canvas, lyricsRight, getWidth()
-							- lyricsRightWidth - 10,
+					float textRightX = getWidth() - lyricsRightWidth - 10;
+					// 如果计算出的textX为负数，将textX置为0(实现：如果歌词宽大于view宽，则居左显示，否则居中显示)
+					textRightX = Math.max(textRightX, 10);
+					drawBackground(canvas, lyricsRight, textRightX,
 							(SIZEWORDDEF + INTERVAL) * 2);
 
-					canvas.drawText(lyricsRight, getWidth() - lyricsRightWidth
-							- 10, (SIZEWORDDEF + INTERVAL) * 2, paint);
+					canvas.drawText(lyricsRight, textRightX,
+							(SIZEWORDDEF + INTERVAL) * 2, paint);
 				}
 			} else {
 				if (lyricsLineNum % 2 == 0) {
@@ -192,27 +198,21 @@ public class FloatLyricsView extends View implements Observer {
 								lyricsLineNum + 1).getLineLyrics();
 
 						float lyricsRightWidth = paint.measureText(lyricsRight);
-
-						drawBackground(canvas, lyricsRight, getWidth()
-								- lyricsRightWidth - 10,
+						float textRightX = getWidth() - lyricsRightWidth - 10;
+						// 如果计算出的textX为负数，将textX置为0(实现：如果歌词宽大于view宽，则居左显示，否则居中显示)
+						textRightX = Math.max(textRightX, 10);
+						drawBackground(canvas, lyricsRight, textRightX,
 								(SIZEWORDDEF + INTERVAL) * 2);
 
-						canvas.drawText(lyricsRight, getWidth()
-								- lyricsRightWidth - 10,
+						canvas.drawText(lyricsRight, textRightX,
 								(SIZEWORDDEF + INTERVAL) * 2, paint);
 					}
 
 					KscLyricsLineInfo kscLyricsLineInfo = lyricsLineTreeMap
 							.get(lyricsLineNum);
-
 					// 整行歌词
 					String lineLyrics = kscLyricsLineInfo.getLineLyrics();
-
-					drawBackground(canvas, lineLyrics, 10, SIZEWORDDEF
-							+ INTERVAL);
-					// 画当前歌词
-					canvas.drawText(lineLyrics, 10, SIZEWORDDEF + INTERVAL,
-							paint);
+					float textWidth = paint.measureText(lineLyrics);// 用画笔测量歌词的宽度
 
 					if (lyricsWordIndex != -1) {
 
@@ -241,23 +241,49 @@ public class FloatLyricsView extends View implements Observer {
 								* lyricsWordHLEDTime;
 						lineLyricsHLWidth = lyricsBeforeWordWidth + len;
 					} else {
-
 						// 整行歌词
-						lineLyricsHLWidth = paint.measureText(lineLyrics);
+						lineLyricsHLWidth = textWidth;
 					}
+
+					// save和restore是为了剪切操作不影响画布的其它元素
+					canvas.save();
+
+					float textX = 0;
+					if (textWidth > getWidth()) {
+						if (lineLyricsHLWidth >= getWidth() / 2) {
+							if ((textWidth - lineLyricsHLWidth) >= getWidth() / 2) {
+								highLightLrcMoveX = (getWidth() / 2 - lineLyricsHLWidth);
+							} else {
+								highLightLrcMoveX = getWidth() - textWidth - 10;
+							}
+						} else {
+							highLightLrcMoveX = 10;
+						}
+						// 如果歌词宽度大于view的宽，则需要动态设置歌词的起始x坐标，以实现水平滚动
+						textX = highLightLrcMoveX;
+					} else {
+						// 如果歌词宽度小于view的宽
+						textX = 10;
+					}
+
+					drawBackground(canvas, lineLyrics, textX, SIZEWORDDEF
+							+ INTERVAL);
+					// 画当前歌词
+					canvas.drawText(lineLyrics, textX, SIZEWORDDEF + INTERVAL,
+							paint);
 
 					FontMetrics fm = paint.getFontMetrics();
 					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
-					canvas.clipRect(10, INTERVAL, 10 + lineLyricsHLWidth,
+					canvas.clipRect(textX, INTERVAL, textX + lineLyricsHLWidth,
 							SIZEWORDDEF + INTERVAL + height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
-					drawBackground(canvas, lineLyrics, 10, SIZEWORDDEF
+					drawBackground(canvas, lineLyrics, textX, SIZEWORDDEF
 							+ INTERVAL);
 
-					canvas.drawText(lineLyrics, 10, SIZEWORDDEF + INTERVAL,
+					canvas.drawText(lineLyrics, textX, SIZEWORDDEF + INTERVAL,
 							paintHL);
-
+					canvas.restore();
 				} else {
 
 					// 画之前的歌词
@@ -278,13 +304,6 @@ public class FloatLyricsView extends View implements Observer {
 					String lineLyrics = kscLyricsLineInfo.getLineLyrics();
 					float lyricsRightWidth = paint.measureText(lineLyrics);
 
-					drawBackground(canvas, lineLyrics, getWidth()
-							- lyricsRightWidth - 10,
-							(SIZEWORDDEF + INTERVAL) * 2);
-					// 画当前歌词
-					canvas.drawText(lineLyrics, getWidth() - lyricsRightWidth
-							- 10, (SIZEWORDDEF + INTERVAL) * 2, paint);
-
 					if (lyricsWordIndex != -1) {
 						String lyricsWords[] = kscLyricsLineInfo
 								.getLyricsWords();
@@ -311,24 +330,49 @@ public class FloatLyricsView extends View implements Observer {
 								* lyricsWordHLEDTime;
 						lineLyricsHLWidth = lyricsBeforeWordWidth + len;
 					} else {
-
 						// 整行歌词
-						lineLyricsHLWidth = paint.measureText(lineLyrics);
+						lineLyricsHLWidth = lyricsRightWidth;
 					}
+
+					// save和restore是为了剪切操作不影响画布的其它元素
+					canvas.save();
+
+					float textX = 0;
+					if (lyricsRightWidth > getWidth()) {
+						if (lineLyricsHLWidth >= getWidth() / 2) {
+							if ((lyricsRightWidth - lineLyricsHLWidth) >= getWidth() / 2) {
+								highLightLrcMoveX = (getWidth() / 2 - lineLyricsHLWidth);
+							} else {
+								highLightLrcMoveX = getWidth()
+										- lyricsRightWidth - 10;
+							}
+						} else {
+							highLightLrcMoveX = 10;
+						}
+						// 如果歌词宽度大于view的宽，则需要动态设置歌词的起始x坐标，以实现水平滚动
+						textX = highLightLrcMoveX;
+					} else {
+						// 如果歌词宽度小于view的宽
+						textX = getWidth() - lyricsRightWidth - 10;
+					}
+
+					drawBackground(canvas, lineLyrics, textX,
+							(SIZEWORDDEF + INTERVAL) * 2);
+					// 画当前歌词
+					canvas.drawText(lineLyrics, textX,
+							(SIZEWORDDEF + INTERVAL) * 2, paint);
 
 					FontMetrics fm = paint.getFontMetrics();
 					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
-					canvas.clipRect(getWidth() - lyricsRightWidth - 10,
-							(SIZEWORDDEF + INTERVAL) * 2 + height,
-							getWidth() - lyricsRightWidth - 10
-									+ lineLyricsHLWidth, height);
+					canvas.clipRect(textX, (SIZEWORDDEF + INTERVAL) * 2
+							+ height, textX + lineLyricsHLWidth, height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
-					drawBackground(canvas, lineLyrics, getWidth()
-							- lyricsRightWidth - 10,
+					drawBackground(canvas, lineLyrics, textX,
 							(SIZEWORDDEF + INTERVAL) * 2);
-					canvas.drawText(lineLyrics, getWidth() - lyricsRightWidth
-							- 10, (SIZEWORDDEF + INTERVAL) * 2, paintHL);
+					canvas.drawText(lineLyrics, textX,
+							(SIZEWORDDEF + INTERVAL) * 2, paintHL);
+					canvas.restore();
 				}
 			}
 		}
@@ -395,9 +439,12 @@ public class FloatLyricsView extends View implements Observer {
 	 * @param playProgress
 	 */
 	public void showLrc(int playProgress) {
-
-		lyricsLineNum = kscLyricsParser
+		int newLyricsLineNum = kscLyricsParser
 				.getLineNumberFromCurPlayingTime(playProgress);
+		if (newLyricsLineNum != lyricsLineNum) {
+			lyricsLineNum = newLyricsLineNum;
+			highLightLrcMoveX = 0;
+		}
 		lyricsWordIndex = kscLyricsParser.getDisWordsIndexFromCurPlayingTime(
 				lyricsLineNum, playProgress);
 
@@ -411,6 +458,7 @@ public class FloatLyricsView extends View implements Observer {
 	 * 初始化数据
 	 */
 	public void init() {
+		highLightLrcMoveX = 0;
 		blLrc = false;
 		lyricsLineNum = -1;
 		lyricsWordIndex = -1;

@@ -4,9 +4,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.TreeMap;
 
-import android.animation.ValueAnimator;
-import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -168,7 +165,6 @@ public class KscManyLineLyricsView extends View implements Observer {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		// 由于slidingmenu有些奇怪，所以在这里要先判断
 		// 打开该页面时，当前播放器是否是正在暂停
 		// 如果是暂停则要重新设置该页面的歌词
 
@@ -217,10 +213,81 @@ public class KscManyLineLyricsView extends View implements Observer {
 
 			// 画出来的第一行歌词的y坐标
 			float rowY = getHeight() / 2 + minRaw * (SIZEWORDDEF + INTERVAL);
-			float mrowY = 0;
 			for (int i = minRaw; i <= maxRaw; i++) {
 				if (i == lyricsLineNum) {
-					mrowY = rowY;
+					// 画高亮歌词行
+					// 因为有缩放效果，有需要动态设置歌词的字体大小
+					float textSize = SIZEWORDDEF + (SIZEWORD - SIZEWORDDEF)
+							* mCurFraction;
+					paintHL.setTextSize(textSize);
+					paintHLED.setTextSize(textSize);
+
+					KscLyricsLineInfo kscLyricsLineInfo = lyricsLineTreeMap
+							.get(lyricsLineNum);
+					// 获取到高亮歌词
+					String text = kscLyricsLineInfo.getLineLyrics();
+					float textWidth = paintHLED.measureText(text);// 用画笔测量歌词的宽度
+
+					if (lyricsWordIndex == -1) {
+						lineLyricsHLWidth = textWidth;
+					} else {
+						String lyricsWords[] = kscLyricsLineInfo
+								.getLyricsWords();
+						int wordsDisInterval[] = kscLyricsLineInfo
+								.getWordsDisInterval();
+						// 当前歌词之前的歌词
+						String lyricsBeforeWord = "";
+						for (int j = 0; j < lyricsWordIndex; j++) {
+							lyricsBeforeWord += lyricsWords[j];
+						}
+						// 当前歌词
+						String lyricsNowWord = lyricsWords[lyricsWordIndex]
+								.trim();// 去掉空格
+
+						// 当前歌词之前的歌词长度
+						float lyricsBeforeWordWidth = paintHL
+								.measureText(lyricsBeforeWord);
+
+						// 当前歌词长度
+						float lyricsNowWordWidth = paintHL
+								.measureText(lyricsNowWord);
+
+						float len = lyricsNowWordWidth
+								/ wordsDisInterval[lyricsWordIndex]
+								* lyricsWordHLEDTime;
+						lineLyricsHLWidth = lyricsBeforeWordWidth + len;
+					}
+
+					// save和restore是为了剪切操作不影响画布的其它元素
+					canvas.save();
+
+					float textX = 0;
+					if (textWidth > getWidth()) {
+						if (lineLyricsHLWidth >= getWidth() / 2) {
+							if ((textWidth - lineLyricsHLWidth) >= getWidth() / 2) {
+								highLightLrcMoveX = (getWidth() / 2 - lineLyricsHLWidth);
+							} else {
+								highLightLrcMoveX = getWidth() - textWidth;
+							}
+						}
+						// 如果歌词宽度大于view的宽，则需要动态设置歌词的起始x坐标，以实现水平滚动
+						textX = highLightLrcMoveX;
+					} else {
+						// 如果歌词宽度小于view的宽，则让歌词居中显示
+						textX = (getWidth() - textWidth) / 2;
+					}
+
+					canvas.drawText(text, textX, rowY, paintHL);
+
+					FontMetrics fm = paintHL.getFontMetrics();
+					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
+
+					canvas.clipRect(textX, rowY - height, textX
+							+ lineLyricsHLWidth, rowY + height);
+
+					canvas.drawText(text, textX, rowY, paintHLED);
+
+					canvas.restore();
 				} else {
 					if (i == oldLyricsLineNum) {
 						// 因为有缩放效果，有需要动态设置歌词的字体大小
@@ -252,66 +319,6 @@ public class KscManyLineLyricsView extends View implements Observer {
 				canvas.drawText(timeStr, 0, y - 5, mPaintForTimeLine);
 				canvas.drawLine(0, y, getWidth(), y, mPaintForTimeLine);
 			}
-
-			if (lyricsLineNum != -1) {
-				// 画高亮歌词行
-				// 因为有缩放效果，有需要动态设置歌词的字体大小
-				float textSize = SIZEWORDDEF + (SIZEWORD - SIZEWORDDEF)
-						* mCurFraction;
-				paintHL.setTextSize(textSize);
-				paintHLED.setTextSize(textSize);
-
-				KscLyricsLineInfo kscLyricsLineInfo = lyricsLineTreeMap
-						.get(lyricsLineNum);
-				// 获取到高亮歌词
-				String text = kscLyricsLineInfo.getLineLyrics();
-				float textWidth = paintHLED.measureText(text);// 用画笔测量歌词的宽度
-				float textX = 0;
-				if (textWidth > getWidth()) {
-					// 如果歌词宽度大于view的宽，则需要动态设置歌词的起始x坐标，以实现水平滚动
-					textX = highLightLrcMoveX;
-				} else {
-					// 如果歌词宽度小于view的宽，则让歌词居中显示
-					textX = (getWidth() - textWidth) / 2;
-				}
-				canvas.drawText(text, textX, mrowY, paintHL);
-				if (lyricsWordIndex == -1) {
-					lineLyricsHLWidth = textWidth;
-				} else {
-					String lyricsWords[] = kscLyricsLineInfo.getLyricsWords();
-					int wordsDisInterval[] = kscLyricsLineInfo
-							.getWordsDisInterval();
-					// 当前歌词之前的歌词
-					String lyricsBeforeWord = "";
-					for (int j = 0; j < lyricsWordIndex; j++) {
-						lyricsBeforeWord += lyricsWords[j];
-					}
-					// 当前歌词
-					String lyricsNowWord = lyricsWords[lyricsWordIndex].trim();// 去掉空格
-
-					// 当前歌词之前的歌词长度
-					float lyricsBeforeWordWidth = paintHL
-							.measureText(lyricsBeforeWord);
-
-					// 当前歌词长度
-					float lyricsNowWordWidth = paintHL
-							.measureText(lyricsNowWord);
-
-					float len = lyricsNowWordWidth
-							/ wordsDisInterval[lyricsWordIndex]
-							* lyricsWordHLEDTime;
-					lineLyricsHLWidth = lyricsBeforeWordWidth + len;
-				}
-
-				FontMetrics fm = paintHL.getFontMetrics();
-				int height = (int) Math.ceil(fm.descent - fm.top) + 2;
-
-				canvas.clipRect(textX, mrowY - height, textX
-						+ lineLyricsHLWidth, mrowY + height);
-
-				canvas.drawText(text, textX, mrowY, paintHLED);
-			}
-
 		}
 	}
 
@@ -369,20 +376,20 @@ public class KscManyLineLyricsView extends View implements Observer {
 			smoothScrollTo(getScrollX(),
 					(int) (lyricsLineNum * (SIZEWORDDEF + INTERVAL)));
 			// }
-
-			if (lyricsLineNum != -1) {
-				// 如果高亮歌词的宽度大于View的宽，就开启属性动画，让它水平滚动
-				String lineLyrics = lyricsLineTreeMap.get(lyricsLineNum)
-						.getLineLyrics();
-				float textWidth = paintHLED.measureText(lineLyrics);
-				if (textWidth > getWidth()) {
-					stopScrollLrc();
-					// logger.i("水平滚动歌词 ---- " + lineLyrics);
-					long duration = kscLyricsParser
-							.getOffsetYTimeFromCurPlayingTime(lyricsLineNum) / 2;
-					startScrollLrc(getWidth() - textWidth, duration);
-				}
-			}
+			highLightLrcMoveX = 0;
+			// if (lyricsLineNum != -1) {
+			// // 如果高亮歌词的宽度大于View的宽，就开启属性动画，让它水平滚动
+			// String lineLyrics = lyricsLineTreeMap.get(lyricsLineNum)
+			// .getLineLyrics();
+			// float textWidth = paintHLED.measureText(lineLyrics);
+			// if (textWidth > getWidth()) {
+			// stopScrollLrc();
+			// // logger.i("水平滚动歌词 ---- " + lineLyrics);
+			// long duration = kscLyricsParser
+			// .getOffsetYTimeFromCurPlayingTime(lyricsLineNum) / 2;
+			// startScrollLrc(getWidth() - textWidth, duration);
+			// }
+			// }
 		}
 		lyricsWordIndex = kscLyricsParser.getDisWordsIndexFromCurPlayingTime(
 				lyricsLineNum, playProgress);
@@ -393,56 +400,57 @@ public class KscManyLineLyricsView extends View implements Observer {
 		invalidate();
 	}
 
-	/** 控制歌词水平滚动的属性动画 ***/
-	private ValueAnimator mAnimator;
-
-	/**
-	 * 水平滚动歌词
-	 * 
-	 * @param endX
-	 *            歌词第一个字的最终的x坐标
-	 * @param duration
-	 *            滚动的持续时间
-	 */
-	@SuppressLint("NewApi")
-	private void startScrollLrc(float endX, long duration) {
-		if (mAnimator == null) {
-			mAnimator = ValueAnimator.ofFloat(0, endX);
-			mAnimator.addUpdateListener(updateListener);
-		} else {
-			highLightLrcMoveX = 0;
-			mAnimator.cancel();
-			mAnimator.setFloatValues(0, endX);
-		}
-		mAnimator.setDuration(duration);
-		// mAnimator.setStartDelay((long) (duration * 0.3)); // 延迟执行属性动画
-		mAnimator.start();
-	}
-
-	/**
-	 * 停止歌词的滚动
-	 */
-	@SuppressLint("NewApi")
-	private void stopScrollLrc() {
-		if (mAnimator != null) {
-			mAnimator.cancel();
-		}
-		highLightLrcMoveX = 0;
-	}
-
-	/***
-	 * 监听属性动画的改变
-	 */
-	@SuppressLint("NewApi")
-	AnimatorUpdateListener updateListener = new AnimatorUpdateListener() {
-
-		@Override
-		public void onAnimationUpdate(ValueAnimator animation) {
-			highLightLrcMoveX = (Float) animation.getAnimatedValue();
-			// logger.i("highLightLrcMoveX---- " + highLightLrcMoveX);
-			invalidate();
-		}
-	};
+	//
+	// /** 控制歌词水平滚动的属性动画 ***/
+	// private ValueAnimator mAnimator;
+	//
+	// /**
+	// * 水平滚动歌词
+	// *
+	// * @param endX
+	// * 歌词第一个字的最终的x坐标
+	// * @param duration
+	// * 滚动的持续时间
+	// */
+	// @SuppressLint("NewApi")
+	// private void startScrollLrc(float endX, long duration) {
+	// if (mAnimator == null) {
+	// mAnimator = ValueAnimator.ofFloat(0, endX);
+	// mAnimator.addUpdateListener(updateListener);
+	// } else {
+	// highLightLrcMoveX = 0;
+	// mAnimator.cancel();
+	// mAnimator.setFloatValues(0, endX);
+	// }
+	// mAnimator.setDuration(duration);
+	// // mAnimator.setStartDelay((long) (duration * 0.3)); // 延迟执行属性动画
+	// mAnimator.start();
+	// }
+	//
+	// /**
+	// * 停止歌词的滚动
+	// */
+	// @SuppressLint("NewApi")
+	// private void stopScrollLrc() {
+	// if (mAnimator != null) {
+	// mAnimator.cancel();
+	// }
+	// highLightLrcMoveX = 0;
+	// }
+	//
+	// /***
+	// * 监听属性动画的改变
+	// */
+	// @SuppressLint("NewApi")
+	// AnimatorUpdateListener updateListener = new AnimatorUpdateListener() {
+	//
+	// @Override
+	// public void onAnimationUpdate(ValueAnimator animation) {
+	// highLightLrcMoveX = (Float) animation.getAnimatedValue();
+	// // logger.i("highLightLrcMoveX---- " + highLightLrcMoveX);
+	// invalidate();
+	// }
+	// };
 
 	private void smoothScrollTo(int fx, int fy) {
 		int dx = fx - mScroller.getFinalX();
@@ -523,6 +531,7 @@ public class KscManyLineLyricsView extends View implements Observer {
 	 * 初始化数据
 	 */
 	public void init() {
+		highLightLrcMoveX = 0;
 		mCurFraction = 1.0f;
 		oldLyricsLineNum = -1;
 		mTotleDrawRow = 0;
