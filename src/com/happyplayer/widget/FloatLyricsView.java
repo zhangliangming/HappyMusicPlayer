@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.happyplayer.common.Constants;
+import com.happyplayer.logger.MyLogger;
 import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SongInfo;
@@ -40,6 +41,10 @@ public class FloatLyricsView extends View implements Observer {
 	private Paint paintHL;
 
 	/**
+	 * 显示已经缩放歌词文字的大小值
+	 */
+	private int SCALEIZEWORDDEF = 35;
+	/**
 	 * 显示默认歌词文字的大小值
 	 */
 	private int SIZEWORDDEF = 35;
@@ -48,6 +53,10 @@ public class FloatLyricsView extends View implements Observer {
 	 * 歌词每行的间隔
 	 */
 	private int INTERVAL = 20;
+	/**
+	 * 歌词默认每行的间隔
+	 */
+	private int DEFINTERVAL = 20;
 
 	/**
 	 * 歌词解析
@@ -84,6 +93,8 @@ public class FloatLyricsView extends View implements Observer {
 	/** 高亮歌词当前的其实x轴绘制坐标 **/
 	private float highLightLrcMoveX;
 
+	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
+
 	public FloatLyricsView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init(context);
@@ -106,19 +117,16 @@ public class FloatLyricsView extends View implements Observer {
 		paint = new Paint();
 		paint.setDither(true);
 		paint.setAntiAlias(true);
-		paint.setTextSize(SIZEWORDDEF);
 
 		paintBackgruond = new Paint();
 		paintBackgruond.setAlpha(180);
 		paintBackgruond.setColor(Color.BLACK);
 		paintBackgruond.setDither(true);
 		paintBackgruond.setAntiAlias(true);
-		paintBackgruond.setTextSize(SIZEWORDDEF);
 
 		paintHL = new Paint();
 		paintHL.setDither(true);
 		paintHL.setAntiAlias(true);
-		paintHL.setTextSize(SIZEWORDDEF);
 
 		ObserverManage.getObserver().addObserver(this);
 	}
@@ -132,6 +140,18 @@ public class FloatLyricsView extends View implements Observer {
 
 		paint.setColor(Constants.DESLRCNOREADCOLOR[index]);
 		paintHL.setColor(Constants.DESLRCREADEDCOLOR[index]);
+
+		// 设置字体大小
+		int fontSizeScale = Constants.DESLRCFONTSIZE[Constants.DESLRCFONTSIZEINDEX];
+		SCALEIZEWORDDEF = (int) ((float) fontSizeScale / 100 * SIZEWORDDEF);
+		INTERVAL = DEFINTERVAL -(SCALEIZEWORDDEF - SIZEWORDDEF);
+
+		// logger.i("SCALEIZEWORDDEF---->" + SCALEIZEWORDDEF);
+		// logger.i("INTERVAL---->" + INTERVAL);
+
+		paint.setTextSize(SCALEIZEWORDDEF);
+		paintBackgruond.setTextSize(SCALEIZEWORDDEF);
+		paintHL.setTextSize(SCALEIZEWORDDEF);
 
 		int status = MediaManage.getMediaManage(context).getPlayStatus();
 		switch (status) {
@@ -175,8 +195,10 @@ public class FloatLyricsView extends View implements Observer {
 			if (lyricsLineNum == -1) {
 				String lyricsLeft = lyricsLineTreeMap.get(0).getLineLyrics();
 
-				drawBackground(canvas, lyricsLeft, 10, SIZEWORDDEF + INTERVAL);
-				canvas.drawText(lyricsLeft, 10, SIZEWORDDEF + INTERVAL, paint);
+				drawBackground(canvas, lyricsLeft, 10, SCALEIZEWORDDEF
+						+ INTERVAL);
+				canvas.drawText(lyricsLeft, 10, SCALEIZEWORDDEF + INTERVAL,
+						paint);
 				if (lyricsLineNum + 2 < lyricsLineTreeMap.size()) {
 					String lyricsRight = lyricsLineTreeMap.get(
 							lyricsLineNum + 2).getLineLyrics();
@@ -186,10 +208,10 @@ public class FloatLyricsView extends View implements Observer {
 					// 如果计算出的textX为负数，将textX置为0(实现：如果歌词宽大于view宽，则居左显示，否则居中显示)
 					textRightX = Math.max(textRightX, 10);
 					drawBackground(canvas, lyricsRight, textRightX,
-							(SIZEWORDDEF + INTERVAL) * 2);
+							(SCALEIZEWORDDEF + INTERVAL) * 2);
 
 					canvas.drawText(lyricsRight, textRightX,
-							(SIZEWORDDEF + INTERVAL) * 2, paint);
+							(SCALEIZEWORDDEF + INTERVAL) * 2, paint);
 				}
 			} else {
 				if (lyricsLineNum % 2 == 0) {
@@ -202,10 +224,10 @@ public class FloatLyricsView extends View implements Observer {
 						// 如果计算出的textX为负数，将textX置为0(实现：如果歌词宽大于view宽，则居左显示，否则居中显示)
 						textRightX = Math.max(textRightX, 10);
 						drawBackground(canvas, lyricsRight, textRightX,
-								(SIZEWORDDEF + INTERVAL) * 2);
+								(SCALEIZEWORDDEF + INTERVAL) * 2);
 
 						canvas.drawText(lyricsRight, textRightX,
-								(SIZEWORDDEF + INTERVAL) * 2, paint);
+								(SCALEIZEWORDDEF + INTERVAL) * 2, paint);
 					}
 
 					KscLyricsLineInfo kscLyricsLineInfo = lyricsLineTreeMap
@@ -266,23 +288,23 @@ public class FloatLyricsView extends View implements Observer {
 						textX = 10;
 					}
 
-					drawBackground(canvas, lineLyrics, textX, SIZEWORDDEF
+					drawBackground(canvas, lineLyrics, textX, SCALEIZEWORDDEF
 							+ INTERVAL);
 					// 画当前歌词
-					canvas.drawText(lineLyrics, textX, SIZEWORDDEF + INTERVAL,
-							paint);
+					canvas.drawText(lineLyrics, textX, SCALEIZEWORDDEF
+							+ INTERVAL, paint);
 
 					FontMetrics fm = paint.getFontMetrics();
 					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
 					canvas.clipRect(textX, INTERVAL, textX + lineLyricsHLWidth,
-							SIZEWORDDEF + INTERVAL + height);
+							SCALEIZEWORDDEF + INTERVAL + height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
-					drawBackground(canvas, lineLyrics, textX, SIZEWORDDEF
+					drawBackground(canvas, lineLyrics, textX, SCALEIZEWORDDEF
 							+ INTERVAL);
 
-					canvas.drawText(lineLyrics, textX, SIZEWORDDEF + INTERVAL,
-							paintHL);
+					canvas.drawText(lineLyrics, textX, SCALEIZEWORDDEF
+							+ INTERVAL, paintHL);
 					canvas.restore();
 				} else {
 
@@ -291,11 +313,11 @@ public class FloatLyricsView extends View implements Observer {
 						String lyricsLeft = lyricsLineTreeMap.get(
 								lyricsLineNum + 1).getLineLyrics();
 
-						drawBackground(canvas, lyricsLeft, 10, SIZEWORDDEF
+						drawBackground(canvas, lyricsLeft, 10, SCALEIZEWORDDEF
 								+ INTERVAL);
 
-						canvas.drawText(lyricsLeft, 10, SIZEWORDDEF + INTERVAL,
-								paint);
+						canvas.drawText(lyricsLeft, 10, SCALEIZEWORDDEF
+								+ INTERVAL, paint);
 					}
 
 					KscLyricsLineInfo kscLyricsLineInfo = lyricsLineTreeMap
@@ -357,21 +379,21 @@ public class FloatLyricsView extends View implements Observer {
 					}
 
 					drawBackground(canvas, lineLyrics, textX,
-							(SIZEWORDDEF + INTERVAL) * 2);
+							(SCALEIZEWORDDEF + INTERVAL) * 2);
 					// 画当前歌词
 					canvas.drawText(lineLyrics, textX,
-							(SIZEWORDDEF + INTERVAL) * 2, paint);
+							(SCALEIZEWORDDEF + INTERVAL) * 2, paint);
 
 					FontMetrics fm = paint.getFontMetrics();
 					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
-					canvas.clipRect(textX, (SIZEWORDDEF + INTERVAL) * 2
+					canvas.clipRect(textX, (SCALEIZEWORDDEF + INTERVAL) * 2
 							+ height, textX + lineLyricsHLWidth, height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
 					drawBackground(canvas, lineLyrics, textX,
-							(SIZEWORDDEF + INTERVAL) * 2);
+							(SCALEIZEWORDDEF + INTERVAL) * 2);
 					canvas.drawText(lineLyrics, textX,
-							(SIZEWORDDEF + INTERVAL) * 2, paintHL);
+							(SCALEIZEWORDDEF + INTERVAL) * 2, paintHL);
 					canvas.restore();
 				}
 			}
@@ -406,14 +428,6 @@ public class FloatLyricsView extends View implements Observer {
 
 	public void setKscLyricsParser(KscLyricsParser kscLyricsParser) {
 		this.kscLyricsParser = kscLyricsParser;
-	}
-
-	public int getSIZEWORDDEF() {
-		return SIZEWORDDEF;
-	}
-
-	public int getINTERVAL() {
-		return INTERVAL;
 	}
 
 	public boolean getBlLrc() {

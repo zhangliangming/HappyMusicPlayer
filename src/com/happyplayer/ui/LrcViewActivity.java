@@ -155,7 +155,7 @@ public class LrcViewActivity extends Activity implements Observer {
 
 	private RelativeLayout kscTwoLineLyricsViewParent;
 
-	private KscManyLineLyricsView KscManyLineLyricsView;
+	private KscManyLineLyricsView kscManyLineLyricsView;
 	private RelativeLayout kscManyLineLyricsViewParent;
 
 	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
@@ -337,7 +337,7 @@ public class LrcViewActivity extends Activity implements Observer {
 			protected void onPostExecute(Object result) {
 				kscLyricsParser = (KscLyricsParser) result;
 				lyricsLineTreeMap = kscLyricsParser.getLyricsLineTreeMap();
-				KscManyLineLyricsView.init();
+				kscManyLineLyricsView.init((int) songInfo.getDuration());
 				kscTwoLineLyricsView.init();
 				if (lyricsLineTreeMap.size() != 0) {
 					kscTwoLineLyricsView.setKscLyricsParser(kscLyricsParser);
@@ -346,17 +346,17 @@ public class LrcViewActivity extends Activity implements Observer {
 					kscTwoLineLyricsView.setBlLrc(true);
 					kscTwoLineLyricsView.invalidate();
 
-					KscManyLineLyricsView.setKscLyricsParser(kscLyricsParser);
-					KscManyLineLyricsView
+					kscManyLineLyricsView.setKscLyricsParser(kscLyricsParser);
+					kscManyLineLyricsView
 							.setLyricsLineTreeMap(lyricsLineTreeMap);
-					KscManyLineLyricsView.setBlLrc(true);
-					KscManyLineLyricsView.invalidate();
+					kscManyLineLyricsView.setBlLrc(true);
+					kscManyLineLyricsView.invalidate();
 				} else {
 					kscTwoLineLyricsView.setBlLrc(false);
 					kscTwoLineLyricsView.invalidate();
 
-					KscManyLineLyricsView.setBlLrc(false);
-					KscManyLineLyricsView.invalidate();
+					kscManyLineLyricsView.setBlLrc(false);
+					kscManyLineLyricsView.invalidate();
 				}
 			}
 
@@ -555,7 +555,7 @@ public class LrcViewActivity extends Activity implements Observer {
 		});
 
 		kscTwoLineLyricsView = (KscTwoLineMLyricsView) findViewById(R.id.kscTwoLineLyricsView);
-		KscManyLineLyricsView = (KscManyLineLyricsView) findViewById(R.id.kscManyLineLyricsView);
+		kscManyLineLyricsView = (KscManyLineLyricsView) findViewById(R.id.kscManyLineLyricsView);
 
 		listImageButton = (ImageView) findViewById(R.id.playlist_buttom);
 		listImageButton.setOnClickListener(new OnClickListener() {
@@ -587,7 +587,7 @@ public class LrcViewActivity extends Activity implements Observer {
 				lyricCollapse.setVisibility(View.INVISIBLE);
 				lyricExpand.setVisibility(View.VISIBLE);
 
-				KscManyLineLyricsView.setVisibility(View.INVISIBLE);
+				kscManyLineLyricsView.setVisibility(View.INVISIBLE);
 				kscTwoLineLyricsView.setVisibility(View.VISIBLE);
 
 				kscTwoLineLyricsViewParent
@@ -609,7 +609,7 @@ public class LrcViewActivity extends Activity implements Observer {
 				lyricCollapse.setVisibility(View.VISIBLE);
 				lyricExpand.setVisibility(View.INVISIBLE);
 
-				KscManyLineLyricsView.setVisibility(View.VISIBLE);
+				kscManyLineLyricsView.setVisibility(View.VISIBLE);
 				kscTwoLineLyricsView.setVisibility(View.INVISIBLE);
 
 				kscManyLineLyricsViewParent
@@ -627,7 +627,7 @@ public class LrcViewActivity extends Activity implements Observer {
 			lyricCollapse.setVisibility(View.VISIBLE);
 			lyricExpand.setVisibility(View.INVISIBLE);
 
-			KscManyLineLyricsView.setVisibility(View.VISIBLE);
+			kscManyLineLyricsView.setVisibility(View.VISIBLE);
 			kscTwoLineLyricsView.setVisibility(View.INVISIBLE);
 
 			kscManyLineLyricsViewParent
@@ -638,7 +638,7 @@ public class LrcViewActivity extends Activity implements Observer {
 			lyricCollapse.setVisibility(View.INVISIBLE);
 			lyricExpand.setVisibility(View.VISIBLE);
 
-			KscManyLineLyricsView.setVisibility(View.INVISIBLE);
+			kscManyLineLyricsView.setVisibility(View.INVISIBLE);
 			kscTwoLineLyricsView.setVisibility(View.VISIBLE);
 
 			kscTwoLineLyricsViewParent
@@ -989,7 +989,7 @@ public class LrcViewActivity extends Activity implements Observer {
 					flagimageviews[i].setVisibility(View.INVISIBLE);
 			}
 			kscTwoLineLyricsView.invalidate();
-			KscManyLineLyricsView.invalidate();
+			kscManyLineLyricsView.invalidate();
 			DataUtil.save(LrcViewActivity.this, Constants.LRC_COLOR_INDEX_KEY,
 					Constants.LRC_COLOR_INDEX);
 		}
@@ -1010,11 +1010,11 @@ public class LrcViewActivity extends Activity implements Observer {
 			}
 		}
 
-		if (KscManyLineLyricsView.getVisibility() == View.VISIBLE) {
+		if (kscManyLineLyricsView.getVisibility() == View.VISIBLE) {
 			// 判断当前的歌曲是否有歌词
-			boolean blLrc = KscManyLineLyricsView.getBlLrc();
+			boolean blLrc = kscManyLineLyricsView.getBlLrc();
 			if (blLrc) {
-				KscManyLineLyricsView.showLrc(playProgress);
+				kscManyLineLyricsView.showLrc(playProgress);
 			}
 		}
 

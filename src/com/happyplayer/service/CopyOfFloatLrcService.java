@@ -187,8 +187,7 @@ public class CopyOfFloatLrcService extends Service implements Observer {
 		floatLyricsView = (FloatLyricsView) floatView
 				.findViewById(R.id.floatLyricsView);
 
-		floatViewParams.height = floatLyricsView.getSIZEWORDDEF() * 2
-				+ floatLyricsView.getINTERVAL() * 3;
+		floatViewParams.height = 140;
 
 		floatLyricsView.setOnTouchListener(mOnTouchListener);
 
@@ -294,7 +293,7 @@ public class CopyOfFloatLrcService extends Service implements Observer {
 		lrcColorViewParams.height = floatViewParams.height;
 
 		lrcColorView = LayoutInflater.from(context).inflate(
-				R.layout.des_lrc_view, null);
+				R.layout.des_lrc_item_view, null);
 
 		// lrcColorView.setOnTouchListener(new OnTouchListener() {
 		//

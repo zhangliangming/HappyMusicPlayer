@@ -115,6 +115,12 @@ public class DataUtil {
 		 */
 		Constants.LRCTWOORMANY = preferences.getInt(Constants.LRCTWOORMANY_KEY,
 				Constants.LRCTWOORMANY);
+		/**
+		 * 桌面歌词字体大小比例索引
+		 */
+		Constants.DESLRCFONTSIZEINDEX = preferences.getInt(
+				Constants.DESLRCFONTSIZEINDEX_KEY,
+				Constants.DESLRCFONTSIZEINDEX);
 
 	}
 

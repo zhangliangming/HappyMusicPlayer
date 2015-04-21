@@ -1250,6 +1250,9 @@ public class MainActivity extends FragmentActivity implements Observer {
 				popHandler.sendEmptyMessage(0);
 			} else if (songMessage.getType() == SongMessage.DELALLMUSICED) {
 				popHandler.sendEmptyMessage(1);
+			} else if (songMessage.getType() == SongMessage.DESLRCMOVEED) {
+				notificationManager.cancel(1);
+				createNotifiLrcView();
 			}
 		}
 	}

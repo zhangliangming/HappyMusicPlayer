@@ -20,7 +20,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
@@ -185,8 +187,7 @@ public class FloatLrcService extends Service implements Observer {
 		floatLyricsView = (FloatLyricsView) floatView
 				.findViewById(R.id.floatLyricsView);
 
-		floatViewParams.height = floatLyricsView.getSIZEWORDDEF() * 2
-				+ floatLyricsView.getINTERVAL() * 3;
+		floatViewParams.height = 140;
 
 		floatLyricsView.setOnTouchListener(mOnTouchListener);
 
@@ -291,11 +292,95 @@ public class FloatLrcService extends Service implements Observer {
 		lrcColorViewParams.y = 0;
 
 		lrcColorViewParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-		lrcColorViewParams.height = floatViewParams.height;
+		lrcColorViewParams.height = 110;
 
 		lrcColorView = LayoutInflater.from(context).inflate(
-				R.layout.des_lrc_view, null);
+				R.layout.des_lrc_item_view, null);
 
+		ImageButton lycicLock = (ImageButton) lrcColorView
+				.findViewById(R.id.lycic_lock);
+		lycicLock.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				if (Constants.DESLRCMOVE) {
+					Constants.DESLRCMOVE = false;
+				} else {
+					Constants.DESLRCMOVE = true;
+				}
+
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.DESLRCMOVE);
+				ObserverManage.getObserver().setMessage(songMessage);
+
+				new AsyncTaskHandler() {
+
+					@Override
+					protected void onPostExecute(Object result) {
+						Toast.makeText(context, "桌面歌词已锁", Toast.LENGTH_SHORT)
+								.show();
+						SongMessage songMessage = new SongMessage();
+						songMessage.setType(SongMessage.DESLRCMOVEED);
+						ObserverManage.getObserver().setMessage(songMessage);
+					}
+
+					protected Object doInBackground() throws Exception {
+
+						DataUtil.save(context, Constants.DESLRCMOVE_KEY,
+								Constants.DESLRCMOVE);
+						return null;
+					}
+				}.execute();
+			}
+		});
+
+		ImageButton lyricShrink = (ImageButton) lrcColorView
+				.findViewById(R.id.lyric_shrink);
+		lyricShrink.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				EndTime = 4000;
+				Constants.DESLRCFONTSIZEINDEX--;
+				if (Constants.DESLRCFONTSIZEINDEX < 0) {
+					Constants.DESLRCFONTSIZEINDEX = 0;
+				}
+				floatLyricsView.invalidate();
+				
+				new Thread(){
+
+					@Override
+					public void run() {
+						DataUtil.save(context, Constants.DESLRCFONTSIZEINDEX_KEY,
+								Constants.DESLRCFONTSIZEINDEX);
+					}
+					
+				}.start();
+			}
+		});
+		ImageButton lyricScale = (ImageButton) lrcColorView
+				.findViewById(R.id.lyric_scale);
+		lyricScale.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				EndTime = 4000;
+				Constants.DESLRCFONTSIZEINDEX++;
+				if (Constants.DESLRCFONTSIZEINDEX >= Constants.DESLRCFONTSIZE.length) {
+					Constants.DESLRCFONTSIZEINDEX = Constants.DESLRCFONTSIZE.length - 1;
+				}
+				floatLyricsView.invalidate();
+				new Thread(){
+
+					@Override
+					public void run() {
+						DataUtil.save(context, Constants.DESLRCFONTSIZEINDEX_KEY,
+								Constants.DESLRCFONTSIZEINDEX);
+					}
+					
+				}.start();
+			}
+		});
 		// lrcColorView.setOnTouchListener(new OnTouchListener() {
 		//
 		// @Override
@@ -317,7 +402,7 @@ public class FloatLrcService extends Service implements Observer {
 		// }
 		// });
 
-		int length = Constants.DESLRCNOREADCOLOR.length;
+		int length = Constants.DESLRCCOLORS.length;
 
 		imageviews = new ImageView[length];
 		flagimageviews = new ImageView[length];
@@ -328,37 +413,38 @@ public class FloatLrcService extends Service implements Observer {
 				.findViewById(R.id.select_flag0);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCCOLORS[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel1);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag1);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCCOLORS[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel2);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag2);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCCOLORS[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel3);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag3);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCCOLORS[i++]);
 		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel4);
 		flagimageviews[i] = (ImageView) lrcColorView
 				.findViewById(R.id.select_flag4);
 		flagimageviews[i].setVisibility(View.INVISIBLE);
 		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
-		imageviews[i] = (ImageView) lrcColorView.findViewById(R.id.colorpanel5);
-		flagimageviews[i] = (ImageView) lrcColorView
-				.findViewById(R.id.select_flag5);
-		flagimageviews[i].setVisibility(View.INVISIBLE);
-		imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
-		imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
+		imageviews[i].setBackgroundColor(Constants.DESLRCCOLORS[i++]);
+		// imageviews[i] = (ImageView)
+		// lrcColorView.findViewById(R.id.colorpanel5);
+		// flagimageviews[i] = (ImageView) lrcColorView
+		// .findViewById(R.id.select_flag5);
+		// flagimageviews[i].setVisibility(View.INVISIBLE);
+		// imageviews[i].setOnClickListener(new MyImageViewOnClickListener());
+		// imageviews[i].setBackgroundColor(Constants.DESLRCREADEDCOLOR[i++]);
 
 		flagimageviews[Constants.DEF_DES_COLOR_INDEX]
 				.setVisibility(View.VISIBLE);
@@ -368,7 +454,7 @@ public class FloatLrcService extends Service implements Observer {
 	private class MyImageViewOnClickListener implements OnClickListener {
 
 		public void onClick(View arg0) {
-			EndTime = 3000;
+			EndTime = 4000;
 			int index = 0;
 			int id = arg0.getId();
 			switch (id) {
@@ -387,9 +473,9 @@ public class FloatLrcService extends Service implements Observer {
 			case R.id.colorpanel4:
 				index = 4;
 				break;
-			case R.id.colorpanel5:
-				index = 5;
-				break;
+			// case R.id.colorpanel5:
+			// index = 5;
+			// break;
 			default:
 				break;
 			}
@@ -402,9 +488,17 @@ public class FloatLrcService extends Service implements Observer {
 			}
 
 			floatLyricsView.invalidate();
+			
+			new Thread(){
 
-			DataUtil.save(context, Constants.DEF_DES_COLOR_INDEX_KEY,
-					Constants.DEF_DES_COLOR_INDEX);
+				@Override
+				public void run() {
+					DataUtil.save(context, Constants.DEF_DES_COLOR_INDEX_KEY,
+							Constants.DEF_DES_COLOR_INDEX);
+				}
+				
+			}.start();
+
 		}
 	}
 
@@ -432,16 +526,16 @@ public class FloatLrcService extends Service implements Observer {
 						+ floatViewParams.height - stateHeight);
 			} else {
 				lrcColorViewParams.y = (int) (location[1]
-						- floatViewParams.height - stateHeight);
+						- lrcColorViewParams.height - stateHeight);
 			}
 			floatLyricRelativeLayout.getBackground().setAlpha(100);
 			wm.addView(lrcColorView, lrcColorViewParams);
 			logger.i("添加lrcColorView------>");
 			if (EndTime < 0) {
-				EndTime = 3000;
+				EndTime = 4000;
 				handler.post(upDateVol);
 			} else {
-				EndTime = 3000;
+				EndTime = 4000;
 			}
 		}
 	}

@@ -128,6 +128,8 @@ public class KscTwoLineMLyricsView extends View implements Observer {
 
 	@Override
 	public void draw(Canvas canvas) {
+		
+		paintHL.setColor(Constants.LRCCOLORS[Constants.LRC_COLOR_INDEX]);
 
 		// 打开该页面时，当前播放器是否是正在暂停
 		// 如果是暂停则要重新设置该页面的歌词
@@ -145,8 +147,6 @@ public class KscTwoLineMLyricsView extends View implements Observer {
 			break;
 		}
 
-		paintHL.setColor(Constants.LRCCOLORS[Constants.LRC_COLOR_INDEX]);
-		// paintHL.setColor(Color.rgb(250, 218, 131));
 		if (!blLrc) {
 			String tip = "乐乐音乐，传播好的音乐";
 			float tipTextWidth = paint.measureText(tip);

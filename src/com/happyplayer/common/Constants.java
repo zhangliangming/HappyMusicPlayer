@@ -103,17 +103,15 @@ public class Constants {
 	/**
 	 * 未读歌词颜色
 	 */
-	public static int DESLRCNOREADCOLOR[] = { Color.rgb(255, 255, 255),
-			Color.rgb(1, 143, 204), Color.rgb(119, 185, 242),
-			Color.rgb(60, 207, 211), Color.rgb(173, 73, 201),
-			Color.rgb(47, 147, 0) };
+	public static int DESLRCNOREADCOLOR[] = { Color.rgb(150, 209, 254),
+			Color.rgb(214, 142, 237), Color.rgb(214, 215, 214),
+			Color.rgb(233, 74, 69), Color.rgb(102, 194, 88) };
 	/**
 	 * 已读歌词颜色
 	 */
-	public static int DESLRCREADEDCOLOR[] = { Color.rgb(255, 255, 1),
-			Color.rgb(95, 240, 253), Color.rgb(209, 107, 213),
-			Color.rgb(255, 160, 0), Color.rgb(255, 83, 144),
-			Color.rgb(185, 255, 11) };
+	public static int DESLRCREADEDCOLOR[] = { Color.rgb(229, 146, 230),
+			Color.rgb(248, 246, 151), Color.rgb(133, 208, 255),
+			Color.rgb(255, 193, 120), Color.rgb(244, 239, 115) };
 	/***
 	 * 桌面歌词颜色
 	 */
@@ -121,17 +119,34 @@ public class Constants {
 	public static int DEF_DES_COLOR_INDEX = 0;
 
 	/**
+	 * 桌面歌词颜色
+	 */
+	public static int DESLRCCOLORS[] = { Color.rgb(86, 168, 240),
+			Color.rgb(170, 29, 216), Color.rgb(207, 208, 207),
+			Color.rgb(213, 4, 0), Color.rgb(63, 179, 46) };
+	/**
+	 * 桌面歌词字体大小比例
+	 */
+	public static int DESLRCFONTSIZE[] = { 100, 110, 120, 130, 140, 150 };
+	/**
+	 * 桌面歌词字体大小比例索引
+	 */
+	public static String DESLRCFONTSIZEINDEX_KEY = "DESLRCFONTSIZEINDEX_KEY";
+	public static int DESLRCFONTSIZEINDEX = 0;
+
+	/**
 	 * 歌词颜色
 	 */
 	public static String LRC_COLOR_INDEX_KEY = "LRC_COLOR_INDEX_KEY";
 	public static int LRC_COLOR_INDEX = 0;
+
 	/**
 	 * 歌词颜色
 	 */
-	public static int LRCCOLORS[] = { Color.rgb(252, 255, 21),
-			Color.rgb(255, 101, 101), Color.rgb(110, 232, 77),
-			Color.rgb(236, 85, 203), Color.rgb(148, 83, 237),
-			Color.rgb(255, 127, 39) };
+	public static int LRCCOLORS[] = { Color.rgb(110, 232, 77),
+			Color.rgb(255, 101, 101), Color.rgb(255, 255, 21),
+			Color.rgb(255, 161, 68), Color.rgb(60, 201, 255),
+			Color.rgb(204, 88, 242) };
 
 	/**
 	 * 主题颜色面板索引
