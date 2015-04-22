@@ -318,7 +318,7 @@ public class KscLyricsParser {
 				.getEndTime()) {
 			return lyricsLineTreeMap.size() - 1;
 		}
-		return 0;
+		return -1;
 	}
 
 	/**
@@ -363,6 +363,41 @@ public class KscLyricsParser {
 			}
 		}
 		return 0;
+	}
+
+	/**
+	 * 获取当前上下移动的距离
+	 * 
+	 * @param lyricsLineNum
+	 *            当前 歌词行
+	 * @param msec
+	 *            当前播放的进度
+	 * @param sy
+	 *            要上下移动的总距离
+	 * @return 要上下移动的距离
+	 */
+	public float getOffsetDYFromCurPlayingTime(int lyricsLineNum, int msec,
+			int sy) {
+		if (lyricsLineNum == -1)
+			return sy;
+		KscLyricsLineInfo lyrLine = lyricsLineTreeMap.get(lyricsLineNum);
+		int elapseTime = lyrLine.getStartTime();
+		int endTime = lyrLine.getEndTime();
+		// 以整行歌词的1/4时间 作为上下移动的时间
+		int dTime = (endTime - elapseTime) / 4;
+		if (msec < elapseTime + dTime) {
+			float dy = (float) sy / dTime;
+			return dy * (dTime - (elapseTime + dTime - msec));
+		}
+		// if (lyrLine.getLyricsWords().length != 0) {
+		// int dTime = lyrLine.wordsDisInterval[0];
+		// float dy = (float) sy / dTime;
+		// if (msec < elapseTime + dTime) {
+		// return dy * (dTime - (elapseTime + dTime - msec));
+		// }
+		// }
+
+		return sy;
 	}
 
 	/**
