@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetrics;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.happyplayer.common.Constants;
@@ -18,6 +19,7 @@ import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
+import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.util.KscLyricsParser;
 
@@ -186,20 +188,20 @@ public class KscManyLineLyricsView extends View implements Observer {
 
 		// 打开该页面时，当前播放器是否是正在暂停
 		// 如果是暂停则要重新设置该页面的歌词
-
-		int status = MediaManage.getMediaManage(context).getPlayStatus();
-		switch (status) {
-		case MediaManage.STOP:
-			SongInfo tempSongInfo = MediaManage.getMediaManage(context)
-					.getPlaySongInfo();
-			if (blLrc && tempSongInfo != null) {
-				showLrc((int) tempSongInfo.getPlayProgress());
+		if (!blScroll) {
+			int status = MediaManage.getMediaManage(context).getPlayStatus();
+			switch (status) {
+			case MediaManage.STOP:
+				SongInfo tempSongInfo = MediaManage.getMediaManage(context)
+						.getPlaySongInfo();
+				if (blLrc && tempSongInfo != null) {
+					showLrc((int) tempSongInfo.getPlayProgress());
+				}
+				break;
+			case MediaManage.PLAYING:
+				break;
 			}
-			break;
-		case MediaManage.PLAYING:
-			break;
 		}
-
 		if (!blLrc) {
 			String tip = "乐乐音乐，传播好的音乐";
 			float textWidth = paint.measureText(tip);// 用画笔测量歌词的宽度
@@ -394,7 +396,9 @@ public class KscManyLineLyricsView extends View implements Observer {
 	float oldOffsetY = 0;
 
 	public void showLrc(int playProgress) {
-		this.progress = playProgress;
+		if (!blScroll) {
+			this.progress = playProgress;
+		}
 
 		// 往上下移动的总距离
 		int sy = (SIZEWORDDEF + INTERVAL);
@@ -402,7 +406,20 @@ public class KscManyLineLyricsView extends View implements Observer {
 		int newLyricsLineNum = kscLyricsParser
 				.getLineNumberFromCurPlayingTime(playProgress);
 		if (newLyricsLineNum != lyricsLineNum) {
-			oldLyricsLineNum = lyricsLineNum;
+			if (newLyricsLineNum > lyricsLineNum) {
+				if (!blScroll) {
+					oldLyricsLineNum = newLyricsLineNum - 1;
+				} else {
+					oldLyricsLineNum = newLyricsLineNum + 1;
+				}
+			} else {
+				if (!blScroll) {
+					oldLyricsLineNum = newLyricsLineNum + 1;
+				} else {
+					oldLyricsLineNum = newLyricsLineNum - 1;
+				}
+			}
+			// oldLyricsLineNum = lyricsLineNum;
 			lyricsLineNum = newLyricsLineNum;
 			highLightLrcMoveX = 0;
 			oldOffsetY = getHeight() / 2 - (SIZEWORDDEF + INTERVAL)
@@ -421,8 +438,55 @@ public class KscManyLineLyricsView extends View implements Observer {
 		if (lyricsLineNum != -1) {
 			mCurFraction = dy / sy;
 			offsetY = oldOffsetY - dy;
+		} else {
+			offsetY = getHeight() / 2 + (SIZEWORDDEF + INTERVAL);
 		}
-		invalidate();
+		if (!blScroll) {
+			invalidate();
+		}
+	}
+
+	/* *
+	 * 滑动事件
+	 */
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		float tt = event.getY();
+		if (!blLrc) {
+			return super.onTouchEvent(event);
+		}
+		switch (event.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			blScroll = true;
+			mIsDrawTimeLine = true;
+			break;
+		case MotionEvent.ACTION_MOVE:
+			touchY = tt - touchY;
+			progress = (int) (progress - touchY * 100);
+			if (progress < 0) {
+				progress = 0;
+			}
+			if (progress > scrollMaxYProgress) {
+				progress = scrollMaxYProgress;
+			}
+
+			showLrc(progress);
+			invalidate();
+			break;
+		case MotionEvent.ACTION_UP:
+			blScroll = false;
+			mIsDrawTimeLine = false;
+			invalidate();
+
+			SongMessage songMessage = new SongMessage();
+			songMessage.setType(SongMessage.SEEKTO);
+			songMessage.setProgress(progress);
+			ObserverManage.getObserver().setMessage(songMessage);
+
+			break;
+		}
+		touchY = tt;
+		return true;
 	}
 
 	/**
