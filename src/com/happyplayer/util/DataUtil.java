@@ -122,6 +122,12 @@ public class DataUtil {
 				Constants.DESLRCFONTSIZEINDEX_KEY,
 				Constants.DESLRCFONTSIZEINDEX);
 
+		/**
+		 * 歌词字体大小比例索引
+		 */
+		Constants.LRCFONTSIZE = preferences.getInt(Constants.LRCFONTSIZE_KEY,
+				Constants.LRCFONTSIZE);
+
 	}
 
 	/**

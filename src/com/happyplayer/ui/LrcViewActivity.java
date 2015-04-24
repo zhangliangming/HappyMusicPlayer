@@ -5,23 +5,22 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.TreeMap;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
@@ -48,6 +47,7 @@ import com.happyplayer.util.KscLyricsParser;
 import com.happyplayer.util.MediaUtils;
 import com.happyplayer.widget.HBaseSeekBar;
 import com.happyplayer.widget.KscManyLineLyricsView;
+import com.happyplayer.widget.KscManyLineLyricsView.OnLrcClickListener;
 import com.happyplayer.widget.KscTwoLineMLyricsView;
 
 public class LrcViewActivity extends Activity implements Observer {
@@ -157,6 +157,9 @@ public class LrcViewActivity extends Activity implements Observer {
 
 	private KscManyLineLyricsView kscManyLineLyricsView;
 	private RelativeLayout kscManyLineLyricsViewParent;
+
+	private RelativeLayout playSeekbarParent;
+	private RelativeLayout footParent;
 
 	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 
@@ -349,13 +352,17 @@ public class LrcViewActivity extends Activity implements Observer {
 					kscManyLineLyricsView.setKscLyricsParser(kscLyricsParser);
 					kscManyLineLyricsView
 							.setLyricsLineTreeMap(lyricsLineTreeMap);
+
 					kscManyLineLyricsView.setBlLrc(true);
+					kscManyLineLyricsView
+							.setOnLrcClickListener(onLrcClickListener);
 					kscManyLineLyricsView.invalidate();
 				} else {
 					kscTwoLineLyricsView.setBlLrc(false);
 					kscTwoLineLyricsView.invalidate();
 
 					kscManyLineLyricsView.setBlLrc(false);
+					kscManyLineLyricsView.setOnLrcClickListener(null);
 					kscManyLineLyricsView.invalidate();
 				}
 			}
@@ -369,6 +376,7 @@ public class LrcViewActivity extends Activity implements Observer {
 		}.execute();
 	}
 
+	@SuppressLint("CutPasteId")
 	private void init() {
 
 		songProgressTextView = (TextView) findViewById(R.id.songProgress);
@@ -578,6 +586,9 @@ public class LrcViewActivity extends Activity implements Observer {
 
 		kscManyLineLyricsViewParent = (RelativeLayout) findViewById(R.id.kscManyLineLyricsViewParent);
 
+		playSeekbarParent = (RelativeLayout) findViewById(R.id.seekbar);
+		footParent = (RelativeLayout) findViewById(R.id.foot);
+
 		lyricCollapse = (ImageButton) findViewById(R.id.lyricCollapse);
 
 		lyricCollapse.setOnClickListener(new OnClickListener() {
@@ -688,8 +699,8 @@ public class LrcViewActivity extends Activity implements Observer {
 				.getDefaultDisplay().getHeight() / 3 * 2 - 80, true);
 
 		// 实例化一个ColorDrawable颜色为半透明
-		ColorDrawable dw = new ColorDrawable(0xb0000000);
-		mPopupWindow.setBackgroundDrawable(dw);
+		// ColorDrawable dw = new ColorDrawable(0xb0000000);
+		mPopupWindow.setBackgroundDrawable(new BitmapDrawable());
 
 		// 设置popWindow的显示和消失动画
 		// mPopupWindow.setAnimationStyle(R.style.mypopwindow_anim_style);
@@ -838,9 +849,18 @@ public class LrcViewActivity extends Activity implements Observer {
 	// public boolean onKeyDown(int keyCode, KeyEvent event) {
 	// if (keyCode == KeyEvent.KEYCODE_MENU) {
 	// initPopupWindowInstance();
+	// return false;
 	// }
 	// return super.onKeyDown(keyCode, event);
 	// }
+
+	private OnLrcClickListener onLrcClickListener = new OnLrcClickListener() {
+
+		@Override
+		public void onClick() {
+			initPopupWindowInstance();
+		}
+	};
 
 	public void showMenu(View v) {
 		initPopupWindowInstance();
@@ -856,10 +876,10 @@ public class LrcViewActivity extends Activity implements Observer {
 			initDialogPopuptWindow();
 
 			if (EndTime < 0) {
-				EndTime = 3000;
+				EndTime = 5000;
 				mHandler.post(upDateVol);
 			} else {
-				EndTime = 3000;
+				EndTime = 5000;
 			}
 		}
 	}
@@ -887,7 +907,7 @@ public class LrcViewActivity extends Activity implements Observer {
 		imageviews = new ImageView[length];
 		flagimageviews = new ImageView[length];
 		LayoutInflater layoutInflater = LayoutInflater.from(this);
-		View popupWindow = layoutInflater.inflate(R.layout.lrc_color, null);
+		View popupWindow = layoutInflater.inflate(R.layout.lrc_menu, null);
 		int i = 0;
 		imageviews[i] = (ImageView) popupWindow.findViewById(R.id.colorpanel0);
 		flagimageviews[i] = (ImageView) popupWindow
@@ -928,13 +948,114 @@ public class LrcViewActivity extends Activity implements Observer {
 
 		flagimageviews[Constants.LRC_COLOR_INDEX].setVisibility(View.VISIBLE);
 
+		final HBaseSeekBar colorSizeSeekBar = (HBaseSeekBar) popupWindow
+				.findViewById(R.id.colorSizeSeekBar);
+
+		colorSizeSeekBar.setProgress(Constants.LRCFONTSIZE);
+
+		colorSizeSeekBar
+				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+					@Override
+					public void onProgressChanged(SeekBar arg0, int arg1,
+							boolean arg2) {
+						EndTime = 5000;
+						//过快刷新，导致页面闪屏
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						// 拖动条进度改变的时候调用
+						Constants.LRCFONTSIZE = colorSizeSeekBar.getProgress();
+
+						kscManyLineLyricsView.invalidate();
+						kscTwoLineLyricsView.invalidate();
+
+						new Thread() {
+
+							@Override
+							public void run() {
+								DataUtil.save(LrcViewActivity.this,
+										Constants.LRCFONTSIZE_KEY,
+										Constants.LRCFONTSIZE);
+							}
+
+						}.start();
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar arg0) {
+					}
+
+					@Override
+					public void onStopTrackingTouch(SeekBar arg0) {
+					}
+				});
+		ImageButton lyricDecrease = (ImageButton) popupWindow
+				.findViewById(R.id.lyric_decrease);
+
+		lyricDecrease.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				EndTime = 5000;
+				if (Constants.LRCFONTSIZE <= 0) {
+					Constants.LRCFONTSIZE = 0;
+				} else {
+					Constants.LRCFONTSIZE = Constants.LRCFONTSIZE - 10;
+				}
+
+				colorSizeSeekBar.setProgress(Constants.LRCFONTSIZE);
+
+				new Thread() {
+
+					@Override
+					public void run() {
+						DataUtil.save(LrcViewActivity.this,
+								Constants.LRCFONTSIZE_KEY,
+								Constants.LRCFONTSIZE);
+					}
+
+				}.start();
+			}
+		});
+
+		ImageButton lyricIncrease = (ImageButton) popupWindow
+				.findViewById(R.id.lyric_increase);
+		lyricIncrease.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				EndTime = 5000;
+				if (Constants.LRCFONTSIZE >= colorSizeSeekBar.getMax()) {
+					Constants.LRCFONTSIZE = colorSizeSeekBar.getMax();
+				} else {
+					Constants.LRCFONTSIZE = Constants.LRCFONTSIZE + 10;
+				}
+
+				colorSizeSeekBar.setProgress(Constants.LRCFONTSIZE);
+
+				new Thread() {
+
+					@Override
+					public void run() {
+						DataUtil.save(LrcViewActivity.this,
+								Constants.LRCFONTSIZE_KEY,
+								Constants.LRCFONTSIZE);
+					}
+
+				}.start();
+			}
+		});
+
 		// 初始化弹出窗口
-		DisplayMetrics dm = new DisplayMetrics();
-		dm = getResources().getDisplayMetrics();
-		int screenWidth = dm.widthPixels;
+		// DisplayMetrics dm = new DisplayMetrics();
+		// dm = getResources().getDisplayMetrics();
+		// int screenWidth = dm.widthPixels;
 
 		mPopupWindowDialog = new PopupWindow(popupWindow,
-				LayoutParams.FILL_PARENT, screenWidth / 6, true);
+				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
 		// 实例化一个ColorDrawable颜色为半透明
 		ColorDrawable dw = new ColorDrawable(0xb0000000);
 		// 设置SelectPicPopupWindow弹出窗体的背景
@@ -942,12 +1063,57 @@ public class LrcViewActivity extends Activity implements Observer {
 		// mPopupWindowDialog.setFocusable(true);
 		mPopupWindowDialog.setOutsideTouchable(true);
 
-		int[] location = new int[2];
-		kscTwoLineLyricsView.getLocationOnScreen(location);
+		final int[] location = new int[2];
+		kscManyLineLyricsView.getLocationOnScreen(location);
 
-		mPopupWindowDialog.showAtLocation(kscTwoLineLyricsView,
+		mPopupWindowDialog.showAtLocation(kscManyLineLyricsView,
 				Gravity.NO_GRAVITY, location[0], location[1]
-						- mPopupWindowDialog.getHeight());
+						+ kscManyLineLyricsView.getHeight());
+
+		// int left = kscTwoLineLyricsView.getLeft();
+		// int top = location[1] - kscTwoLineLyricsView.getHeight()
+		// - kscTwoLineLyricsView.getHeight() / 4;
+		// int width = left + kscTwoLineLyricsView.getWidth();
+		// int height = top + kscTwoLineLyricsView.getHeight();
+		// kscTwoLineLyricsView.layout(left, top, width, height);
+		// kscTwoLineLyricsView.invalidate();
+
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) kscTwoLineLyricsView
+				.getLayoutParams();
+		params.leftMargin = 0;
+		params.topMargin = location[1] - kscTwoLineLyricsView.getHeight()
+				- kscTwoLineLyricsView.getHeight() / 4;
+		kscTwoLineLyricsView.setLayoutParams(params);
+
+		playSeekbarParent.setVisibility(View.INVISIBLE);
+		footParent.setVisibility(View.INVISIBLE);
+
+		mPopupWindowDialog.setOnDismissListener(new OnDismissListener() {
+
+			@Override
+			public void onDismiss() {
+
+				// int left = kscTwoLineLyricsView.getLeft();
+				// int top = location[1] - kscTwoLineLyricsView.getHeight()
+				// + kscTwoLineLyricsView.getHeight() / 4;
+				// int width = left + kscTwoLineLyricsView.getWidth();
+				// int height = top + kscTwoLineLyricsView.getHeight();
+				// kscTwoLineLyricsView.layout(left, top, width, height);
+				// kscTwoLineLyricsView.invalidate();
+
+				RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) kscTwoLineLyricsView
+						.getLayoutParams();
+				params.leftMargin = 0;
+				params.topMargin = location[1]
+						- kscTwoLineLyricsView.getHeight()
+						+ kscTwoLineLyricsView.getHeight() / 4;
+				kscTwoLineLyricsView.setLayoutParams(params);
+
+				playSeekbarParent.setVisibility(View.VISIBLE);
+				footParent.setVisibility(View.VISIBLE);
+				mPopupWindowDialog = null;
+			}
+		});
 	}
 
 	private class MyImageViewOnClickListener implements OnClickListener {
@@ -956,7 +1122,7 @@ public class LrcViewActivity extends Activity implements Observer {
 
 			// logger.i("颜色面板点击了");
 
-			EndTime = 3000;
+			EndTime = 5000;
 			int index = 0;
 			int id = arg0.getId();
 			switch (id) {

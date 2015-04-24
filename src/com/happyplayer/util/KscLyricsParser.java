@@ -382,20 +382,20 @@ public class KscLyricsParser {
 			return sy;
 		KscLyricsLineInfo lyrLine = lyricsLineTreeMap.get(lyricsLineNum);
 		int elapseTime = lyrLine.getStartTime();
-		int endTime = lyrLine.getEndTime();
-		// 以整行歌词的1/4时间 作为上下移动的时间
-		int dTime = (endTime - elapseTime) / 4;
-		if (msec < elapseTime + dTime) {
-			float dy = (float) sy / dTime;
-			return dy * (dTime - (elapseTime + dTime - msec));
-		}
-		// if (lyrLine.getLyricsWords().length != 0) {
-		// int dTime = lyrLine.wordsDisInterval[0];
-		// float dy = (float) sy / dTime;
+		// int endTime = lyrLine.getEndTime();
+		// // 以整行歌词的1/4时间 作为上下移动的时间
+		// int dTime = (endTime - elapseTime) / 4;
 		// if (msec < elapseTime + dTime) {
+		// float dy = (float) sy / dTime;
 		// return dy * (dTime - (elapseTime + dTime - msec));
 		// }
-		// }
+		if (lyrLine.getLyricsWords().length != 0) {
+			int dTime = lyrLine.wordsDisInterval[0];
+			float dy = (float) sy / dTime;
+			if (msec < elapseTime + dTime) {
+				return dy * (dTime - (elapseTime + dTime - msec));
+			}
+		}
 
 		return sy;
 	}

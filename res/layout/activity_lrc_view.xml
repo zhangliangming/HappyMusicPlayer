@@ -102,18 +102,20 @@
             <RelativeLayout
                 android:id="@+id/kscTwoLineLyricsViewParent"
                 android:layout_width="fill_parent"
-                android:layout_height="175dp"
+                android:layout_height="220dp"
                 android:layout_alignParentBottom="true" >
 
                 <RelativeLayout
+                    android:id="@+id/kscTwoLineLyricsViewPP"
                     android:layout_width="fill_parent"
-                    android:layout_height="@dimen/bottom_player_height"
+                    android:layout_height="fill_parent"
                     android:layout_above="@+id/seekbar" >
 
                     <com.happyplayer.widget.KscTwoLineMLyricsView
                         android:id="@+id/kscTwoLineLyricsView "
                         android:layout_width="fill_parent"
-                        android:layout_height="fill_parent" />
+                        android:layout_height="@dimen/bottom_player_height"
+                        android:layout_marginTop="32dp" />
                 </RelativeLayout>
 
                 <RelativeLayout

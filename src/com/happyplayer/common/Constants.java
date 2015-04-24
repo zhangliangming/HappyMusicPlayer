@@ -128,6 +128,12 @@ public class Constants {
 	 * 桌面歌词字体大小比例
 	 */
 	public static int DESLRCFONTSIZE[] = { 100, 110, 120, 130, 140, 150 };
+	
+	/**
+	 * 歌词字体大小比例
+	 */
+	public static String LRCFONTSIZE_KEY = "LRCFONTSIZE_KEY";
+	public static int LRCFONTSIZE = 0;
 	/**
 	 * 桌面歌词字体大小比例索引
 	 */

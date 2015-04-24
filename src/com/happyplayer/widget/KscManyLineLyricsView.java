@@ -1,7 +1,5 @@
 package com.happyplayer.widget;
 
-import java.util.Observable;
-import java.util.Observer;
 import java.util.TreeMap;
 
 import android.content.Context;
@@ -14,16 +12,14 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.happyplayer.common.Constants;
-import com.happyplayer.logger.MyLogger;
 import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
-import com.happyplayer.model.SkinMessage;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.util.KscLyricsParser;
 
-public class KscManyLineLyricsView extends View implements Observer {
+public class KscManyLineLyricsView extends View {
 	/**
 	 * 是否有歌词
 	 */
@@ -46,7 +42,12 @@ public class KscManyLineLyricsView extends View implements Observer {
 	/**
 	 * 显示默认歌词文字的大小值
 	 */
-	private int SIZEWORDDEF = 30;
+	private int SCALEIZEWORDDEF = 35;
+
+	/**
+	 * 显示默认歌词文字的大小值
+	 */
+	private int SIZEWORDDEF = 35;
 
 	private int SIZEWORD = 40;
 
@@ -95,8 +96,6 @@ public class KscManyLineLyricsView extends View implements Observer {
 
 	/** 控制文字缩放的因子 **/
 	private float mCurFraction = 1.0f;
-
-	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 
 	/** 是否画时间线 **/
 	private boolean mIsDrawTimeLine = false;
@@ -166,18 +165,23 @@ public class KscManyLineLyricsView extends View implements Observer {
 		mPaintForTimeLine = new Paint();
 		mPaintForTimeLine.setDither(true);
 		mPaintForTimeLine.setAntiAlias(true);
-		mPaintForTimeLine.setTextSize(SIZEWORD);
 
 		paintBackgruond = new Paint();
 		paintBackgruond.setAlpha(180);
 		paintBackgruond.setColor(Color.BLACK);
 		paintBackgruond.setDither(true);
 		paintBackgruond.setAntiAlias(true);
-		paintBackgruond.setTextSize(SIZEWORD);
-
-		ObserverManage.getObserver().addObserver(this);
 
 	}
+
+	/**
+	 * 字体大小缩放比例
+	 */
+	private int fontSizeScale = 0;
+	/**
+	 * 字体大小缩放比例
+	 */
+	private int oldFontSizeScale = 0;
 
 	@Override
 	protected void onDraw(Canvas canvas) {
@@ -185,6 +189,14 @@ public class KscManyLineLyricsView extends View implements Observer {
 		paintHLED.setColor(Constants.LRCCOLORS[Constants.LRC_COLOR_INDEX]);
 		mPaintForTimeLine
 				.setColor(Constants.LRCCOLORS[Constants.LRC_COLOR_INDEX]);
+
+		// 设置字体大小
+		fontSizeScale = Constants.LRCFONTSIZE + 100;
+		SCALEIZEWORDDEF = (int) ((float) fontSizeScale / 100 * SIZEWORDDEF);
+		SIZEWORD = SCALEIZEWORDDEF + 10;
+
+		mPaintForTimeLine.setTextSize(SIZEWORD);
+		paintBackgruond.setTextSize(SIZEWORD);
 
 		// 打开该页面时，当前播放器是否是正在暂停
 		// 如果是暂停则要重新设置该页面的歌词
@@ -203,6 +215,8 @@ public class KscManyLineLyricsView extends View implements Observer {
 			}
 		}
 		if (!blLrc) {
+
+			paint.setTextSize(SCALEIZEWORDDEF);
 			String tip = "乐乐音乐，传播好的音乐";
 			float textWidth = paint.measureText(tip);// 用画笔测量歌词的宽度
 			FontMetrics fm = paint.getFontMetrics();
@@ -213,17 +227,17 @@ public class KscManyLineLyricsView extends View implements Observer {
 
 			// 画当前歌词之前的歌词
 			for (int i = lyricsLineNum - 1; i >= 0; i--) {
-				if (offsetY + (SIZEWORDDEF + INTERVAL) * i < (SIZEWORDDEF + INTERVAL)) {
+				if (offsetY + (SCALEIZEWORDDEF + INTERVAL) * i < (SCALEIZEWORDDEF + INTERVAL)) {
 					break;
 				}
 
 				if (i == oldLyricsLineNum) {
 					// 因为有缩放效果，有需要动态设置歌词的字体大小
-					float textSize = SIZEWORD - (SIZEWORD - SIZEWORDDEF)
+					float textSize = SIZEWORD - (SIZEWORD - SCALEIZEWORDDEF)
 							* mCurFraction;
 					paint.setTextSize(textSize);
 				} else {// 画其他的歌词
-					paint.setTextSize(SIZEWORDDEF);
+					paint.setTextSize(SCALEIZEWORDDEF);
 				}
 
 				String text = lyricsLineTreeMap.get(i).getLineLyrics();
@@ -231,23 +245,23 @@ public class KscManyLineLyricsView extends View implements Observer {
 				float textX = (getWidth() - textWidth) / 2;
 				// 如果计算出的textX为负数，将textX置为0(实现：如果歌词宽大于view宽，则居左显示，否则居中显示)
 				textX = Math.max(textX, 10);
-				canvas.drawText(text, textX, offsetY + (SIZEWORDDEF + INTERVAL)
-						* i, paint);
+				canvas.drawText(text, textX, offsetY
+						+ (SCALEIZEWORDDEF + INTERVAL) * i, paint);
 			}
 
 			// 画当前歌词之后的歌词
 			for (int i = lyricsLineNum + 1; i < lyricsLineTreeMap.size(); i++) {
-				if (offsetY + (SIZEWORDDEF + INTERVAL) * i > getHeight()
-						- (SIZEWORDDEF + INTERVAL)) {
+				if (offsetY + (SCALEIZEWORDDEF + INTERVAL) * i > getHeight()
+						- (SCALEIZEWORDDEF + INTERVAL)) {
 					break;
 				}
 				if (i == oldLyricsLineNum) {
 					// 因为有缩放效果，有需要动态设置歌词的字体大小
-					float textSize = SIZEWORD - (SIZEWORD - SIZEWORDDEF)
+					float textSize = SIZEWORD - (SIZEWORD - SCALEIZEWORDDEF)
 							* mCurFraction;
 					paint.setTextSize(textSize);
 				} else {// 画其他的歌词
-					paint.setTextSize(SIZEWORDDEF);
+					paint.setTextSize(SCALEIZEWORDDEF);
 				}
 
 				String text = lyricsLineTreeMap.get(i).getLineLyrics();
@@ -255,14 +269,14 @@ public class KscManyLineLyricsView extends View implements Observer {
 				float textX = (getWidth() - textWidth) / 2;
 				// 如果计算出的textX为负数，将textX置为0(实现：如果歌词宽大于view宽，则居左显示，否则居中显示)
 				textX = Math.max(textX, 10);
-				canvas.drawText(text, textX, offsetY + (SIZEWORDDEF + INTERVAL)
-						* i, paint);
+				canvas.drawText(text, textX, offsetY
+						+ (SCALEIZEWORDDEF + INTERVAL) * i, paint);
 			}
 			// 画当前高亮的歌词行
 			if (lyricsLineNum != -1) {
 
 				// 因为有缩放效果，有需要动态设置歌词的字体大小
-				float textSize = SIZEWORDDEF + (SIZEWORD - SIZEWORDDEF)
+				float textSize = SCALEIZEWORDDEF + (SIZEWORD - SCALEIZEWORDDEF)
 						* mCurFraction;
 				paintHL.setTextSize(textSize);
 				paintHLED.setTextSize(textSize);
@@ -327,18 +341,19 @@ public class KscManyLineLyricsView extends View implements Observer {
 
 				// 画当前歌词
 				canvas.drawText(lineLyrics, textX, offsetY
-						+ (SIZEWORDDEF + INTERVAL) * lyricsLineNum, paintHL);
+						+ (SCALEIZEWORDDEF + INTERVAL) * lyricsLineNum, paintHL);
 				FontMetrics fm = paintHL.getFontMetrics();
 				int height = (int) Math.ceil(fm.descent - fm.top) + 2;
-				canvas.clipRect(textX, offsetY + (SIZEWORDDEF + INTERVAL)
+				canvas.clipRect(textX, offsetY + (SCALEIZEWORDDEF + INTERVAL)
 						* lyricsLineNum - height, textX + lineLyricsHLWidth,
-						offsetY + (SIZEWORDDEF + INTERVAL) * lyricsLineNum
+						offsetY + (SCALEIZEWORDDEF + INTERVAL) * lyricsLineNum
 								+ height);
 				// /////////////////////////////////////////////////////////////////////////////////////////
 
 				// 画当前歌词
 				canvas.drawText(lineLyrics, textX, offsetY
-						+ (SIZEWORDDEF + INTERVAL) * lyricsLineNum, paintHLED);
+						+ (SCALEIZEWORDDEF + INTERVAL) * lyricsLineNum,
+						paintHLED);
 				canvas.restore();
 			}
 
@@ -355,16 +370,6 @@ public class KscManyLineLyricsView extends View implements Observer {
 			canvas.drawLine(0, y, getWidth(), y, mPaintForTimeLine);
 		}
 		super.onDraw(canvas);
-	}
-
-	@Override
-	public void update(Observable arg0, Object data) {
-		if (data instanceof SkinMessage) {
-			SkinMessage msg = (SkinMessage) data;
-			if (msg.type == SkinMessage.COLOR) {
-				invalidate();
-			}
-		}
 	}
 
 	public void setKscLyricsParser(KscLyricsParser kscLyricsParser) {
@@ -401,11 +406,13 @@ public class KscManyLineLyricsView extends View implements Observer {
 		}
 
 		// 往上下移动的总距离
-		int sy = (SIZEWORDDEF + INTERVAL);
+		int sy = (SCALEIZEWORDDEF + INTERVAL);
 
 		int newLyricsLineNum = kscLyricsParser
 				.getLineNumberFromCurPlayingTime(playProgress);
-		if (newLyricsLineNum != lyricsLineNum) {
+		// 字体大小改变时，要更新oldOffsetY的值，确保高亮歌词居中
+		if (newLyricsLineNum != lyricsLineNum
+				|| oldFontSizeScale != fontSizeScale) {
 			if (newLyricsLineNum > lyricsLineNum) {
 				if (!blScroll) {
 					oldLyricsLineNum = newLyricsLineNum - 1;
@@ -419,10 +426,9 @@ public class KscManyLineLyricsView extends View implements Observer {
 					oldLyricsLineNum = newLyricsLineNum - 1;
 				}
 			}
-			// oldLyricsLineNum = lyricsLineNum;
 			lyricsLineNum = newLyricsLineNum;
 			highLightLrcMoveX = 0;
-			oldOffsetY = getHeight() / 2 - (SIZEWORDDEF + INTERVAL)
+			oldOffsetY = getHeight() / 2 - (SCALEIZEWORDDEF + INTERVAL)
 					* lyricsLineNum + sy;
 		}
 		lyricsWordIndex = kscLyricsParser.getDisWordsIndexFromCurPlayingTime(
@@ -439,54 +445,86 @@ public class KscManyLineLyricsView extends View implements Observer {
 			mCurFraction = dy / sy;
 			offsetY = oldOffsetY - dy;
 		} else {
-			offsetY = getHeight() / 2 + (SIZEWORDDEF + INTERVAL);
+			offsetY = getHeight() / 2 + (SCALEIZEWORDDEF + INTERVAL);
 		}
-		if (!blScroll) {
+		if (!blScroll && oldFontSizeScale == fontSizeScale) {
 			invalidate();
 		}
+		if (oldFontSizeScale != fontSizeScale) {
+			oldFontSizeScale = fontSizeScale;
+		}
 	}
+
+	private float startRawX = 0, startRawY = 0;
 
 	/* *
 	 * 滑动事件
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		float tt = event.getY();
 		if (!blLrc) {
 			return super.onTouchEvent(event);
 		}
+		float tt = event.getY();
+		float rawX = event.getRawX();
+		int sumX = (int) (rawX - startRawX);
+		int sumY = (int) (event.getRawY() - startRawY);
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			blScroll = true;
-			mIsDrawTimeLine = true;
+			startRawX = event.getRawX();
+			startRawY = event.getRawY();
+
 			break;
 		case MotionEvent.ACTION_MOVE:
-			touchY = tt - touchY;
-			progress = (int) (progress - touchY * 100);
-			if (progress < 0) {
-				progress = 0;
-			}
-			if (progress > scrollMaxYProgress) {
-				progress = scrollMaxYProgress;
-			}
+			if (sumX < -10 || sumX > 10 || sumY < -10 || sumY > 10) {
 
-			showLrc(progress);
-			invalidate();
+				blScroll = true;
+				mIsDrawTimeLine = true;
+
+				touchY = tt - touchY;
+				progress = (int) (progress - touchY * 100);
+				if (progress < 0) {
+					progress = 0;
+				}
+				if (progress > scrollMaxYProgress) {
+					progress = scrollMaxYProgress;
+				}
+
+				showLrc(progress);
+				invalidate();
+			}
 			break;
 		case MotionEvent.ACTION_UP:
 			blScroll = false;
 			mIsDrawTimeLine = false;
 			invalidate();
+			if (sumX > -10 && sumX < 10 && sumY > -10 && sumY < 10) {
+				if (onLrcClickListener != null) {
+					onLrcClickListener.onClick();
+				}
+			} else {
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.SEEKTO);
+				songMessage.setProgress(progress);
+				ObserverManage.getObserver().setMessage(songMessage);
+			}
 
-			SongMessage songMessage = new SongMessage();
-			songMessage.setType(SongMessage.SEEKTO);
-			songMessage.setProgress(progress);
-			ObserverManage.getObserver().setMessage(songMessage);
-
+			startRawX = 0;
+			startRawY = 0;
 			break;
 		}
 		touchY = tt;
 		return true;
+	}
+
+	private OnLrcClickListener onLrcClickListener;
+
+	public void setOnLrcClickListener(OnLrcClickListener onLrcClickListener) {
+		this.onLrcClickListener = onLrcClickListener;
+	}
+
+	public interface OnLrcClickListener {
+		void onClick();
 	}
 
 	/**
@@ -535,8 +573,9 @@ public class KscManyLineLyricsView extends View implements Observer {
 	 * 初始化数据
 	 */
 	public void init(int scrollMaxYProgressT) {
+		onLrcClickListener = null;
 		mCurFraction = 1.0f;
-		offsetY = getHeight() / 2 + (SIZEWORDDEF + INTERVAL);
+		offsetY = getHeight() / 2 + (SCALEIZEWORDDEF + INTERVAL);
 		oldOffsetY = offsetY;
 		scrollMaxYProgress = scrollMaxYProgressT;
 		highLightLrcMoveX = 0;
@@ -549,6 +588,7 @@ public class KscManyLineLyricsView extends View implements Observer {
 		kscLyricsParser = null;
 		lyricsLineTreeMap = null;
 
+		// 刷新
 		invalidate();
 
 	}

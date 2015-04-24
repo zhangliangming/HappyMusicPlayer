@@ -1,7 +1,5 @@
 package com.happyplayer.widget;
 
-import java.util.Observable;
-import java.util.Observer;
 import java.util.TreeMap;
 
 import android.content.Context;
@@ -13,14 +11,12 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.happyplayer.common.Constants;
-import com.happyplayer.logger.MyLogger;
 import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SongInfo;
-import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.util.KscLyricsParser;
 
-public class FloatLyricsView extends View implements Observer {
+public class FloatLyricsView extends View {
 	/**
 	 * 是否有歌词
 	 */
@@ -93,8 +89,6 @@ public class FloatLyricsView extends View implements Observer {
 	/** 高亮歌词当前的其实x轴绘制坐标 **/
 	private float highLightLrcMoveX;
 
-	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
-
 	public FloatLyricsView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init(context);
@@ -128,7 +122,6 @@ public class FloatLyricsView extends View implements Observer {
 		paintHL.setDither(true);
 		paintHL.setAntiAlias(true);
 
-		ObserverManage.getObserver().addObserver(this);
 	}
 
 	@Override
@@ -144,7 +137,7 @@ public class FloatLyricsView extends View implements Observer {
 		// 设置字体大小
 		int fontSizeScale = Constants.DESLRCFONTSIZE[Constants.DESLRCFONTSIZEINDEX];
 		SCALEIZEWORDDEF = (int) ((float) fontSizeScale / 100 * SIZEWORDDEF);
-		INTERVAL = DEFINTERVAL -(SCALEIZEWORDDEF - SIZEWORDDEF);
+		INTERVAL = DEFINTERVAL - (SCALEIZEWORDDEF - SIZEWORDDEF);
 
 		// logger.i("SCALEIZEWORDDEF---->" + SCALEIZEWORDDEF);
 		// logger.i("INTERVAL---->" + INTERVAL);
@@ -414,16 +407,6 @@ public class FloatLyricsView extends View implements Observer {
 		canvas.drawText(string, x + 1, y, paintBackgruond);
 		canvas.drawText(string, x, y + 1, paintBackgruond);
 		canvas.drawText(string, x, y - 1, paintBackgruond);
-	}
-
-	@Override
-	public void update(Observable arg0, Object data) {
-		// if (data instanceof SkinMessage) {
-		// SkinMessage msg = (SkinMessage) data;
-		// if (msg.type == SkinMessage.COLOR) {
-		// invalidate();
-		// }
-		// }
 	}
 
 	public void setKscLyricsParser(KscLyricsParser kscLyricsParser) {
