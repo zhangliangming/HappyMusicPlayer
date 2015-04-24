@@ -379,8 +379,9 @@ public class FloatLyricsView extends View {
 
 					FontMetrics fm = paint.getFontMetrics();
 					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
-					canvas.clipRect(textX, (SCALEIZEWORDDEF + INTERVAL) * 2
-							+ height, textX + lineLyricsHLWidth, height);
+					canvas.clipRect(textX, SCALEIZEWORDDEF + INTERVAL * 2,
+							textX + lineLyricsHLWidth, SCALEIZEWORDDEF
+									+ INTERVAL * 2 + height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
 					drawBackground(canvas, lineLyrics, textX,

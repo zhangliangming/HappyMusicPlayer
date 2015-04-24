@@ -382,10 +382,8 @@ public class KscTwoLineMLyricsView extends View {
 
 					FontMetrics fm = paint.getFontMetrics();
 					int height = (int) Math.ceil(fm.descent - fm.top) + 2;
-					canvas.clipRect(getWidth() - lyricsRightWidth - 10,
-							SCALEIZEWORDDEF + INTERVAL * 2,
-							getWidth() - lyricsRightWidth - 10
-									+ lineLyricsHLWidth, SCALEIZEWORDDEF
+					canvas.clipRect(textX, SCALEIZEWORDDEF + INTERVAL * 2,
+							textX + lineLyricsHLWidth, SCALEIZEWORDDEF
 									+ INTERVAL * 2 + height);
 					// /////////////////////////////////////////////////////////////////////////////////////////
 
