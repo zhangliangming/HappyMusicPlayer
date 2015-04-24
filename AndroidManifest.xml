@@ -4,6 +4,14 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <!-- 短信权限 -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <!-- 读取电话状态权限 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -81,7 +89,7 @@
             android:name="ShowLockActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
-        </activity>
+        </activity>
         -->
         <service android:name="com.happyplayer.service.MediaPlayerService" >
         </service>

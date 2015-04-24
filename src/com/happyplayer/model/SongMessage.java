@@ -132,6 +132,10 @@ public class SongMessage {
 	 * 桌面歌词移动完成
 	 */
 	public static final int DESLRCMOVEED = 28;
+	/**
+	 * 停止播放
+	 */
+	public static final int STOPPLAY = 29;
 	// 0是扫描完成后提醒 1是添加歌曲 2是歌曲插队 3是删除歌曲 4是删除歌曲和本地文件
 	// 5 是上一首 6是下一首 7是播放或者暂停 8是快进 9是正在播放 10是播放暂停 11初始化 12播放选中的歌曲
 	private int type;

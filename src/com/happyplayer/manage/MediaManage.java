@@ -8,9 +8,12 @@ import java.util.Observer;
 import java.util.Random;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.os.Build;
 
 import com.happyplayer.common.Constants;
 import com.happyplayer.db.SongDB;
+import com.happyplayer.logger.MyLogger;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
@@ -32,8 +35,12 @@ public class MediaManage implements Observer {
 	private int status = 0;
 
 	private Context context;
-
-	// private Intent playerService;
+	/**
+	 * 音频管理
+	 */
+	private AudioManager mAudioMgr = null;
+	private AudioManager.OnAudioFocusChangeListener mAudioFocusChangeListener = null;
+	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
 
 	public MediaManage(Context context) {
 		this.context = context;
@@ -49,7 +56,26 @@ public class MediaManage implements Observer {
 
 	private void init(Context context) {
 
-		// playerService = new Intent(context, MediaPlayerService.class);
+		// Build.VERSION.SDK_INT表示当前SDK的版本，Build.VERSION_CODES.ECLAIR_MR1为SDK
+		// 7版本 ，
+		// 因为AudioManager.OnAudioFocusChangeListener在SDK8版本开始才有。
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+			mAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+
+				@Override
+				public void onAudioFocusChange(int focusChange) {
+					// if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+					// // 失去焦点之后的操作
+					// stop();
+					// } else
+					if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+						// 获得焦点之后的操作
+					} else {
+						stop();
+					}
+				}
+			};
+		}
 
 		playlist = SongDB.getSongInfoDB(context).getAllSong();
 		playSID = Constants.PLAY_SID;
@@ -125,6 +151,8 @@ public class MediaManage implements Observer {
 								.setPlayProgress(songInfo.getPlayProgress());
 					}
 				}
+			} else if (songMessage.getType() == SongMessage.STOPPLAY) {
+				stop();
 			}
 		}
 	}
@@ -148,6 +176,25 @@ public class MediaManage implements Observer {
 	}
 
 	/**
+	 * 暂停播放
+	 */
+	private void stop() {
+		if (playIndex == -1) {
+			return;
+		}
+		// 如果服务正在运行，则是正在播放
+		if (MediaPlayerService.isPlaying) {
+			status = STOP;
+			songMessage = new SongMessage();
+			songMessage.setType(SongMessage.STOP);
+			ObserverManage.getObserver().setMessage(songMessage);
+
+			abandonAudioFocus();
+			return;
+		}
+	}
+
+	/**
 	 * 播放或者暂停
 	 * 
 	 */
@@ -168,6 +215,7 @@ public class MediaManage implements Observer {
 				songMessage.setType(SongMessage.STOP);
 				ObserverManage.getObserver().setMessage(songMessage);
 
+				abandonAudioFocus();
 				return;
 			}
 			play(playlist.get(playIndex));
@@ -286,6 +334,8 @@ public class MediaManage implements Observer {
 						songMessage = new SongMessage();
 						songMessage.setType(SongMessage.STOP);
 						ObserverManage.getObserver().setMessage(songMessage);
+
+						abandonAudioFocus();
 					}
 
 					DataUtil.save(context, Constants.PLAY_SID_KEY,
@@ -376,6 +426,8 @@ public class MediaManage implements Observer {
 				songMessage = new SongMessage();
 				songMessage.setType(SongMessage.STOP);
 				ObserverManage.getObserver().setMessage(songMessage);
+
+				abandonAudioFocus();
 			}
 			try {
 				Thread.sleep(1000);
@@ -386,6 +438,8 @@ public class MediaManage implements Observer {
 			nextPlay(false);
 			return;
 		}
+		// 请求播放焦点
+		requestAudioFocus();
 
 		// 启动播放服务
 		// context.startService(playerService);
@@ -480,6 +534,8 @@ public class MediaManage implements Observer {
 			songMessage = new SongMessage();
 			songMessage.setType(SongMessage.STOP);
 			ObserverManage.getObserver().setMessage(songMessage);
+
+			abandonAudioFocus();
 		}
 
 		playSongInfo = null;
@@ -541,6 +597,45 @@ public class MediaManage implements Observer {
 				playlist.remove(i);
 				break;
 			}
+		}
+	}
+
+	/**
+	 * 要请求音频焦点
+	 * 
+	 * @return
+	 */
+	private int requestAudioFocus() {
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ECLAIR_MR1) {
+			return -1;
+		}
+		if (mAudioMgr == null)
+			mAudioMgr = (AudioManager) context
+					.getSystemService(Context.AUDIO_SERVICE);
+		if (mAudioMgr != null) {
+			logger.i("请求获取音频焦点");
+			int ret = mAudioMgr.requestAudioFocus(mAudioFocusChangeListener,
+					AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+			if (ret != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+				logger.i("请求音频焦点失败 " + ret);
+				return 0;
+			}
+		}
+		logger.i("请求获取音频焦点成功");
+		return 1;
+	}
+
+	/**
+	 * 放弃焦点
+	 */
+	private void abandonAudioFocus() {
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ECLAIR_MR1) {
+			return;
+		}
+		if (mAudioMgr != null) {
+			logger.i("放弃音频焦点");
+			mAudioMgr.abandonAudioFocus(mAudioFocusChangeListener);
+			mAudioMgr = null;
 		}
 	}
 

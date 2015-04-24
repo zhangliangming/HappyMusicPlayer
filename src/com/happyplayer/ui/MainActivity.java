@@ -25,6 +25,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -157,6 +159,11 @@ public class MainActivity extends FragmentActivity implements Observer {
 	private RemoteViews mRemoteViews;
 	private Notification mLrcNotification;
 	private RemoteViews notifyLrcView;
+	/**
+	 * 来电监听
+	 */
+	private MobliePhoneStateListener mPhoneStateListener = null;
+
 	BroadcastReceiver onClickReceiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals("play")) {
@@ -562,7 +569,11 @@ public class MainActivity extends FragmentActivity implements Observer {
 		}
 
 		this.unregisterReceiver(onClickReceiver);
-		this.unregisterReceiver(mScreenOnOrOffReceiver);
+		this.unregisterReceiver(mSystemReceiver);
+
+		TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		tmgr.listen(mPhoneStateListener, 0);
+
 		notificationManager.cancel(0);
 		notificationManager.cancel(1);
 		ActivityManager.getInstance().exit();
@@ -618,10 +629,21 @@ public class MainActivity extends FragmentActivity implements Observer {
 		ActivityManager.getInstance().addActivity(this);
 
 		/* 注册广播 */
-		IntentFilter mScreenOnOrOffFilter = new IntentFilter();
-		mScreenOnOrOffFilter.addAction("android.intent.action.SCREEN_ON");
-		mScreenOnOrOffFilter.addAction("android.intent.action.SCREEN_OFF");
-		this.registerReceiver(mScreenOnOrOffReceiver, mScreenOnOrOffFilter);
+		IntentFilter mSystemFilter = new IntentFilter();
+		// 屏幕
+		mSystemFilter.addAction("android.intent.action.SCREEN_ON");
+		mSystemFilter.addAction("android.intent.action.SCREEN_OFF");
+		// 耳机
+		// mSystemFilter.addAction("android.intent.action.HEADSET_PLUG");
+		mSystemFilter.addAction("android.media.AUDIO_BECOMING_NOISY");
+		// 短信
+		mSystemFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
+		this.registerReceiver(mSystemReceiver, mSystemFilter);
+
+		// 添加来电监听事件
+		TelephonyManager telManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE); // 获取系统服务
+		telManager.listen(new MobliePhoneStateListener(),
+				PhoneStateListener.LISTEN_CALL_STATE);
 	}
 
 	private void init() {
@@ -1034,7 +1056,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 	}
 
 	// 屏幕变暗/变亮的广播 ， 我们要调用KeyguardManager类相应方法去解除屏幕锁定
-	private BroadcastReceiver mScreenOnOrOffReceiver = new BroadcastReceiver() {
+	private BroadcastReceiver mSystemReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
@@ -1067,8 +1089,73 @@ public class MainActivity extends FragmentActivity implements Observer {
 							EasytouchService.class));
 				}
 			}
+			// else if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+			// /**
+			// * 因为当拔出有线耳机时，播放器不会马上暂停，要等上一秒钟，才会收到Android的系统广播，
+			// */
+			// int state = intent.getIntExtra("state", -1);
+			// // state --- 0代表拔出，1代表插入
+			// switch (state) {
+			// case 0:
+			// logger.i("耳机拔出-->");
+			//
+			// SongMessage songMessage = new SongMessage();
+			// songMessage.setType(SongMessage.STOPPLAY);
+			// ObserverManage.getObserver().setMessage(songMessage);
+			//
+			// break;
+			// case 1:
+			// logger.i("耳机插入-->");
+			// break;
+			// default:
+			// break;
+			// }
+			//
+			// }
+			else if (action.equals("android.media.AUDIO_BECOMING_NOISY")) {
+				logger.i("耳机拔出-->");
+				/**
+				 * 从硬件层面来看，直接监听耳机拔出事件不难，耳机的拔出和插入，会引起手机电平的变化，然后触发什么什么中断，
+				 * 
+				 * 最终在stack overflow找到答案，监听Android的系统广播AudioManager.
+				 * ACTION_AUDIO_BECOMING_NOISY，
+				 * 但是这个广播只是针对有线耳机，或者无线耳机的手机断开连接的事件，监听不到有线耳机和蓝牙耳机的接入
+				 * ，但对于我的需求来说足够了，监听这个广播就没有延迟了，UI可以立即响应
+				 */
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.STOPPLAY);
+				ObserverManage.getObserver().setMessage(songMessage);
+			} else if (action.equals("android.provider.Telephony.SMS_RECEIVED")) {
+				logger.i("接收到短信-->");
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.STOPPLAY);
+				ObserverManage.getObserver().setMessage(songMessage);
+			}
 		}
 	};
+
+	/**
+	 * 
+	 * @author wwj 电话监听器类
+	 */
+	private class MobliePhoneStateListener extends PhoneStateListener {
+		@Override
+		public void onCallStateChanged(int state, String incomingNumber) {
+			switch (state) {
+			case TelephonyManager.CALL_STATE_IDLE: // 挂机状态
+				break;
+			case TelephonyManager.CALL_STATE_OFFHOOK: // 通话状态
+			case TelephonyManager.CALL_STATE_RINGING: // 响铃状态
+				logger.i("接收到来电-->");
+				SongMessage songMessage = new SongMessage();
+				songMessage.setType(SongMessage.STOPPLAY);
+				ObserverManage.getObserver().setMessage(songMessage);
+				break;
+			default:
+				break;
+			}
+		}
+	}
 
 	private void createNotifiLrcView() {
 		IntentFilter filter = new IntentFilter();
