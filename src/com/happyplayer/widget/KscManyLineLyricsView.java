@@ -20,6 +20,7 @@ import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.util.KscLyricsParser;
 
 public class KscManyLineLyricsView extends View {
+
 	/**
 	 * 是否有歌词
 	 */
@@ -120,6 +121,8 @@ public class KscManyLineLyricsView extends View {
 	private int scrollMaxYProgress = 0;
 
 	private boolean blScroll = false;
+
+	private boolean canScroll = true;
 
 	private int progress = 0;
 
@@ -372,6 +375,10 @@ public class KscManyLineLyricsView extends View {
 		super.onDraw(canvas);
 	}
 
+	public void setCanScroll(boolean canScroll) {
+		this.canScroll = canScroll;
+	}
+
 	public void setKscLyricsParser(KscLyricsParser kscLyricsParser) {
 		this.kscLyricsParser = kscLyricsParser;
 	}
@@ -462,7 +469,7 @@ public class KscManyLineLyricsView extends View {
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (!blLrc) {
+		if (!blLrc || !canScroll) {
 			return super.onTouchEvent(event);
 		}
 		float tt = event.getY();
@@ -573,6 +580,7 @@ public class KscManyLineLyricsView extends View {
 	 * 初始化数据
 	 */
 	public void init(int scrollMaxYProgressT) {
+		canScroll = true;
 		onLrcClickListener = null;
 		mCurFraction = 1.0f;
 		offsetY = getHeight() / 2 + (SCALEIZEWORDDEF + INTERVAL);

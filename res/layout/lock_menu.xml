@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="30dp"
+            android:text="00:00"
+            android:textColor="#ffffff"
+            android:textSize="40dp" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/time"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/time"
+            android:text="0/0/0"
+            android:textColor="#ffffff"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/date"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/date"
+            android:text="星期一"
+            android:textColor="#ffffff"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/songName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/time"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="歌名"
+            android:textColor="#ffffff"
+            android:textSize="25dp" />
+
+        <TextView
+            android:id="@+id/songer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/songName"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:text="歌手"
+            android:textColor="#ffffff"
+            android:textSize="20dp" />
+
+        <RelativeLayout
+            android:id="@+id/lrcviewParent"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@+id/panel"
+            android:layout_below="@+id/songer"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" >
+
+            <com.happyplayer.widget.KscManyLineLyricsView
+                android:id="@+id/kscManyLineLyricsView "
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/panel"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:layout_above="@+id/foot" >
+
+            <com.happyplayer.widget.LockButtonRelativeLayout
+                android:id="@+id/prev_button"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="15dp"
+                android:layout_toLeftOf="@+id/play_pause_button"
+                android:clickable="true" >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/widget_pre_button_default" />
+            </com.happyplayer.widget.LockButtonRelativeLayout>
+
+            <com.happyplayer.widget.LockPalyOrPauseButtonRelativeLayout
+                android:id="@+id/play_pause_button"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:clickable="true" >
+
+                <ImageView
+                    android:id="@+id/play"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/widget_play_button_default" />
+
+                <ImageView
+                    android:id="@+id/pause"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/widget_pause_button_default" />
+            </com.happyplayer.widget.LockPalyOrPauseButtonRelativeLayout>
+
+            <com.happyplayer.widget.LockButtonRelativeLayout
+                android:id="@+id/next_button"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"
+                android:layout_toRightOf="@+id/play_pause_button"
+                android:clickable="true" >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/widget_next_button_default" />
+            </com.happyplayer.widget.LockButtonRelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/foot"
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"
+            android:layout_alignParentBottom="true" >
+
+            <TextView
+                android:id="@+id/tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="滑动解锁"
+                android:textColor="#ffffff"
+                android:textSize="20dp" />
+
+            <ImageView
+                android:id="@+id/tip_dot_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/tip"
+                android:background="@drawable/kg_navigation_arrow_image_white" />
+
+            <ImageView
+                android:id="@+id/tip_dot_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@+id/tip_dot_1"
+                android:background="@drawable/kg_navigation_arrow_image" />
+
+            <ImageView
+                android:id="@+id/tip_dot_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@+id/tip_dot_2"
+                android:background="@drawable/kg_navigation_arrow_image" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

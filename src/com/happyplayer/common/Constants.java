@@ -128,7 +128,7 @@ public class Constants {
 	 * 桌面歌词字体大小比例
 	 */
 	public static int DESLRCFONTSIZE[] = { 100, 110, 120, 130, 140, 150 };
-	
+
 	/**
 	 * 歌词字体大小比例
 	 */
@@ -242,6 +242,12 @@ public class Constants {
 	 * app是否退出 0是否 1是 退出
 	 */
 	public static boolean APPCLOSE = false;
+	/**
+	 * 是否显示锁屏
+	 */
+	public static String SHOWLOCK_KEY = "LOCK_KEY";
+	public static boolean SHOWLOCK = false;
+
 	/**
 	 * 双行歌词或者多行歌词
 	 */

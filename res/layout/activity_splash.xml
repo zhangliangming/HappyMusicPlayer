@@ -17,7 +17,7 @@
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="35dp"
         android:background="@drawable/kg_round_copy_bg"
         android:gravity="center_horizontal|center_vertical"
         android:text="0"

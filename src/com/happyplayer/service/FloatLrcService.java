@@ -346,15 +346,16 @@ public class FloatLrcService extends Service implements Observer {
 					Constants.DESLRCFONTSIZEINDEX = 0;
 				}
 				floatLyricsView.invalidate();
-				
-				new Thread(){
+
+				new Thread() {
 
 					@Override
 					public void run() {
-						DataUtil.save(context, Constants.DESLRCFONTSIZEINDEX_KEY,
+						DataUtil.save(context,
+								Constants.DESLRCFONTSIZEINDEX_KEY,
 								Constants.DESLRCFONTSIZEINDEX);
 					}
-					
+
 				}.start();
 			}
 		});
@@ -370,14 +371,15 @@ public class FloatLrcService extends Service implements Observer {
 					Constants.DESLRCFONTSIZEINDEX = Constants.DESLRCFONTSIZE.length - 1;
 				}
 				floatLyricsView.invalidate();
-				new Thread(){
+				new Thread() {
 
 					@Override
 					public void run() {
-						DataUtil.save(context, Constants.DESLRCFONTSIZEINDEX_KEY,
+						DataUtil.save(context,
+								Constants.DESLRCFONTSIZEINDEX_KEY,
 								Constants.DESLRCFONTSIZEINDEX);
 					}
-					
+
 				}.start();
 			}
 		});
@@ -488,15 +490,15 @@ public class FloatLrcService extends Service implements Observer {
 			}
 
 			floatLyricsView.invalidate();
-			
-			new Thread(){
+
+			new Thread() {
 
 				@Override
 				public void run() {
 					DataUtil.save(context, Constants.DEF_DES_COLOR_INDEX_KEY,
 							Constants.DEF_DES_COLOR_INDEX);
 				}
-				
+
 			}.start();
 
 		}
@@ -665,7 +667,7 @@ public class FloatLrcService extends Service implements Observer {
 		if (!Constants.APPCLOSE && !MainActivity.SCREEN_OFF) {
 			// 在此重新启动,使服务常驻内存当然如果系统资源不足，android系统也可能结束服务。
 			startService(new Intent(this, FloatLrcService.class));
-			logger.i("----FloatLrcService被tgus----");
+			logger.i("----FloatLrcService被重新启动了---");
 		}
 	}
 

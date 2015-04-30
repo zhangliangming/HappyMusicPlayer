@@ -172,7 +172,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
 		try {
 			// 用于格式化日期,作为日志文件名的一部分
 			String time = DateUtil.dateToString(new Date());
-			String fileName =  time + ".log";
+			String fileName = time + ".log";
 			String path = Constants.PATH_CRASH + File.separator;
 			File dir = new File(path);
 			if (!dir.exists()) {

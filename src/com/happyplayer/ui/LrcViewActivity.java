@@ -7,16 +7,20 @@ import java.util.TreeMap;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -162,6 +166,11 @@ public class LrcViewActivity extends Activity implements Observer {
 	private RelativeLayout footParent;
 
 	private MyLogger logger = MyLogger.getLogger(Constants.USERNAME);
+
+	private RelativeLayout titleRelativeLayout;
+
+	private PopupWindow volumePopupWindow = null;
+	private AudioManager mAudioManager;
 
 	private Handler playmodeHandler = new Handler() {
 
@@ -378,6 +387,9 @@ public class LrcViewActivity extends Activity implements Observer {
 
 	@SuppressLint("CutPasteId")
 	private void init() {
+
+		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		titleRelativeLayout = (RelativeLayout) findViewById(R.id.header);
 
 		songProgressTextView = (TextView) findViewById(R.id.songProgress);
 		songSizeTextView = (TextView) findViewById(R.id.songSize);
@@ -843,16 +855,238 @@ public class LrcViewActivity extends Activity implements Observer {
 				.findViewById(R.id.playsumText);
 	}
 
-	// /**
-	// * 返回键退出程序
-	// */
-	// public boolean onKeyDown(int keyCode, KeyEvent event) {
-	// if (keyCode == KeyEvent.KEYCODE_MENU) {
-	// initPopupWindowInstance();
-	// return false;
-	// }
-	// return super.onKeyDown(keyCode, event);
-	// }
+	/**
+	 * 返回键退出程序
+	 */
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		/**
+		 * KEYCODE_VOLUME_MUTE 扬声器静音键 164 KEYCODE_VOLUME_UP 音量增加键 24
+		 * KEYCODE_VOLUME_DOWN 音量减小键 25
+		 */
+
+		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+
+			// Toast.makeText(this, "KEYCODE_VOLUME_DOWN", Toast.LENGTH_SHORT)
+			// .show();
+			// // 降低音量
+			// // mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+			// // AudioManager.ADJUST_LOWER,
+			// // AudioManager.FX_FOCUS_NAVIGATION_UP);
+			//
+			// int currentVolume = mAudioManager
+			// .getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
+			// currentVolume = currentVolume - 10;
+			// if (currentVolume <= 0) {
+			// currentVolume = 0;
+			// }
+			//
+			// mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+			// currentVolume, 0);
+
+			getVolumePopupWindowInstance();
+			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+			// Toast.makeText(this, "KEYCODE_VOLUME_UP", Toast.LENGTH_SHORT)
+			// .show();
+			// 增加音量
+			// mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+			// AudioManager.ADJUST_RAISE,
+			// AudioManager.FX_FOCUS_NAVIGATION_UP);
+
+			// // 音乐音量
+			// int max = mAudioManager
+			// .getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+			// int currentVolume = mAudioManager
+			// .getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
+			// currentVolume = currentVolume + 10;
+			// if (currentVolume >= max) {
+			// currentVolume = max;
+			// }
+			//
+			// mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+			// currentVolume, 0);
+
+			getVolumePopupWindowInstance();
+			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
+			// mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+			getVolumePopupWindowInstance();
+			// Toast.makeText(this, "KEYCODE_VOLUME_MUTE", Toast.LENGTH_SHORT)
+			// .show();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	private HBaseSeekBar volumeSizeSeekBar = null;
+	/**
+	 * 显示面板倒计时
+	 */
+	public int volumeEndTime = -1;
+
+	private void getVolumePopupWindowInstance() {
+		if (volumePopupWindow == null) {
+			initVolumePopupWindow();
+		} else {
+			if (volumePopupWindow.isShowing()) {
+				volumeEndTime = 2000;
+				mVolumeHandler.sendEmptyMessage(0);
+			} else {
+
+				volumePopupWindow.showAsDropDown(titleRelativeLayout);
+
+				mVolumeHandler.sendEmptyMessage(0);
+
+				if (volumeEndTime < 0) {
+					volumeEndTime = 2000;
+					mVolumeHandler.post(upVolumeDateVol);
+				} else {
+					volumeEndTime = 2000;
+				}
+			}
+		}
+	}
+
+	private void initVolumePopupWindow() {
+		LayoutInflater layoutInflater = LayoutInflater.from(this);
+		View popupWindow = layoutInflater.inflate(R.layout.volume_menu, null);
+
+		popupWindow.setFocusableInTouchMode(true);
+
+		popupWindow.setOnKeyListener(new OnKeyListener() {
+
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+				if (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
+					// Toast.makeText(MainActivity.this, "KEYCODE_VOLUME_MUTE",
+					// Toast.LENGTH_SHORT).show();
+
+					mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0,
+							0);
+					getVolumePopupWindowInstance();
+					return true;
+
+				} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+					// Toast.makeText(MainActivity.this, "KEYCODE_VOLUME_DOWN",
+					// Toast.LENGTH_SHORT).show();
+
+					int currentVolume = mAudioManager
+							.getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
+					currentVolume = currentVolume - 1;
+					if (currentVolume <= 0) {
+						currentVolume = 0;
+					}
+
+					mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+							currentVolume, 0);
+
+					getVolumePopupWindowInstance();
+
+					return true;
+
+				} else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+					// Toast.makeText(MainActivity.this, "KEYCODE_VOLUME_UP",
+					// Toast.LENGTH_SHORT).show();
+					int max = mAudioManager
+							.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / 3 * 2;
+					int currentVolume = mAudioManager
+							.getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
+					currentVolume = currentVolume + 1;
+					if (currentVolume >= max) {
+						currentVolume = max;
+					}
+
+					mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+							currentVolume, 0);
+
+					getVolumePopupWindowInstance();
+					return true;
+
+				}
+
+				return false;
+			}
+
+		});
+
+		volumeSizeSeekBar = (HBaseSeekBar) popupWindow
+				.findViewById(R.id.volumeSizeSeekBar);
+
+		// 音乐音量
+		int max = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / 3 * 2;
+		int current = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) / 3 * 2;
+		volumeSizeSeekBar.setMax(max);
+		volumeSizeSeekBar.setProgress(current);
+
+		volumeSizeSeekBar
+				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+					@Override
+					public void onProgressChanged(SeekBar arg0, int progress,
+							boolean arg2) {
+						volumeEndTime = 2000;
+						mAudioManager.setStreamVolume(
+								AudioManager.STREAM_MUSIC, progress, 0);
+						int currentVolume = mAudioManager
+								.getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
+						volumeSizeSeekBar.setProgress(currentVolume);
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar arg0) {
+					}
+
+					@Override
+					public void onStopTrackingTouch(SeekBar arg0) {
+					}
+				});
+
+		volumePopupWindow = new PopupWindow(popupWindow,
+				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, true);
+		// 实例化一个ColorDrawable颜色为半透明
+		ColorDrawable dw = new ColorDrawable(0xb0000000);
+		// 设置SelectPicPopupWindow弹出窗体的背景
+		volumePopupWindow.setBackgroundDrawable(new BitmapDrawable());
+		// mPopupWindowDialog.setFocusable(true);
+		volumePopupWindow.setOutsideTouchable(true);
+
+		volumePopupWindow.showAsDropDown(titleRelativeLayout);
+
+		if (volumeEndTime < 0) {
+			volumeEndTime = 2000;
+			mVolumeHandler.post(upVolumeDateVol);
+		} else {
+			volumeEndTime = 2000;
+		}
+	}
+
+	private Handler mVolumeHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			int currentVolume = mAudioManager
+					.getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
+			volumeSizeSeekBar.setProgress(currentVolume);
+		}
+
+	};
+
+	Runnable upVolumeDateVol = new Runnable() {
+
+		@Override
+		public void run() {
+			if (volumeEndTime >= 0) {
+				volumeEndTime -= 200;
+				mVolumeHandler.postDelayed(upVolumeDateVol, 200);
+			} else {
+				if (volumePopupWindow != null && volumePopupWindow.isShowing()) {
+					volumePopupWindow.dismiss();
+				}
+			}
+
+		}
+	};
 
 	private OnLrcClickListener onLrcClickListener = new OnLrcClickListener() {
 
@@ -908,6 +1142,65 @@ public class LrcViewActivity extends Activity implements Observer {
 		flagimageviews = new ImageView[length];
 		LayoutInflater layoutInflater = LayoutInflater.from(this);
 		View popupWindow = layoutInflater.inflate(R.layout.lrc_menu, null);
+
+		popupWindow.setFocusableInTouchMode(true);
+
+		popupWindow.setOnKeyListener(new OnKeyListener() {
+
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+				if (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
+					// Toast.makeText(MainActivity.this, "KEYCODE_VOLUME_MUTE",
+					// Toast.LENGTH_SHORT).show();
+
+					mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0,
+							0);
+					getVolumePopupWindowInstance();
+					return true;
+
+				} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+					// Toast.makeText(MainActivity.this, "KEYCODE_VOLUME_DOWN",
+					// Toast.LENGTH_SHORT).show();
+
+					int currentVolume = mAudioManager
+							.getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
+					currentVolume = currentVolume - 1;
+					if (currentVolume <= 0) {
+						currentVolume = 0;
+					}
+
+					mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+							currentVolume, 0);
+
+					getVolumePopupWindowInstance();
+
+					return true;
+
+				} else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+					// Toast.makeText(MainActivity.this, "KEYCODE_VOLUME_UP",
+					// Toast.LENGTH_SHORT).show();
+					int max = mAudioManager
+							.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / 3 * 2;
+					int currentVolume = mAudioManager
+							.getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
+					currentVolume = currentVolume + 1;
+					if (currentVolume >= max) {
+						currentVolume = max;
+					}
+
+					mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+							currentVolume, 0);
+
+					getVolumePopupWindowInstance();
+					return true;
+
+				}
+
+				return false;
+			}
+
+		});
 		int i = 0;
 		imageviews[i] = (ImageView) popupWindow.findViewById(R.id.colorpanel0);
 		flagimageviews[i] = (ImageView) popupWindow
@@ -960,7 +1253,7 @@ public class LrcViewActivity extends Activity implements Observer {
 					public void onProgressChanged(SeekBar arg0, int arg1,
 							boolean arg2) {
 						EndTime = 5000;
-						//过快刷新，导致页面闪屏
+						// 过快刷新，导致页面闪屏
 						try {
 							Thread.sleep(100);
 						} catch (InterruptedException e) {
