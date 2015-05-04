@@ -3,7 +3,6 @@ package com.happyplayer.ui;
 import java.io.File;
 
 import android.app.Activity;
-import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,7 +26,7 @@ import com.happyplayer.util.AniUtil;
 import com.happyplayer.util.MediaUtils;
 import com.happyplayer.widget.TitleRelativeLayout;
 
-public class ScanMusicActivity extends Activity {
+public class Copy_5_of_ScanMusicActivity extends Activity {
 	/**
 	 * 初始界面
 	 */
@@ -46,7 +45,7 @@ public class ScanMusicActivity extends Activity {
 	 * 扫描图片
 	 */
 	private ImageView scaningPICImageView;
-	private AnimationDrawable aniLoading;
+	// private AnimationDrawable aniLoading;
 
 	/**
 	 * 扫描路径
@@ -111,7 +110,7 @@ public class ScanMusicActivity extends Activity {
 
 				finishResultTextView.setText(size + "首歌曲已添加到本地音乐");
 
-				AniUtil.stopAnimation(aniLoading);
+				// AniUtil.stopAnimation(aniLoading);
 
 			} else if (msg.what == 0) {
 				String path = (String) msg.obj;
@@ -149,7 +148,7 @@ public class ScanMusicActivity extends Activity {
 		scaningRelativeLayout.setVisibility(View.INVISIBLE);
 
 		scaningPICImageView = (ImageView) findViewById(R.id.scaning_pic);
-		aniLoading = (AnimationDrawable) scaningPICImageView.getBackground();
+		// aniLoading = (AnimationDrawable) scaningPICImageView.getBackground();
 
 		scanPathTextView = (TextView) findViewById(R.id.scanPath);
 		scanResultTextView = (TextView) findViewById(R.id.scanResult);
@@ -196,7 +195,7 @@ public class ScanMusicActivity extends Activity {
 
 		isScan = true;
 
-		AniUtil.startAnimation(aniLoading);
+		// AniUtil.startAnimation(aniLoading);
 
 		new AsyncTaskHandler() {
 
@@ -291,47 +290,9 @@ public class ScanMusicActivity extends Activity {
 
 	private void scannerMusic() {
 		size = 0;
-		// scannerLocalMP3File(
-		// Environment.getExternalStorageDirectory().getPath(), ".mp3",
-		// true);
-
-		// 查询媒体数据库
-		Cursor cursor = MediaUtils.getMediaCursor(this);
-
-		for (int i = 0; i < cursor.getCount(); i++) {
-
-			if (cancelScan)
-				break;
-			Mp3Info mp3Info = MediaUtils.getMp3InfoByCursor(cursor);
-			if (mp3Info == null) {
-				continue;
-			}
-			File file = new File(mp3Info.getPath());
-			if (!file.exists()) {
-				continue;
-			}
-
-			boolean isExists = SongDB.getSongInfoDB(this).songIsExists(
-					mp3Info.getDisplayName());
-			if (isExists) {
-				continue;
-			}
-
-			// 将扫描到的数据保存到播放列表
-			addMusicList(mp3Info);
-			//
-			size++;
-
-			Message msg = new Message();
-			msg.what = 0;
-			msg.obj = file.getPath();
-			handler.sendMessage(msg);
-
-		}
-		cursor.close();
-
-		isScan = false;
-
+		scannerLocalMP3File(
+				Environment.getExternalStorageDirectory().getPath(), ".mp3",
+				true);
 	}
 
 	/**

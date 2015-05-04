@@ -108,15 +108,15 @@ public class ShowLockActivity extends FragmentActivity implements Observer {
 	private Handler handler = new Handler();
 	private Runnable myRunnable = new Runnable() {
 		public void run() {
-			if (active) {
-				KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-				// 屏锁
-				if (km.inKeyguardRestrictedInputMode()) {
-					handler.postDelayed(this, 10);
-				} else {
-					finish();
-				}
+			// if (active) {
+			KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+			// 屏锁
+			if (km.inKeyguardRestrictedInputMode()) {
+				handler.postDelayed(this, 100);
+			} else {
+				finish();
 			}
+			// }
 		}
 	};
 

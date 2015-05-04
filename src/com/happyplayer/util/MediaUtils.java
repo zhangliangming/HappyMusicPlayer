@@ -152,13 +152,18 @@ public class MediaUtils {
 
 		String url = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DATA));
+		if (url.startsWith(".")) {
+			return null;
+		}
 		String extension = ".mp3";
 		if (!url.substring(url.length() - extension.length()).equals(extension)) {
 			return null;
 		}
+
+		// Mp3Info mp3Info = getMp3InfoByFile(url);
+		Mp3Info mp3Info = new Mp3Info();
 		String artist = "";
 		String title = "";
-		Mp3Info mp3Info = new Mp3Info();
 
 		long id = cursor.getLong(cursor
 				.getColumnIndex(MediaStore.Audio.Media._ID));
@@ -174,6 +179,13 @@ public class MediaUtils {
 			artist = cursor.getString(cursor
 					.getColumnIndex(MediaStore.Audio.Media.ARTIST));
 		}
+		if (title.equals("<unknown>")) {
+			title = tmpTitle;
+		}
+		if (artist.equals("<unknown>")) {
+			artist = "";
+		}
+
 		String displayName = cursor.getString(cursor
 				.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
 
@@ -191,6 +203,10 @@ public class MediaUtils {
 
 		long albumid = cursor.getLong(cursor
 				.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+
+		if (size < 1024 * 1024) {
+			return null;
+		}
 
 		mp3Info.setId(id);
 		mp3Info.setTitle(title);
