@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -27,6 +28,7 @@ import com.happyplayer.model.KscLyricsLineInfo;
 import com.happyplayer.model.SongInfo;
 import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
+import com.happyplayer.util.AniUtil;
 import com.happyplayer.util.KscLyricsManamge;
 import com.happyplayer.util.KscLyricsParser;
 import com.happyplayer.widget.KscManyLineLyricsView;
@@ -39,7 +41,8 @@ public class LockMenuFragment extends Fragment implements Observer {
 	/**
 	 * 滑动提示图标
 	 */
-	private ImageView[] tipDotImageView;
+	private ImageView lockImageView;
+	private AnimationDrawable aniLoading;
 
 	/**
 	 * 歌名
@@ -221,6 +224,8 @@ public class LockMenuFragment extends Fragment implements Observer {
 	};
 
 	private void loadData() {
+		AniUtil.startAnimation(aniLoading);
+
 		new AsyncTaskHandler() {
 
 			@Override
@@ -230,6 +235,7 @@ public class LockMenuFragment extends Fragment implements Observer {
 
 			@Override
 			protected Object doInBackground() throws Exception {
+
 				SongInfo songInfo = MediaManage.getMediaManage(getActivity())
 						.getPlaySongInfo();
 				if (songInfo != null) {
@@ -302,17 +308,8 @@ public class LockMenuFragment extends Fragment implements Observer {
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		mMainView = inflater.inflate(R.layout.lock_menu, null, false);
 
-		tipDotImageView = new ImageView[3];
-
-		int i = 0;
-		tipDotImageView[i++] = (ImageView) mMainView
-				.findViewById(R.id.tip_dot_1);
-		tipDotImageView[i++] = (ImageView) mMainView
-				.findViewById(R.id.tip_dot_2);
-		tipDotImageView[i++] = (ImageView) mMainView
-				.findViewById(R.id.tip_dot_3);
-
-		mHandler.postDelayed(mRunnable, 100);
+		lockImageView = (ImageView) mMainView.findViewById(R.id.tip_image);
+		aniLoading = (AnimationDrawable) lockImageView.getBackground();
 
 		songNameTextView = (TextView) mMainView.findViewById(R.id.songName);
 		songerTextView = (TextView) mMainView.findViewById(R.id.songer);
@@ -340,28 +337,6 @@ public class LockMenuFragment extends Fragment implements Observer {
 		playImageView = (ImageView) mMainView.findViewById(R.id.play);
 		pauseImageView = (ImageView) mMainView.findViewById(R.id.pause);
 	}
-
-	int i = 0;
-	private Runnable mRunnable = new Runnable() {
-
-		@Override
-		public void run() {
-			i++;
-			if (i >= tipDotImageView.length) {
-				i = 0;
-			}
-			for (int j = 0; j < tipDotImageView.length; j++) {
-				if (i == j) {
-					tipDotImageView[j]
-							.setBackgroundResource(R.drawable.kg_navigation_arrow_image_white);
-				} else {
-					tipDotImageView[j]
-							.setBackgroundResource(R.drawable.kg_navigation_arrow_image);
-				}
-			}
-			mHandler.postDelayed(this, 300);
-		}
-	};
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -393,8 +368,8 @@ public class LockMenuFragment extends Fragment implements Observer {
 
 	@Override
 	public void onDestroy() {
+		AniUtil.stopAnimation(aniLoading);
 		getActivity().unregisterReceiver(mTimeReceiver);
-		mHandler.removeCallbacks(mRunnable);
 		ObserverManage.getObserver().deleteObserver(this);
 		super.onDestroy();
 	}

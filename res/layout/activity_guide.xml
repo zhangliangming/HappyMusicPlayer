@@ -2,7 +2,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#f44f28"
     tools:context=".GuideActivity" >
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:overScrollMode="never" >
+    </android.support.v4.view.ViewPager>
+
+    <RelativeLayout
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" >
+
+        <ImageView
+            android:id="@+id/point_1"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/music_zone_indicator_current" />
+
+        <ImageView
+            android:id="@+id/point_2"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/point_1"
+            android:background="@drawable/music_zone_indicator_common" />
+
+        <ImageView
+            android:id="@+id/point_3"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/point_2"
+            android:background="@drawable/music_zone_indicator_common" />
+
+        <ImageView
+            android:id="@+id/point_4"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/point_3"
+            android:background="@drawable/music_zone_indicator_common" />
+    </RelativeLayout>
 
 </RelativeLayout>

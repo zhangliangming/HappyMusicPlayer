@@ -93,7 +93,7 @@ public class SplashActivity extends Activity {
 			// 获取是否是第一次使用的参数
 			boolean isTheFirst = Constants.THE_FIRST;
 
-			if (!isTheFirst) {
+			if (isTheFirst) {
 				handler.sendEmptyMessageDelayed(GO_GUIDE, 1000);
 			} else {
 				int time = 0;

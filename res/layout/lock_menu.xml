@@ -169,6 +169,16 @@
                 android:textSize="20dp" />
 
             <ImageView
+                android:id="@+id/tip_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/tip"
+                android:background="@anim/lockloading" />
+
+            <!--
+            <ImageView
                 android:id="@+id/tip_dot_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -194,6 +204,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_toRightOf="@+id/tip_dot_2"
                 android:background="@drawable/kg_navigation_arrow_image" />
+            -->
         </RelativeLayout>
     </RelativeLayout>
 

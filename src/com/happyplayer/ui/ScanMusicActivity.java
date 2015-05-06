@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
