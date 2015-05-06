@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -142,6 +144,27 @@ public class GuideActivity extends FragmentActivity {
 		}
 	}
 
+	private Handler mHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+
+			int position = (Integer) msg.obj;
+
+			for (int i = 0; i < imageViews.length; i++) {
+				// 不是当前选中的page，其小圆点设置为未选中的状态
+				if (position != i) {
+					imageViews[i]
+							.setBackgroundResource(R.drawable.music_zone_indicator_common);
+				} else {
+					imageViews[position]
+							.setBackgroundResource(R.drawable.music_zone_indicator_current);
+				}
+			}
+		}
+
+	};
+
 	/**
 	 * 
 	 * viewpager的监听事件
@@ -158,19 +181,10 @@ public class GuideActivity extends FragmentActivity {
 		}
 
 		public void onPageSelected(int position) {
-			
-			for (int i = 0; i < imageViews.length; i++) {
-				// 不是当前选中的page，其小圆点设置为未选中的状态
-				if (position != i) {
-					imageViews[i]
-							.setBackgroundResource(R.drawable.music_zone_indicator_common);
-				} else {
-					imageViews[position]
-							.setBackgroundResource(R.drawable.music_zone_indicator_current);
-				}
-			}
-			
-			
+			Message msg = new Message();
+			msg.obj = position;
+			mHandler.sendMessage(msg);
+
 			boolean isRightToLeft = false;
 			if (TAB_INDEX < position) {
 				isRightToLeft = true;
@@ -180,7 +194,7 @@ public class GuideActivity extends FragmentActivity {
 			case 0:
 				firstGuideFragment.setMainTitleImageAnimation(isRightToLeft);
 				firstGuideFragment.setSecondTitleImageAnimation(isRightToLeft);
-				
+
 				secondGuideFragment.setAnimationStop();
 				thirdGuideFragment.setAnimationStop();
 				fourthGuideFragment.setAnimationStop();
@@ -188,7 +202,7 @@ public class GuideActivity extends FragmentActivity {
 			case 1:
 				secondGuideFragment.setMainTitleImageAnimation(isRightToLeft);
 				secondGuideFragment.setSecondTitleImageAnimation(isRightToLeft);
-				
+
 				firstGuideFragment.setAnimationStop();
 				thirdGuideFragment.setAnimationStop();
 				fourthGuideFragment.setAnimationStop();
@@ -196,7 +210,7 @@ public class GuideActivity extends FragmentActivity {
 			case 2:
 				thirdGuideFragment.setMainTitleImageAnimation(isRightToLeft);
 				thirdGuideFragment.setSecondTitleImageAnimation(isRightToLeft);
-				
+
 				firstGuideFragment.setAnimationStop();
 				secondGuideFragment.setAnimationStop();
 				fourthGuideFragment.setAnimationStop();
@@ -204,7 +218,7 @@ public class GuideActivity extends FragmentActivity {
 			case 3:
 				fourthGuideFragment.setMainTitleImageAnimation(isRightToLeft);
 				fourthGuideFragment.setSecondTitleImageAnimation(isRightToLeft);
-				
+
 				firstGuideFragment.setAnimationStop();
 				secondGuideFragment.setAnimationStop();
 				thirdGuideFragment.setAnimationStop();
