@@ -27,7 +27,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="40dp"
             android:layout_toRightOf="@+id/pic"
-            android:ellipsize="middle"
+            android:ellipsize="end"
             android:text="歌名"
             android:textColor="#000000"
             android:textSize="15dp" />

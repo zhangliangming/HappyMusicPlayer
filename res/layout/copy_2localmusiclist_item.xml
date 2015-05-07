@@ -49,7 +49,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="40dp"
-                android:ellipsize="middle"
+                android:ellipsize="end"
                 android:singleLine="true"
                 android:text="歌名"
                 android:textColor="#000000"

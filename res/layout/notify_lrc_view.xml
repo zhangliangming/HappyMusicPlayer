@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    tools:ignore="ContentDescription" >
 
     <RelativeLayout
         android:id="@+id/bg"
@@ -26,19 +28,21 @@
 
         <TextView
             android:id="@+id/title1"
+            style="@style/NotificationTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="5dp"
             android:layout_toRightOf="@+id/lrc_picP"
-            android:ellipsize="middle"
+            android:ellipsize="end"
             android:singleLine="true"
             android:text="点击解锁桌面歌词"
             android:textSize="15dp" />
 
         <TextView
             android:id="@+id/title2"
+            style="@style/NotificationTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/title1"
@@ -46,7 +50,7 @@
             android:layout_marginRight="5dp"
             android:layout_marginTop="5dp"
             android:layout_toRightOf="@+id/lrc_picP"
-            android:ellipsize="middle"
+            android:ellipsize="end"
             android:singleLine="true"
             android:text="桌面歌词已锁定"
             android:textSize="12dp" />

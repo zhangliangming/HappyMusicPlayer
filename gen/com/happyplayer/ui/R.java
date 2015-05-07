@@ -640,11 +640,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 
 
 
+
     
 
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
+
 
         
 
@@ -668,10 +670,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 
 
 
+
     
          */
         public static final int AppTheme=0x7f090001;
         public static final int CustomCheckboxTheme=0x7f090003;
+        public static final int NotificationText=0x7f090005;
+        public static final int NotificationTitle=0x7f090006;
         public static final int main_tab_button=0x7f090002;
         /**  这个是加入的代码 
  指定消失的动画xml 

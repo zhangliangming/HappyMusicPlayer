@@ -41,11 +41,6 @@ public class Constants {
 	 */
 	public final static String PATH_LOGCAT = PATH_TEMP + File.separator
 			+ "logcat";
-	/**
-	 * 异常崩溃的捕捉目录
-	 */
-	public final static String PATH_CRASH = PATH_TEMP + File.separator
-			+ "crash";
 
 	/**
 	 * 歌曲目录

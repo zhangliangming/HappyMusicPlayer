@@ -1,13 +1,10 @@
 package com.happyplayer.handler;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +18,6 @@ import android.widget.Toast;
 
 import com.happyplayer.common.Constants;
 import com.happyplayer.logger.MyLogger;
-import com.happyplayer.util.DateUtil;
 
 /**
  * UncaughtException处理类,当程序发生Uncaught异常的时候,有该类来接管程序,并记录错误报告.
@@ -169,20 +165,21 @@ public class CrashHandler implements UncaughtExceptionHandler {
 		printWriter.close();
 		String result = writer.toString();
 		sb.append(result);
-		try {
-			// 用于格式化日期,作为日志文件名的一部分
-			String time = DateUtil.dateToString(new Date());
-			String fileName = time + ".log";
-			String path = Constants.PATH_CRASH + File.separator;
-			File dir = new File(path);
-			if (!dir.exists()) {
-				dir.mkdirs();
-			}
-			FileOutputStream fos = new FileOutputStream(path + fileName);
-			fos.write(sb.toString().getBytes());
-			fos.close();
-		} catch (Exception e) {
-			logger.e(e.toString());
-		}
+		logger.e(sb.toString());
+		// try {
+		// // 用于格式化日期,作为日志文件名的一部分
+		// String time = DateUtil.dateToString(new Date());
+		// String fileName = time + ".log";
+		// String path = Constants.PATH_CRASH + File.separator;
+		// File dir = new File(path);
+		// if (!dir.exists()) {
+		// dir.mkdirs();
+		// }
+		// FileOutputStream fos = new FileOutputStream(path + fileName);
+		// fos.write(sb.toString().getBytes());
+		// fos.close();
+		// } catch (Exception e) {
+		// logger.e(e.toString());
+		// }
 	}
 }

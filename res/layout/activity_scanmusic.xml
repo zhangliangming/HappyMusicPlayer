@@ -85,7 +85,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="30dp"
                     android:layout_marginTop="10dp"
-                    android:ellipsize="middle"
+                    android:ellipsize="end"
                     android:singleLine="true"
                     android:text=""
                     android:textColor="#969696"

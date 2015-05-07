@@ -20,7 +20,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
-                android:ellipsize="middle"
+                android:ellipsize="end"
                 android:singleLine="true"
                 android:text="播放列表(0)"
                 android:textColor="#ffffff" />
