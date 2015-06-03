@@ -46,6 +46,7 @@ import com.happyplayer.model.SongMessage;
 import com.happyplayer.observable.ObserverManage;
 import com.happyplayer.util.ActivityManager;
 import com.happyplayer.util.DataUtil;
+import com.happyplayer.util.ImageUtil;
 import com.happyplayer.util.KscLyricsManamge;
 import com.happyplayer.util.KscLyricsParser;
 import com.happyplayer.util.MediaUtils;
@@ -1483,6 +1484,26 @@ public class LrcViewActivity extends Activity implements Observer {
 		finish();
 	}
 
+	private Handler imageHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			SkinMessage skinMessage = (SkinMessage) msg.obj;
+			String path = skinMessage.getPath();
+			String url = skinMessage.getUrl();
+			String parentPath = skinMessage.getParentPath();
+			if (path!= null && !path.equals("")) {
+				ImageUtil.loadLocalImage(LrcViewActivity.this, parent,
+						Constants.PICIDS[Constants.DEF_PIC_INDEX], path);
+			} else if (parentPath != null && !parentPath.equals("") &&url!= null&& !url.equals("")) {
+				ImageUtil.loadImage(LrcViewActivity.this, parent,
+						Constants.PICIDS[Constants.DEF_PIC_INDEX], parentPath,
+						url);
+			}
+		}
+
+	};
+
 	private void setBackground() {
 		parent.setBackgroundResource(Constants.PICIDS[Constants.DEF_PIC_INDEX]);
 	}
@@ -1493,6 +1514,10 @@ public class LrcViewActivity extends Activity implements Observer {
 			SkinMessage msg = (SkinMessage) data;
 			if (msg.type == SkinMessage.PIC) {
 				setBackground();
+			} else if (msg.type == SkinMessage.ART) {
+				Message message = new Message();
+				message.obj = msg;
+				imageHandler.sendMessage(message);
 			}
 		} else if (data instanceof SongMessage) {
 			SongMessage songMessage = (SongMessage) data;

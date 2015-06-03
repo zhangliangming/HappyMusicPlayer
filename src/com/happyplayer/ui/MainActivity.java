@@ -1,9 +1,11 @@
 package com.happyplayer.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Random;
 import java.util.TreeMap;
 
 import android.annotation.SuppressLint;
@@ -54,6 +56,7 @@ import com.happyplayer.adapter.PopupPlayListAdapter;
 import com.happyplayer.async.AsyncTaskHandler;
 import com.happyplayer.common.Constants;
 import com.happyplayer.iface.PageAction;
+import com.happyplayer.json.ArtistAlbumJson;
 import com.happyplayer.logger.MyLogger;
 import com.happyplayer.manage.MediaManage;
 import com.happyplayer.model.KscLyricsLineInfo;
@@ -452,6 +455,7 @@ public class MainActivity extends FragmentActivity implements Observer {
 						+ MediaUtils.formatTime(songInfo.getSurplusProgress()));
 
 				initKscLyrics(songInfo);
+				initArtistAlbum(songInfo, true);
 
 				break;
 			case SongMessage.LASTPLAYFINISH:
@@ -471,6 +475,8 @@ public class MainActivity extends FragmentActivity implements Observer {
 						.setBackgroundDrawable(new BitmapDrawable(bm));// 显示专辑封面图片
 
 				initKscLyrics(songInfo);
+
+				initArtistAlbum(songInfo, false);
 
 				break;
 			case SongMessage.PLAY:
@@ -550,6 +556,119 @@ public class MainActivity extends FragmentActivity implements Observer {
 
 				return KscLyricsManamge.getKscLyricsParser(songInfo
 						.getDisplayName());
+			}
+		}.execute();
+	}
+
+	private List<SkinMessage> artistList = null;
+
+	/**
+	 * 初始化歌手图片
+	 * 
+	 * @param songInfo
+	 */
+	private void initArtistAlbum(SongInfo songInfo, boolean isLoadImage) {
+		imageHandler.removeCallbacks(myRunnable);
+		
+		SkinMessage msg = new SkinMessage();
+		msg.type = SkinMessage.PIC;
+		ObserverManage.getObserver().setMessage(msg);
+		
+		if (isLoadImage) {
+			artistList = new ArrayList<SkinMessage>();
+			String artist = songInfo.getArtist();
+			// 从本地文件夹里查找图片
+			File artFile = new File(Constants.PATH_ARTIST + File.separator
+					+ artist);
+			if (!artFile.exists()) {
+				artFile.mkdirs();
+				loadNetPic(artist);
+			} else {
+				loadLocalPic(artist, artFile);
+			}
+		}
+	}
+
+	private Handler imageHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+		}
+	};
+
+	private Runnable myRunnable = new Runnable() {
+		public void run() {
+			int length = artistList.size();
+			if (length == 0) {
+				return;
+			}
+			int index = new Random().nextInt(length);
+
+			ObserverManage.getObserver().setMessage(artistList.get(index));
+			
+			imageHandler.postDelayed(this, 1000* 30);
+		}
+	};
+
+	/**
+	 * 加载本地图片
+	 * 
+	 * @param artist
+	 */
+	private void loadLocalPic(final String artist, final File artFile) {
+
+		new AsyncTaskHandler() {
+
+			@Override
+			protected void onPostExecute(Object result) {
+				artistList = (List<SkinMessage>) result;
+				if (artistList.size() != 0) {
+					imageHandler.post(myRunnable);
+				} else {
+					loadNetPic(artist);
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				List<SkinMessage> artistListTemp = new ArrayList<SkinMessage>();
+				File[] files = artFile.listFiles();
+				if (files == null || files.length == 0) {
+				} else {
+					for (int i = 0; i < files.length; i++) {
+						if (files[i].getName().endsWith(".jpg")) {
+							SkinMessage skinMessage = new SkinMessage();
+							skinMessage.setPath(files[i].getPath());
+							skinMessage.type = SkinMessage.ART;
+							artistListTemp.add(skinMessage);
+						}
+					}
+				}
+				return artistListTemp;
+			}
+		}.execute();
+	}
+
+	/**
+	 * 加载网络图片
+	 * 
+	 * @param artist
+	 */
+	private void loadNetPic(final String artist) {
+		new AsyncTaskHandler() {
+
+			@Override
+			protected void onPostExecute(Object result) {
+				artistList = (List<SkinMessage>) result;
+				if (artistList.size() != 0) {
+					imageHandler.post(myRunnable);
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				return ArtistAlbumJson.getArtistAlbum(artist,
+						MainActivity.this, 4);
 			}
 		}.execute();
 	}

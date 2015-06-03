@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.happyplayer.async.AsyncTaskHandler;
@@ -276,7 +277,7 @@ public class ImageUtil {
 			// 你要存放的文件
 			File file = new File(fileName);
 			// file文件的上一层文件夹
-			File parentFile = new File(Constants.PATH_ALBUM + File.separator);
+			File parentFile = new File(file.getParent());
 			if (!parentFile.exists()) {
 				parentFile.mkdirs();
 			}
@@ -447,6 +448,129 @@ public class ImageUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
+		}
+		return bitmap;
+	}
+
+	/**
+	 * 加载图片
+	 * 
+	 * @param context
+	 * @param imageview
+	 * @param defResourceID
+	 *            默认的图片id
+	 * @param fileParentPath
+	 *            图片保存的文件夹
+	 * @param url
+	 */
+	public static void loadImage(final Context context, final View imageview,
+			final int defResourceID, final String fileParentPath,
+			final String url) {
+		final String filePath = fileParentPath + File.separator
+				+ url.hashCode() + ".jpg";
+		imageview.setBackgroundResource(defResourceID);
+		new AsyncTaskHandler() {
+
+			@Override
+			protected void onPostExecute(Object result) {
+				Bitmap bm = (Bitmap) result;
+				if (bm == null) {
+					imageview.setBackgroundResource(defResourceID);
+				} else {
+					imageview.setBackgroundDrawable(new BitmapDrawable(bm));
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				return ImageUtil.loadImage(context, filePath, url);
+			}
+		}.execute();
+	}
+
+	/**
+	 * 加载本地图片
+	 * 
+	 * @param context
+	 * @param imageview
+	 * @param defResourceID
+	 * @param filePath
+	 */
+	public static void loadLocalImage(final Context context,
+			final View imageview, final int defResourceID, final String filePath) {
+		imageview.setBackgroundResource(defResourceID);
+		new AsyncTaskHandler() {
+
+			@Override
+			protected void onPostExecute(Object result) {
+				Bitmap bm = (Bitmap) result;
+				if (bm == null) {
+					imageview.setBackgroundResource(defResourceID);
+				} else {
+					imageview.setBackgroundDrawable(new BitmapDrawable(bm));
+				}
+			}
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				return ImageUtil.loadLocalImage(context, filePath);
+			}
+		}.execute();
+	}
+
+	/**
+	 * 
+	 * @param context
+	 * @param filePath
+	 * @return
+	 */
+	private static Bitmap loadLocalImage(Context context, String filePath) {
+		// 判断内存中是否存在图片
+		Bitmap bitmap = null;
+		if (sImageCache.containsKey(filePath)) {
+			bitmap = sImageCache.get(filePath).get();
+		}
+		if (bitmap == null) {
+			// 判断内存卡里面是否存在图片
+			bitmap = getImageFormFile(filePath, context);
+		}
+
+		if (bitmap != null) {
+			sImageCache.put(filePath, new SoftReference<Bitmap>(bitmap));
+		}
+		return bitmap;
+	}
+
+	/**
+	 * 加载图片
+	 * 
+	 * @param context
+	 * @param filePath
+	 *            图片路径
+	 * @param url
+	 *            图片下载路径
+	 * @return
+	 */
+	private static Bitmap loadImage(Context context, String filePath, String url) {
+		// 判断内存中是否存在图片
+		Bitmap bitmap = null;
+		if (sImageCache.containsKey(url)) {
+			bitmap = sImageCache.get(url).get();
+		}
+		if (bitmap == null) {
+			// 判断内存卡里面是否存在图片
+			bitmap = getImageFormFile(filePath, context);
+		}
+		if (bitmap == null) {
+			// 网络下载图片
+			bitmap = getBitmap(url);
+			// 保存图片到内存卡和内存
+			if (bitmap != null) {
+				saveImage(bitmap, filePath);
+			}
+		}
+		if (bitmap != null) {
+			sImageCache.put(url, new SoftReference<Bitmap>(bitmap));
 		}
 		return bitmap;
 	}
