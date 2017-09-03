@@ -1,7 +1,4 @@
-最新版本，转 
-
- http://www.eoeandroid.com/forum.php?mod=viewthread&tid=917012&extra=page%3D1&_dsign=576de398
-
+重要信息：该版本不再维护，如需要可移步到新版本：https://github.com/zhangliangming/HappyPlayer5.git
 
 
 ﻿======================  2015-03-11 =====================
